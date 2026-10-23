@@ -1,0 +1,37 @@
+[
+  {
+    "id": "aa6107ca-ddc2-597f-a377-afc2915e1d38",
+    "path": "fixtures/sources/delivered-invoice.pdf",
+    "sha256": "d6616f4ae289b1eeacfeb82f1d98b4ae8053ae422c3176722ca739e456f41ff7",
+    "provenance": "synthetic",
+    "page_count": 1
+  },
+  {
+    "id": "d1f81ba5-4978-5acf-92a5-926b85a11eb5",
+    "path": "fixtures/sources/delivered-invoice.png",
+    "sha256": "e0aa88a38d3ce132ace98198921b496b8fd56b77a15653629a7a121aa61fd12b",
+    "provenance": "synthetic",
+    "page_count": 1
+  },
+  {
+    "id": "2f4e10cd-d832-56b6-b1c7-e99d664a5695",
+    "path": "fixtures/sources/quote-missing-delivery.txt",
+    "sha256": "2452e1701179de876591868eb2d1e68d3245ee0695eae4fd3cc5f899dd611283",
+    "provenance": "synthetic",
+    "page_count": null
+  },
+  {
+    "id": "babc1282-3ced-508d-bad9-f7dba08c5eb7",
+    "path": "fixtures/sources/quote-zh.txt",
+    "sha256": "6098be0b965cb44197e776ffc92ba89cf796b815d3ea1130bcdb1166e2ad0fa4",
+    "provenance": "synthetic",
+    "page_count": null
+  },
+  {
+    "id": "129a2efe-9558-5e1e-8457-8f24015ceddc",
+    "path": "fixtures/sources/stock-ms.txt",
+    "sha256": "15f082df5c2a04d74ce6a72cb3b9074add9053605ff91e8f29e137ad4f1f8fee",
+    "provenance": "synthetic",
+    "page_count": null
+  }
+]

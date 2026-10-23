@@ -1,0 +1,1 @@
+-- Synthetic application/Auth seeding is implemented by scripts/seed_demo.py in T09.

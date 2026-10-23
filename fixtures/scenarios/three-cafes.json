@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "provenance": "synthetic",
+  "id_namespace": "orbyte-fixture:",
+  "anchor": "2026-10-23T01:00:00Z",
+  "spec": {
+    "id": "ebe98cab-01e9-5103-88b2-6ddb90d82624",
+    "revision": 1,
+    "name": "250ml paper cup",
+    "base_unit": "piece",
+    "capacity_ml": "250",
+    "material": "paper",
+    "lid_diameter_mm": "80",
+    "pack_multiple": "100",
+    "perishable": false
+  },
+  "suppliers": [
+    {
+      "id": "345cd004-de39-552c-8d90-154b10686c25",
+      "name": "Supplier A"
+    },
+    {
+      "id": "c9f28526-1831-5120-9172-1e86dadb2e5c",
+      "name": "Supplier B"
+    }
+  ],
+  "businesses": [
+    {
+      "id": "a88ebe24-af50-532f-802b-a77ef5e94aaf",
+      "name": "Café A",
+      "owner_id": "8f685abb-3a30-5abd-a578-ec7cc016b668",
+      "locale": "en",
+      "zone": "sepang",
+      "threshold": "0.05",
+      "pool_opt_in": true,
+      "mapping_confirmed": true,
+      "need_id": "df450e66-ec35-5ba1-af8b-5416f9aac437",
+      "need_revision": 1,
+      "quantity": "1000",
+      "historical_unit_price": "0.30",
+      "historical_delivery_fee": "15.00",
+      "approval_cap": "276.00",
+      "opening_stock": "750",
+      "usage_per_day": "125",
+      "lead_days": "4",
+      "buffer_days": "2",
+      "storage_capacity": "4000"
+    },
+    {
+      "id": "0ffa24ad-cbf4-5afe-b902-da2303995158",
+      "name": "Café B",
+      "owner_id": "c8a06a2b-b1b2-5876-b6b7-e95ec2a512eb",
+      "locale": "ms",
+      "zone": "sepang",
+      "threshold": "0.05",
+      "pool_opt_in": true,
+      "mapping_confirmed": true,
+      "need_id": "f8760dd3-8430-59d1-a9f8-28a1c8b21221",
+      "need_revision": 1,
+      "quantity": "1000",
+      "historical_unit_price": "0.30",
+      "historical_delivery_fee": "15.00",
+      "approval_cap": "285.00",
+      "opening_stock": "750",
+      "usage_per_day": "125",
+      "lead_days": "4",
+      "buffer_days": "2",
+      "storage_capacity": "4000"
+    },
+    {
+      "id": "e181d894-8272-58ae-b9ae-64caba6f24fe",
+      "name": "Café C",
+      "owner_id": "03e99a36-c6ed-5134-8654-54024391d0de",
+      "locale": "zh",
+      "zone": "sepang",
+      "threshold": "0.05",
+      "pool_opt_in": true,
+      "mapping_confirmed": true,
+      "need_id": "69458cd1-8443-5e2f-9a11-17a0fd68a97b",
+      "need_revision": 1,
+      "quantity": "1000",
+      "historical_unit_price": "0.30",
+      "historical_delivery_fee": "15.00",
+      "approval_cap": "276.00",
+      "opening_stock": "750",
+      "usage_per_day": "125",
+      "lead_days": "4",
+      "buffer_days": "2",
+      "storage_capacity": "4000"
+    }
+  ],
+  "quotes": [
+    {
+      "id": "82e493df-7875-517b-9c63-1708c2e1ff65",
+      "business_id": "a88ebe24-af50-532f-802b-a77ef5e94aaf",
+      "supplier_id": "345cd004-de39-552c-8d90-154b10686c25",
+      "spec_id": "ebe98cab-01e9-5103-88b2-6ddb90d82624",
+      "revision": 1,
+      "currency": "MYR",
+      "base_unit": "piece",
+      "confirmed": true,
+      "offer_family": "08f6be5a-5d1c-5714-aa15-6f685884230a",
+      "pooled_buyers_permitted": false,
+      "tiers": [
+        {
+          "min_quantity": "1000",
+          "unit_price": "0.30"
+        }
+      ],
+      "tier_kind": "all_unit",
+      "per_business_moq": "1000",
+      "aggregate_moq": "1000",
+      "delivery_mode": "per_business",
+      "delivery_fee": "15.00",
+      "free_delivery_threshold": "1000.00",
+      "waive_split_drop_fees": false,
+      "credit_days": 30,
+      "tax_rate": "0",
+      "discount": "0.00",
+      "surcharge": "0.00",
+      "conditions": "Separate invoices and deliveries permitted; delivery RM15 per buyer."
+    },
+    {
+      "id": "892d73eb-3f54-583e-b0a8-dfd9305bacbb",
+      "business_id": "a88ebe24-af50-532f-802b-a77ef5e94aaf",
+      "supplier_id": "c9f28526-1831-5120-9172-1e86dadb2e5c",
+      "spec_id": "ebe98cab-01e9-5103-88b2-6ddb90d82624",
+      "revision": 1,
+      "currency": "MYR",
+      "base_unit": "piece",
+      "confirmed": true,
+      "offer_family": "47b5a9a7-9747-5cca-8b70-548ecdc71cb4",
+      "pooled_buyers_permitted": true,
+      "tiers": [
+        {
+          "min_quantity": "1000",
+          "unit_price": "0.30"
+        },
+        {
+          "min_quantity": "2000",
+          "unit_price": "0.27"
+        },
+        {
+          "min_quantity": "3000",
+          "unit_price": "0.24"
+        }
+      ],
+      "tier_kind": "all_unit",
+      "per_business_moq": "1000",
+      "aggregate_moq": "1000",
+      "delivery_mode": "per_business",
+      "delivery_fee": "15.00",
+      "free_delivery_threshold": "1000.00",
+      "waive_split_drop_fees": false,
+      "credit_days": 30,
+      "tax_rate": "0",
+      "discount": "0.00",
+      "surcharge": "0.00",
+      "conditions": "Separate invoices and deliveries permitted; delivery RM15 per buyer."
+    },
+    {
+      "id": "2eb52e8f-8240-5262-9492-75b186bc3317",
+      "business_id": "0ffa24ad-cbf4-5afe-b902-da2303995158",
+      "supplier_id": "345cd004-de39-552c-8d90-154b10686c25",
+      "spec_id": "ebe98cab-01e9-5103-88b2-6ddb90d82624",
+      "revision": 1,
+      "currency": "MYR",
+      "base_unit": "piece",
+      "confirmed": true,
+      "offer_family": "08f6be5a-5d1c-5714-aa15-6f685884230a",
+      "pooled_buyers_permitted": false,
+      "tiers": [
+        {
+          "min_quantity": "1000",
+          "unit_price": "0.30"
+        }
+      ],
+      "tier_kind": "all_unit",
+      "per_business_moq": "1000",
+      "aggregate_moq": "1000",
+      "delivery_mode": "per_business",
+      "delivery_fee": "15.00",
+      "free_delivery_threshold": "1000.00",
+      "waive_split_drop_fees": false,
+      "credit_days": 30,
+      "tax_rate": "0",
+      "discount": "0.00",
+      "surcharge": "0.00",
+      "conditions": "Separate invoices and deliveries permitted; delivery RM15 per buyer."
+    },
+    {
+      "id": "613a7b76-87c7-56e5-9766-3a5110bbe8ac",
+      "business_id": "0ffa24ad-cbf4-5afe-b902-da2303995158",
+      "supplier_id": "c9f28526-1831-5120-9172-1e86dadb2e5c",
+      "spec_id": "ebe98cab-01e9-5103-88b2-6ddb90d82624",
+      "revision": 1,
+      "currency": "MYR",
+      "base_unit": "piece",
+      "confirmed": true,
+      "offer_family": "47b5a9a7-9747-5cca-8b70-548ecdc71cb4",
+      "pooled_buyers_permitted": true,
+      "tiers": [
+        {
+          "min_quantity": "1000",
+          "unit_price": "0.30"
+        },
+        {
+          "min_quantity": "2000",
+          "unit_price": "0.27"
+        },
+        {
+          "min_quantity": "3000",
+          "unit_price": "0.24"
+        }
+      ],
+      "tier_kind": "all_unit",
+      "per_business_moq": "1000",
+      "aggregate_moq": "1000",
+      "delivery_mode": "per_business",
+      "delivery_fee": "15.00",
+      "free_delivery_threshold": "1000.00",
+      "waive_split_drop_fees": false,
+      "credit_days": 30,
+      "tax_rate": "0",
+      "discount": "0.00",
+      "surcharge": "0.00",
+      "conditions": "Separate invoices and deliveries permitted; delivery RM15 per buyer."
+    },
+    {
+      "id": "a821fde1-2318-5228-9c27-aa4b2d0cd037",
+      "business_id": "e181d894-8272-58ae-b9ae-64caba6f24fe",
+      "supplier_id": "345cd004-de39-552c-8d90-154b10686c25",
+      "spec_id": "ebe98cab-01e9-5103-88b2-6ddb90d82624",
+      "revision": 1,
+      "currency": "MYR",
+      "base_unit": "piece",
+      "confirmed": true,
+      "offer_family": "08f6be5a-5d1c-5714-aa15-6f685884230a",
+      "pooled_buyers_permitted": false,
+      "tiers": [
+        {
+          "min_quantity": "1000",
+          "unit_price": "0.30"
+        }
+      ],
+      "tier_kind": "all_unit",
+      "per_business_moq": "1000",
+      "aggregate_moq": "1000",
+      "delivery_mode": "per_business",
+      "delivery_fee": "15.00",
+      "free_delivery_threshold": "1000.00",
+      "waive_split_drop_fees": false,
+      "credit_days": 30,
+      "tax_rate": "0",
+      "discount": "0.00",
+      "surcharge": "0.00",
+      "conditions": "Separate invoices and deliveries permitted; delivery RM15 per buyer."
+    },
+    {
+      "id": "56da50e3-8313-5209-87d2-4bd137531c10",
+      "business_id": "e181d894-8272-58ae-b9ae-64caba6f24fe",
+      "supplier_id": "c9f28526-1831-5120-9172-1e86dadb2e5c",
+      "spec_id": "ebe98cab-01e9-5103-88b2-6ddb90d82624",
+      "revision": 1,
+      "currency": "MYR",
+      "base_unit": "piece",
+      "confirmed": true,
+      "offer_family": "47b5a9a7-9747-5cca-8b70-548ecdc71cb4",
+      "pooled_buyers_permitted": true,
+      "tiers": [
+        {
+          "min_quantity": "1000",
+          "unit_price": "0.30"
+        },
+        {
+          "min_quantity": "2000",
+          "unit_price": "0.27"
+        },
+        {
+          "min_quantity": "3000",
+          "unit_price": "0.24"
+        }
+      ],
+      "tier_kind": "all_unit",
+      "per_business_moq": "1000",
+      "aggregate_moq": "1000",
+      "delivery_mode": "per_business",
+      "delivery_fee": "15.00",
+      "free_delivery_threshold": "1000.00",
+      "waive_split_drop_fees": false,
+      "credit_days": 30,
+      "tax_rate": "0",
+      "discount": "0.00",
+      "surcharge": "0.00",
+      "conditions": "Separate invoices and deliveries permitted; delivery RM15 per buyer."
+    }
+  ],
+  "windows": {
+    "order_start_hours": 0,
+    "order_end_hours": 24,
+    "arrival_start_hours": 96,
+    "arrival_end_hours": 120,
+    "quote_expiry_hours": 48,
+    "approval_expiry_hours": 12
+  },
+  "invalid_cases": [
+    {
+      "name": "unconfirmed-spec",
+      "change": {
+        "mapping_confirmed": false
+      },
+      "expected": "UNCONFIRMED_SPEC"
+    },
+    {
+      "name": "different-zone",
+      "change": {
+        "zone": "kl"
+      },
+      "expected": "NO_COMMON_ZONE"
+    },
+    {
+      "name": "no-window-overlap",
+      "change": {
+        "arrival_start_hours": 144
+      },
+      "expected": "NO_WINDOW_OVERLAP"
+    },
+    {
+      "name": "broken-pack",
+      "change": {
+        "quantity": "1050"
+      },
+      "expected": "INVALID_PACK_MULTIPLE"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "provenance": "synthetic",
+  "quoted_delivery": "0.00",
+  "accepted_observed_fee": "15.00",
+  "comparable_invoice_count": 3,
+  "accepted": true,
+  "goods": "300.00",
+  "expected": {
+    "agreed": "300.00",
+    "expected": "315.00",
+    "decision": "315.00",
+    "invoice_new_fee_variance": "15.00"
+  }
+}

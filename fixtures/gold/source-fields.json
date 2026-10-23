@@ -1,0 +1,137 @@
+{
+  "provenance": "authored synthetic source truth; not model output",
+  "delivered-invoice": {
+    "document_number": "DEMO-B-001",
+    "invoice_date": "2026-10-23",
+    "currency": "MYR",
+    "quantity": "1000",
+    "unit_price": "0.275",
+    "line_total": "275.00",
+    "delivery_fee": "15.00",
+    "tax": "0.00",
+    "total": "290.00",
+    "page_dimensions": [
+      1000,
+      1400
+    ],
+    "bbox_normalized": {
+      "label": [
+        60,
+        56,
+        511,
+        67
+      ],
+      "supplier": [
+        400,
+        106,
+        512,
+        122
+      ],
+      "buyer": [
+        400,
+        157,
+        471,
+        170
+      ],
+      "document_number": [
+        400,
+        210,
+        540,
+        221
+      ],
+      "invoice_date": [
+        400,
+        261,
+        526,
+        273
+      ],
+      "currency": [
+        400,
+        313,
+        449,
+        324
+      ],
+      "lines.0.description": [
+        400,
+        364,
+        784,
+        379
+      ],
+      "lines.0.quantity": [
+        400,
+        415,
+        531,
+        431
+      ],
+      "lines.0.unit_price": [
+        400,
+        467,
+        461,
+        479
+      ],
+      "lines.0.total": [
+        400,
+        519,
+        475,
+        530
+      ],
+      "delivery_fee": [
+        400,
+        570,
+        461,
+        581
+      ],
+      "tax": [
+        400,
+        621,
+        447,
+        633
+      ],
+      "total": [
+        400,
+        673,
+        475,
+        684
+      ],
+      "credit_days": [
+        400,
+        724,
+        484,
+        739
+      ]
+    }
+  },
+  "quote-missing-delivery": {
+    "delivery_fee": null,
+    "tax_rate": null,
+    "reason": "missing"
+  },
+  "stock-ms": {
+    "quantity": "750",
+    "base_unit": "piece",
+    "usage_per_day": "125",
+    "observed_date": "2026-10-23",
+    "source_language": "ms"
+  },
+  "quote-zh": {
+    "tiers": [
+      [
+        "1000",
+        "0.30"
+      ],
+      [
+        "2000",
+        "0.27"
+      ],
+      [
+        "3000",
+        "0.24"
+      ]
+    ],
+    "delivery_fee": "15.00",
+    "credit_days": 30,
+    "pooled_buyers_permitted": true,
+    "valid_until_date": "2026-10-25",
+    "source_language": "zh"
+  }
+}
