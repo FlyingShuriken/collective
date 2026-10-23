@@ -588,6 +588,150 @@
         "title": "DiscoveryResult",
         "type": "object"
       },
+      "DraftPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/DraftView"
+                },
+                {
+                  "$ref": "#/components/schemas/HiddenDraft"
+                }
+              ]
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "DraftPage",
+        "type": "object"
+      },
+      "DraftView": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_hash": {
+            "title": "Approved Hash",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "rfq",
+              "invoice_query"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "recipient": {
+            "title": "Recipient",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "sent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent At"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "sent_simulated"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "text_content": {
+            "title": "Text Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "revision",
+          "created_at",
+          "text_content",
+          "recipient",
+          "approved_hash",
+          "sent_at"
+        ],
+        "title": "DraftView",
+        "type": "object"
+      },
+      "EditDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "recipient": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Recipient",
+            "type": "string"
+          },
+          "text_content": {
+            "maxLength": 16000,
+            "minLength": 1,
+            "title": "Text Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "text_content",
+          "recipient"
+        ],
+        "title": "EditDraft",
+        "type": "object"
+      },
       "ErrorResponse": {
         "additionalProperties": false,
         "properties": {
@@ -960,6 +1104,57 @@
           "revision"
         ],
         "title": "HiddenApproval",
+        "type": "object"
+      },
+      "HiddenDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "rfq",
+              "invoice_query"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "sent_simulated"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "revision",
+          "created_at"
+        ],
+        "title": "HiddenDraft",
         "type": "object"
       },
       "HiddenLedgerEntry": {
@@ -1688,6 +1883,51 @@
           "can_view_prices"
         ],
         "title": "Membership",
+        "type": "object"
+      },
+      "MessageReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "draft_id": {
+            "format": "uuid",
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "draft_revision": {
+            "minimum": 1.0,
+            "title": "Draft Revision",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "receipt_id": {
+            "format": "uuid",
+            "title": "Receipt Id",
+            "type": "string"
+          },
+          "simulated": {
+            "const": true,
+            "default": true,
+            "title": "Simulated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "receipt_id",
+          "draft_id",
+          "draft_revision",
+          "created_at"
+        ],
+        "title": "MessageReceipt",
         "type": "object"
       },
       "Mutation": {
@@ -2661,6 +2901,34 @@
         "title": "SelectNeed",
         "type": "object"
       },
+      "SendDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Approved Hash",
+            "type": "string"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "recipient": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Recipient",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "approved_hash",
+          "recipient"
+        ],
+        "title": "SendDraft",
+        "type": "object"
+      },
       "SoloExecution": {
         "additionalProperties": false,
         "properties": {
@@ -3471,6 +3739,305 @@
         "summary": "Approval",
         "tags": [
           "approvals"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/drafts": {
+      "get": {
+        "operationId": "listing_v1_businesses__business_id__drafts_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Listing",
+        "tags": [
+          "drafts"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/drafts/{draft_id}": {
+      "get": {
+        "operationId": "draft_v1_businesses__business_id__drafts__draft_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Draft Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/DraftView"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HiddenDraft"
+                    }
+                  ],
+                  "title": "Response Draft V1 Businesses  Business Id  Drafts  Draft Id  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Draft",
+        "tags": [
+          "drafts"
+        ]
+      },
+      "patch": {
+        "operationId": "edit_v1_businesses__business_id__drafts__draft_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Draft Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Edit",
+        "tags": [
+          "drafts"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/drafts/{draft_id}/send": {
+      "post": {
+        "operationId": "send_v1_businesses__business_id__drafts__draft_id__send_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Draft Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageReceipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Send",
+        "tags": [
+          "drafts"
         ]
       }
     },

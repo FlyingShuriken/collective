@@ -7,6 +7,7 @@ from pydantic.json_schema import models_json_schema
 
 from collective.api.approval_routes import router as approval_router
 from collective.api.auth import DatabaseDependency, JWTVerifier
+from collective.api.draft_routes import router as draft_router
 from collective.api.dto import PUBLIC_MODELS, HealthResponse
 from collective.api.errors import DomainError, install_error_handlers
 from collective.api.event_routes import router as event_router
@@ -59,6 +60,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(event_router)
     app.include_router(job_router)
     app.include_router(source_router)
+    app.include_router(draft_router)
 
     @app.middleware("http")
     async def private_responses(request: Request, call_next):

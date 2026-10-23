@@ -21,6 +21,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listing */
+        get: operations["listing_v1_businesses__business_id__drafts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/drafts/{draft_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Draft */
+        get: operations["draft_v1_businesses__business_id__drafts__draft_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit */
+        patch: operations["edit_v1_businesses__business_id__drafts__draft_id__patch"];
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/drafts/{draft_id}/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send */
+        post: operations["send_v1_businesses__business_id__drafts__draft_id__send_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/businesses/{business_id}/events": {
         parameters: {
             query?: never;
@@ -696,6 +748,61 @@ export interface components {
              */
             state: "found" | "unavailable";
         };
+        /** DraftPage */
+        DraftPage: {
+            /** Items */
+            items: (components["schemas"]["DraftView"] | components["schemas"]["HiddenDraft"])[];
+            /** Next Cursor */
+            next_cursor?: string | null;
+        };
+        /** DraftView */
+        DraftView: {
+            /** Approved Hash */
+            approved_hash: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "rfq" | "invoice_query";
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /** Recipient */
+            recipient: string;
+            /** Revision */
+            revision: number;
+            /** Sent At */
+            sent_at: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "sent_simulated";
+            /** Text Content */
+            text_content: string;
+        };
+        /** EditDraft */
+        EditDraft: {
+            /** Expected Revision */
+            expected_revision: number;
+            /** Recipient */
+            recipient: string;
+            /** Text Content */
+            text_content: string;
+        };
         /** ErrorResponse */
         ErrorResponse: {
             /** Code */
@@ -841,6 +948,37 @@ export interface components {
              * @enum {string}
              */
             state: "valid" | "void" | "expired" | "withdrawn" | "released";
+        };
+        /** HiddenDraft */
+        HiddenDraft: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "rfq" | "invoice_query";
+            /**
+             * Price Visibility
+             * @default hidden
+             * @constant
+             */
+            price_visibility: "hidden";
+            /** Revision */
+            revision: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "sent_simulated";
         };
         /** HiddenLedgerEntry */
         HiddenLedgerEntry: {
@@ -1164,6 +1302,37 @@ export interface components {
              * @enum {string}
              */
             role: "owner" | "staff";
+        };
+        /** MessageReceipt */
+        MessageReceipt: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Draft Id
+             * Format: uuid
+             */
+            draft_id: string;
+            /** Draft Revision */
+            draft_revision: number;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Receipt Id
+             * Format: uuid
+             */
+            receipt_id: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
         };
         /** Mutation */
         Mutation: {
@@ -1521,6 +1690,15 @@ export interface components {
             /** Quantity */
             quantity: string;
         };
+        /** SendDraft */
+        SendDraft: {
+            /** Approved Hash */
+            approved_hash: string;
+            /** Expected Revision */
+            expected_revision: number;
+            /** Recipient */
+            recipient: string;
+        };
         /** SoloExecution */
         SoloExecution: {
             /**
@@ -1861,6 +2039,148 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApprovalCommandResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listing_v1_businesses__business_id__drafts_get: {
+        parameters: {
+            query?: {
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    draft_v1_businesses__business_id__drafts__draft_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                draft_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftView"] | components["schemas"]["HiddenDraft"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_v1_businesses__business_id__drafts__draft_id__patch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                draft_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditDraft"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_v1_businesses__business_id__drafts__draft_id__send_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                draft_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendDraft"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageReceipt"];
                 };
             };
             /** @description Validation Error */

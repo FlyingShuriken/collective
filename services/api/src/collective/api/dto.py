@@ -445,4 +445,58 @@ class DiscoveryResult(Snapshot):
     failure_codes: tuple[str, ...] = ()
 
 
+class DraftSummary(Snapshot):
+    id: UUID
+    kind: Literal["rfq", "invoice_query"]
+    status: Literal["draft", "sent_simulated"]
+    revision: Revision
+    created_at: Instant
+
+
+class HiddenDraft(DraftSummary):
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class DraftView(DraftSummary):
+    price_visibility: Literal["visible"] = "visible"
+    text_content: str
+    recipient: str
+    approved_hash: str
+    sent_at: Instant | None
+
+
+class DraftPage(Snapshot):
+    items: tuple[DraftView | HiddenDraft, ...]
+    next_cursor: UUID | None = None
+
+
+class EditDraft(Snapshot):
+    expected_revision: Revision
+    text_content: str = Field(min_length=1, max_length=16000)
+    recipient: str = Field(min_length=1, max_length=300)
+
+    @model_validator(mode="after")
+    def readable(self) -> Self:
+        if any(
+            not value.strip() or "\x00" in value for value in (self.text_content, self.recipient)
+        ):
+            raise ValueError("Use readable message text and recipient")
+        return self
+
+
+class SendDraft(Snapshot):
+    expected_revision: Revision
+    approved_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    recipient: str = Field(min_length=1, max_length=300)
+
+
+class MessageReceipt(Snapshot):
+    id: UUID
+    receipt_id: UUID
+    draft_id: UUID
+    draft_revision: Revision
+    created_at: Instant
+    simulated: Literal[True] = True
+
+
 PUBLIC_MODELS = (HealthResponse, ErrorResponse, Evidence, Identity, Mutation, PoolOffer)

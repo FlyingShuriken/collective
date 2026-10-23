@@ -12,6 +12,7 @@ dependencies = [
   "pillow==13.0.0",
   "pypdfium2==5.14.0",
   "python-multipart==0.0.32",
+  "google-genai==2.33.0",
 ]
 
 [dependency-groups]
