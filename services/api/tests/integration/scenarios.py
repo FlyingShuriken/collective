@@ -8,7 +8,7 @@ from tests.fixtures import scenario
 from tests.integration.conftest import local_test_url
 
 
-async def clone_business_data(access_seed, letters, *, pool_opt_in):
+async def clone_business_data(access_seed, letters, *, pool_opt_in, include_history=True):
     def original(value):
         return uuid5(NAMESPACE_URL, f"orbyte-run:{access_seed['run']}:{UUID(str(value))}")
 
@@ -52,6 +52,8 @@ async def clone_business_data(access_seed, letters, *, pool_opt_in):
         remap = {row["id"]: uuid4() for rows in records.values() for row in rows if "id" in row}
         sealed = []
         for table, rows in records.items():
+            if not include_history and table in {"purchases", "purchase_lines"}:
+                continue
             for row in rows:
                 values = {
                     key: remap.get(value, value) if isinstance(value, UUID) else value

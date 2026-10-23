@@ -33,7 +33,7 @@ from collective.repositories.quotes import confirmed_quotes
 async def load_need(
     connection: AsyncConnection, business: UUID, need_id: UUID, *, lock=False
 ) -> dict:
-    query = """select n.*,b.pool_opt_in,s.name,sr.perishable,
+    query = """select n.*,b.pool_opt_in,s.name,sr.perishable,a.approval_id,a.approval_state,
         coalesce(m.confirmed and m.spec_id=n.spec_id and m.spec_revision=n.spec_revision
           and not exists(select 1 from collective.sku_mappings newer
             where newer.business_id=m.business_id and newer.supplier_id=m.supplier_id
@@ -44,6 +44,9 @@ async def load_need(
         join collective.spec_revisions sr on (sr.spec_id,sr.revision)=(n.spec_id,n.spec_revision)
         left join collective.sku_mappings m
           on (m.business_id,m.id,m.revision)=(n.business_id,n.mapping_id,n.mapping_revision)
+        left join lateral(select id as approval_id,state as approval_state
+          from collective.bound_approvals where business_id=n.business_id and need_id=n.id
+          order by approved_at desc,id desc limit 1) a on true
         where n.business_id=%s and n.id=%s"""
     if lock:
         query += " for update of n"
@@ -65,7 +68,10 @@ def snapshot(row: dict) -> NeedSnapshot:
 def view(row: dict) -> NeedView:
     need = snapshot(row)
     return NeedView(
-        **{k: getattr(need, k) for k in NeedView.model_fields if k != "name"}, name=row["name"]
+        **{k: getattr(need, k) for k in NeedView.model_fields if k in NeedSnapshot.model_fields},
+        name=row["name"],
+        approval_id=row.get("approval_id"),
+        approval_state=row.get("approval_state"),
     )
 
 

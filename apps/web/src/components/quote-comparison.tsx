@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { PoolOffer } from "@/components/pool-offer";
+import { BoundApproval } from "@/components/bound-approval";
+import { SimulatedPO } from "@/components/simulated-po";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiRequest } from "@/lib/api/client";
@@ -34,6 +36,7 @@ export function QuoteComparison({
   const [options, setOptions] = useState<Options | null>(null);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [solo, setSolo] = useState<components["schemas"]["OfferComparison"] | null>(null);
   const path = `/v1/businesses/${need.business_id}/needs/${need.id}` as const;
 
   useEffect(() => {
@@ -168,6 +171,9 @@ export function QuoteComparison({
                       {offer.conditions}
                     </p>
                   )}
+                  {owner && need.state === "selected" && !need.reserved_pool_id && need.approval_state !== "valid" && !offer.failure_codes.length && (
+                    <Button className="mt-4" variant="outline" onClick={() => setSolo(offer)}>{text.reviewSolo}</Button>
+                  )}
                 </section>
               ))}
             </div>
@@ -245,6 +251,10 @@ export function QuoteComparison({
               ))}
             </section>
           )}
+        {owner && need.state === "selected" && !need.reserved_pool_id && (solo || need.approval_id) && (
+          <BoundApproval need={need} quote={solo} locale={locale} onChanged={(result) => onSelected(result.need)} />
+        )}
+        <SimulatedPO need={need} owner={owner} locale={locale} onChanged={(result) => onSelected(result.need)} />
         <PoolOffer
           need={need}
           locale={locale}

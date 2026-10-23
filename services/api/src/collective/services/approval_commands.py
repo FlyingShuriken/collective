@@ -1,23 +1,22 @@
 from uuid import uuid4
 
-from psycopg.types.json import Jsonb
-
 from collective.api.dto import ApprovalCommandResult, ApproveOrder
 from collective.api.errors import DomainError
 from collective.domain.approvals import ApprovalError, bind_approval
 from collective.repositories import pools
-from collective.repositories.db import set_context
-from collective.repositories.events import Event, append_event
+from collective.repositories.approvals import insert_binding
 from collective.repositories.mutations import previous_mutation, save_mutation
-from collective.services import needs
+from collective.services import needs, solo
 from collective.services.pool_commands import latest_bindings, lock_pool, recalculate
 
 
 async def approve(connection, subject, business, request: ApproveOrder, key, clock):
+    if request.pool_id is None:
+        return await solo.approve(connection, subject, business, request, key, clock)
     pool, own = await lock_pool(connection, subject, business, request.pool_id)
     if own["id"] != request.need_id:
         raise DomainError("NOT_FOUND", "Resource not found.", 404)
-    payload, route = request.model_dump(mode="json"), "approvals"
+    payload, route = request.model_dump(mode="json", exclude_none=True), "approvals"
     old = await previous_mutation(connection, subject, business, route, key, payload)
     if old:
         return ApprovalCommandResult.model_validate(old)
@@ -61,47 +60,13 @@ async def approve(connection, subject, business, request: ApproveOrder, key, clo
             )
         except ApprovalError as exc:
             raise DomainError(exc.code, "Review the cap, offer and approval expiry.") from exc
-        await set_context(connection, "tenant", subject)
-        await connection.execute(
-            """insert into collective.bound_approvals
-            (id,business_id,need_id,owner_id,pool_id,terms,cap,expires_at,approved_at,
-             evaluation_revision,quote_id,quote_revision,state)
-            values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'valid')""",
-            (
-                binding.id,
-                business,
-                own["id"],
-                subject,
-                pool["id"],
-                Jsonb(binding.terms.model_dump(mode="json")),
-                binding.cap,
-                binding.expires_at,
-                binding.approved_at,
-                binding.evaluation_revision,
-                binding.quote_id,
-                binding.quote_revision,
-            ),
-        )
-        await append_event(
-            connection,
-            Event(
-                business_id=business,
-                actor_id=subject,
-                actor_kind="owner",
-                event_type="approval_bound",
-                entity_id=binding.id,
-                entity_revision=1,
-                correlation_id=pool["id"],
-                summary="Owner bound their cap and expiry to the reviewed purchasing terms.",
-            ),
-        )
-        await set_context(connection, "coordinator", subject)
+        await insert_binding(connection, binding, pool["id"])
         await recalculate(connection, pool, as_of, force=True)
         offer = await pools.own_offer(connection, business, pool["id"], as_of)
         result = ApprovalCommandResult(
             status="approved",
             offer=offer,
-            need=needs.view(own),
+            need=needs.view(await needs.load_need(connection, business, own["id"])),
             approval_id=binding.id,
             failure_codes=offer.failure_codes,
         )

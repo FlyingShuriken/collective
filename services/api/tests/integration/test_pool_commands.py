@@ -269,7 +269,7 @@ async def test_racing_approvals_need_one_fresh_review(api, cohort, auth_headers)
 async def test_failed_audit_rolls_back_binding_and_shared_state(
     api, cohort, auth_headers, monkeypatch
 ):
-    from collective.services import approval_commands
+    from collective.repositories import approvals
 
     client, database = api
     pool = await discovery(client, cohort, auth_headers)
@@ -277,7 +277,7 @@ async def test_failed_audit_rolls_back_binding_and_shared_state(
     async def fail(*args):
         raise RuntimeError("injected audit failure")
 
-    monkeypatch.setattr(approval_commands, "append_event", fail)
+    monkeypatch.setattr(approvals, "append_event", fail)
     with pytest.raises(RuntimeError, match="injected audit failure"):
         await approve(client, cohort, auth_headers, pool, "a", "276.00")
     assert (await current(client, cohort, auth_headers, pool, "a"))["evaluation_revision"] == 1
@@ -290,29 +290,33 @@ async def test_failed_audit_rolls_back_binding_and_shared_state(
         assert count["n"] == 0
 
 
+async def write_quote(conn, cohort, fields):
+    await conn.execute(
+        """insert into collective.quote_revisions select
+        (jsonb_populate_record(null::collective.quote_revisions,to_jsonb(q)||%s)).*
+        from collective.quote_revisions q where business_id=%s and id=%s and revision=1""",
+        (
+            Jsonb(fields | {"sealed": False}),
+            business(cohort, "a"),
+            cohort(fixture_id("quote-a-b")),
+        ),
+    )
+    await conn.execute(
+        """insert into collective.quote_tiers
+        select business_id,quote_id,%s,min_quantity,unit_price from collective.quote_tiers
+        where business_id=%s and quote_id=%s and quote_revision=1""",
+        (fields["revision"], business(cohort, "a"), cohort(fixture_id("quote-a-b"))),
+    )
+    await conn.execute(
+        """update collective.quote_revisions set sealed=true
+        where business_id=%s and revision=%s""",
+        (business(cohort, "a"), fields["revision"]),
+    )
+
+
 async def revise_quote(cohort, fields):
     async with await AsyncConnection.connect(local_test_url("MIGRATION_DATABASE_URL")) as conn:
-        await conn.execute(
-            """insert into collective.quote_revisions select
-            (jsonb_populate_record(null::collective.quote_revisions,to_jsonb(q)||%s)).*
-            from collective.quote_revisions q where business_id=%s and id=%s and revision=1""",
-            (
-                Jsonb(fields | {"sealed": False}),
-                business(cohort, "a"),
-                cohort(fixture_id("quote-a-b")),
-            ),
-        )
-        await conn.execute(
-            """insert into collective.quote_tiers
-            select business_id,quote_id,%s,min_quantity,unit_price from collective.quote_tiers
-            where business_id=%s and quote_id=%s and quote_revision=1""",
-            (fields["revision"], business(cohort, "a"), cohort(fixture_id("quote-a-b"))),
-        )
-        await conn.execute(
-            """update collective.quote_revisions set sealed=true
-            where business_id=%s and revision=%s""",
-            (business(cohort, "a"), fields["revision"]),
-        )
+        await write_quote(conn, cohort, fields)
 
 
 async def test_missing_terms_withhold_prices_and_restoring_them_cannot_revive_consent(

@@ -8,9 +8,11 @@ from collective.api.approval_routes import router as approval_router
 from collective.api.auth import DatabaseDependency, JWTVerifier
 from collective.api.dto import PUBLIC_MODELS, HealthResponse
 from collective.api.errors import DomainError, install_error_handlers
+from collective.api.event_routes import router as event_router
 from collective.api.hub_routes import router as hub_router
 from collective.api.ledger_routes import router as ledger_router
 from collective.api.need_routes import router as need_router
+from collective.api.order_routes import router as order_router
 from collective.api.pool_routes import router as pool_router
 from collective.repositories.db import Database
 from collective.settings import Settings
@@ -41,6 +43,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(need_router)
     app.include_router(pool_router)
     app.include_router(approval_router)
+    app.include_router(order_router)
+    app.include_router(event_router)
 
     @app.middleware("http")
     async def private_responses(request: Request, call_next):

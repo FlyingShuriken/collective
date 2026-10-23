@@ -1,6 +1,96 @@
 {
   "components": {
     "schemas": {
+      "ActivityEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_kind": {
+            "enum": [
+              "owner",
+              "staff",
+              "system"
+            ],
+            "title": "Actor Kind",
+            "type": "string"
+          },
+          "entity_id": {
+            "format": "uuid",
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "entity_revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Revision"
+          },
+          "event_type": {
+            "title": "Event Type",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "event_type",
+          "entity_id",
+          "entity_revision",
+          "actor_kind",
+          "occurred_at",
+          "summary"
+        ],
+        "title": "ActivityEvent",
+        "type": "object"
+      },
+      "ActivityPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityEvent"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "ActivityPage",
+        "type": "object"
+      },
       "ApprovalCommandResult": {
         "additionalProperties": false,
         "properties": {
@@ -34,6 +124,9 @@
               },
               {
                 "$ref": "#/components/schemas/UnavailablePoolOffer"
+              },
+              {
+                "type": "null"
               }
             ],
             "title": "Offer"
@@ -52,8 +145,7 @@
         },
         "required": [
           "status",
-          "need",
-          "offer"
+          "need"
         ],
         "title": "ApprovalCommandResult",
         "type": "object"
@@ -71,6 +163,18 @@
             "title": "Expected Evaluation Revision",
             "type": "integer"
           },
+          "expected_quote_revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Quote Revision"
+          },
           "expires_at": {
             "format": "date-time",
             "title": "Expires At",
@@ -82,9 +186,40 @@
             "type": "string"
           },
           "pool_id": {
-            "format": "uuid",
-            "title": "Pool Id",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pool Id"
+          },
+          "quote_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Id"
+          },
+          "reviewed_decision_cost": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed Decision Cost"
           }
         },
         "required": [
@@ -1054,6 +1189,73 @@
         "title": "HiddenPoolOffer",
         "type": "object"
       },
+      "HiddenPurchaseOrder": {
+        "additionalProperties": false,
+        "properties": {
+          "approval_id": {
+            "format": "uuid",
+            "title": "Approval Id",
+            "type": "string"
+          },
+          "base_unit": {
+            "enum": [
+              "piece",
+              "ml",
+              "g"
+            ],
+            "title": "Base Unit",
+            "type": "string"
+          },
+          "business_id": {
+            "format": "uuid",
+            "title": "Business Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "implementation": {
+            "const": "simulated",
+            "default": "simulated",
+            "title": "Implementation",
+            "type": "string"
+          },
+          "issued_at": {
+            "format": "date-time",
+            "title": "Issued At",
+            "type": "string"
+          },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Quantity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "business_id",
+          "need_id",
+          "approval_id",
+          "quantity",
+          "base_unit",
+          "issued_at"
+        ],
+        "title": "HiddenPurchaseOrder",
+        "type": "object"
+      },
       "HubIdentity": {
         "additionalProperties": false,
         "properties": {
@@ -1419,6 +1621,36 @@
       "NeedView": {
         "additionalProperties": false,
         "properties": {
+          "approval_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Id"
+          },
+          "approval_state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "valid",
+                  "void",
+                  "expired",
+                  "withdrawn",
+                  "released"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval State"
+          },
           "arrival_window": {
             "$ref": "#/components/schemas/TimeWindow"
           },
@@ -1955,6 +2187,62 @@
         "title": "QuantityOption",
         "type": "object"
       },
+      "ReleaseResult": {
+        "additionalProperties": false,
+        "properties": {
+          "failure_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "need": {
+            "$ref": "#/components/schemas/NeedView"
+          },
+          "offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PoolOffer"
+              },
+              {
+                "$ref": "#/components/schemas/UnavailablePoolOffer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VisiblePurchaseOrder"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "released",
+              "ready",
+              "awaiting_approvals",
+              "ineligible"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "need"
+        ],
+        "title": "ReleaseResult",
+        "type": "object"
+      },
       "ReplenishmentResult": {
         "additionalProperties": false,
         "properties": {
@@ -2072,6 +2360,27 @@
           "quantity"
         ],
         "title": "SelectNeed",
+        "type": "object"
+      },
+      "SoloExecution": {
+        "additionalProperties": false,
+        "properties": {
+          "approval_id": {
+            "format": "uuid",
+            "title": "Approval Id",
+            "type": "string"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "approval_id"
+        ],
+        "title": "SoloExecution",
         "type": "object"
       },
       "TimeWindow": {
@@ -2461,6 +2770,104 @@
         ],
         "title": "VisibleLedgerEntry",
         "type": "object"
+      },
+      "VisiblePurchaseOrder": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "approval_id": {
+            "format": "uuid",
+            "title": "Approval Id",
+            "type": "string"
+          },
+          "base_unit": {
+            "enum": [
+              "piece",
+              "ml",
+              "g"
+            ],
+            "title": "Base Unit",
+            "type": "string"
+          },
+          "business_id": {
+            "format": "uuid",
+            "title": "Business Id",
+            "type": "string"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/CostBreakdown"
+          },
+          "decision_amount": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Decision Amount",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "implementation": {
+            "const": "simulated",
+            "default": "simulated",
+            "title": "Implementation",
+            "type": "string"
+          },
+          "issued_at": {
+            "format": "date-time",
+            "title": "Issued At",
+            "type": "string"
+          },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          },
+          "supplier_name": {
+            "title": "Supplier Name",
+            "type": "string"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/BoundTerms"
+          }
+        },
+        "required": [
+          "id",
+          "business_id",
+          "need_id",
+          "approval_id",
+          "quantity",
+          "base_unit",
+          "issued_at",
+          "supplier_id",
+          "supplier_name",
+          "amount",
+          "decision_amount",
+          "terms",
+          "cost"
+        ],
+        "title": "VisiblePurchaseOrder",
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -2542,6 +2949,83 @@
         "summary": "Approval",
         "tags": [
           "approvals"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/events": {
+      "get": {
+        "operationId": "events_v1_businesses__business_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Events",
+        "tags": [
+          "activity"
         ]
       }
     },
@@ -2916,6 +3400,151 @@
         ]
       }
     },
+    "/v1/businesses/{business_id}/needs/{need_id}/order": {
+      "get": {
+        "operationId": "order_v1_businesses__business_id__needs__need_id__order_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "need_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Need Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/VisiblePurchaseOrder"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HiddenPurchaseOrder"
+                    }
+                  ],
+                  "title": "Response Order V1 Businesses  Business Id  Needs  Need Id  Order Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Order",
+        "tags": [
+          "orders"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/needs/{need_id}/release": {
+      "post": {
+        "operationId": "solo_release_v1_businesses__business_id__needs__need_id__release_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "need_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Need Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SoloExecution"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReleaseResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Solo Release",
+        "tags": [
+          "orders"
+        ]
+      }
+    },
     "/v1/businesses/{business_id}/needs/{need_id}/select": {
       "post": {
         "operationId": "select_v1_businesses__business_id__needs__need_id__select_post",
@@ -2992,6 +3621,85 @@
         "summary": "Select",
         "tags": [
           "needs"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/needs/{need_id}/withdraw": {
+      "post": {
+        "operationId": "solo_withdraw_v1_businesses__business_id__needs__need_id__withdraw_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "need_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Need Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SoloExecution"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalCommandResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Solo Withdraw",
+        "tags": [
+          "approvals"
         ]
       }
     },
@@ -3209,6 +3917,85 @@
         "summary": "Reevaluate",
         "tags": [
           "pools"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/pools/{pool_id}/release": {
+      "post": {
+        "operationId": "release_v1_businesses__business_id__pools__pool_id__release_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "pool_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pool Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mutation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReleaseResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Release",
+        "tags": [
+          "orders"
         ]
       }
     },

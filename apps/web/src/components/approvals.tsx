@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { QuoteComparison } from "@/components/quote-comparison";
+import { ActivityList } from "@/components/activity-list";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
@@ -19,6 +20,7 @@ export function Approvals({ locale }: { locale: Locale }) {
   const [page, setPage] = useState<NeedPage | null>(null);
   const [cursor, setCursor] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [activityRevision, setActivityRevision] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -131,7 +133,8 @@ export function Approvals({ locale }: { locale: Locale }) {
           need={need}
           locale={locale}
           owner={membership?.role === "owner"}
-          onSelected={(selected) =>
+          onSelected={(selected) => {
+            setActivityRevision((value) => value + 1);
             setPage((current) =>
               current
                 ? {
@@ -141,8 +144,8 @@ export function Approvals({ locale }: { locale: Locale }) {
                     ),
                   }
                 : null,
-            )
-          }
+            );
+          }}
         />
       ))}
       {page?.next_cursor && (
@@ -156,6 +159,7 @@ export function Approvals({ locale }: { locale: Locale }) {
           {text.nextPage}
         </Button>
       )}
+      {business && <ActivityList key={`${business}:${activityRevision}`} business={business} locale={locale} />}
     </main>
   );
 }

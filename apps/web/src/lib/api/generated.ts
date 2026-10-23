@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Events */
+        get: operations["events_v1_businesses__business_id__events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/businesses/{business_id}/ledger": {
         parameters: {
             query?: never;
@@ -106,6 +123,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/needs/{need_id}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Order */
+        get: operations["order_v1_businesses__business_id__needs__need_id__order_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/needs/{need_id}/release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Solo Release */
+        post: operations["solo_release_v1_businesses__business_id__needs__need_id__release_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/businesses/{business_id}/needs/{need_id}/select": {
         parameters: {
             query?: never;
@@ -117,6 +168,23 @@ export interface paths {
         put?: never;
         /** Select */
         post: operations["select_v1_businesses__business_id__needs__need_id__select_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/needs/{need_id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Solo Withdraw */
+        post: operations["solo_withdraw_v1_businesses__business_id__needs__need_id__withdraw_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -168,6 +236,23 @@ export interface paths {
         put?: never;
         /** Reevaluate */
         post: operations["reevaluate_v1_businesses__business_id__pools__pool_id__reevaluate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/pools/{pool_id}/release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Release */
+        post: operations["release_v1_businesses__business_id__pools__pool_id__release_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -331,6 +416,42 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActivityEvent */
+        ActivityEvent: {
+            /**
+             * Actor Kind
+             * @enum {string}
+             */
+            actor_kind: "owner" | "staff" | "system";
+            /**
+             * Entity Id
+             * Format: uuid
+             */
+            entity_id: string;
+            /** Entity Revision */
+            entity_revision: number | null;
+            /** Event Type */
+            event_type: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Summary */
+            summary: string;
+        };
+        /** ActivityPage */
+        ActivityPage: {
+            /** Items */
+            items: components["schemas"]["ActivityEvent"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
         /** ApprovalCommandResult */
         ApprovalCommandResult: {
             /** Approval Id */
@@ -342,7 +463,7 @@ export interface components {
             failure_codes: string[];
             need: components["schemas"]["NeedView"];
             /** Offer */
-            offer: components["schemas"]["PoolOffer"] | components["schemas"]["UnavailablePoolOffer"];
+            offer?: components["schemas"]["PoolOffer"] | components["schemas"]["UnavailablePoolOffer"] | null;
             /**
              * Status
              * @enum {string}
@@ -355,6 +476,8 @@ export interface components {
             cap: string;
             /** Expected Evaluation Revision */
             expected_evaluation_revision: number;
+            /** Expected Quote Revision */
+            expected_quote_revision?: number | null;
             /**
              * Expires At
              * Format: date-time
@@ -365,11 +488,12 @@ export interface components {
              * Format: uuid
              */
             need_id: string;
-            /**
-             * Pool Id
-             * Format: uuid
-             */
-            pool_id: string;
+            /** Pool Id */
+            pool_id: string | null;
+            /** Quote Id */
+            quote_id?: string | null;
+            /** Reviewed Decision Cost */
+            reviewed_decision_cost?: string | null;
         };
         /** BoundTerms */
         BoundTerms: {
@@ -739,6 +863,53 @@ export interface components {
              */
             release_state: "waiting_for_approvals" | "ready" | "released" | "ineligible";
         };
+        /** HiddenPurchaseOrder */
+        HiddenPurchaseOrder: {
+            /**
+             * Approval Id
+             * Format: uuid
+             */
+            approval_id: string;
+            /**
+             * Base Unit
+             * @enum {string}
+             */
+            base_unit: "piece" | "ml" | "g";
+            /**
+             * Business Id
+             * Format: uuid
+             */
+            business_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Implementation
+             * @default simulated
+             * @constant
+             */
+            implementation: "simulated";
+            /**
+             * Issued At
+             * Format: date-time
+             */
+            issued_at: string;
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+            /**
+             * Price Visibility
+             * @default hidden
+             * @constant
+             */
+            price_visibility: "hidden";
+            /** Quantity */
+            quantity: string;
+        };
         /** HubIdentity */
         HubIdentity: {
             /**
@@ -880,6 +1051,10 @@ export interface components {
         };
         /** NeedView */
         NeedView: {
+            /** Approval Id */
+            approval_id?: string | null;
+            /** Approval State */
+            approval_state?: ("valid" | "void" | "expired" | "withdrawn" | "released") | null;
             arrival_window: components["schemas"]["TimeWindow"];
             /**
              * Base Unit
@@ -1103,6 +1278,23 @@ export interface components {
             /** Saving Vs Repeat Orders */
             saving_vs_repeat_orders: string;
         };
+        /** ReleaseResult */
+        ReleaseResult: {
+            /**
+             * Failure Codes
+             * @default []
+             */
+            failure_codes: string[];
+            need: components["schemas"]["NeedView"];
+            /** Offer */
+            offer?: components["schemas"]["PoolOffer"] | components["schemas"]["UnavailablePoolOffer"] | null;
+            order?: components["schemas"]["VisiblePurchaseOrder"] | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "released" | "ready" | "awaiting_approvals" | "ineligible";
+        };
         /** ReplenishmentResult */
         ReplenishmentResult: {
             /** Daily Rate */
@@ -1131,6 +1323,16 @@ export interface components {
             expected_revision: number;
             /** Quantity */
             quantity: string;
+        };
+        /** SoloExecution */
+        SoloExecution: {
+            /**
+             * Approval Id
+             * Format: uuid
+             */
+            approval_id: string;
+            /** Expected Revision */
+            expected_revision: number;
         };
         /** TimeWindow */
         TimeWindow: {
@@ -1302,6 +1504,66 @@ export interface components {
             /** Total */
             total: string | null;
         };
+        /** VisiblePurchaseOrder */
+        VisiblePurchaseOrder: {
+            /** Amount */
+            amount: string;
+            /**
+             * Approval Id
+             * Format: uuid
+             */
+            approval_id: string;
+            /**
+             * Base Unit
+             * @enum {string}
+             */
+            base_unit: "piece" | "ml" | "g";
+            /**
+             * Business Id
+             * Format: uuid
+             */
+            business_id: string;
+            cost: components["schemas"]["CostBreakdown"];
+            /** Decision Amount */
+            decision_amount: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Implementation
+             * @default simulated
+             * @constant
+             */
+            implementation: "simulated";
+            /**
+             * Issued At
+             * Format: date-time
+             */
+            issued_at: string;
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /** Quantity */
+            quantity: string;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Supplier Name */
+            supplier_name: string;
+            terms: components["schemas"]["BoundTerms"];
+        };
     };
     responses: never;
     parameters: never;
@@ -1335,6 +1597,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApprovalCommandResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    events_v1_businesses__business_id__events_get: {
+        parameters: {
+            query?: {
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityPage"];
                 };
             };
             /** @description Validation Error */
@@ -1518,6 +1814,76 @@ export interface operations {
             };
         };
     };
+    order_v1_businesses__business_id__needs__need_id__order_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                need_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VisiblePurchaseOrder"] | components["schemas"]["HiddenPurchaseOrder"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    solo_release_v1_businesses__business_id__needs__need_id__release_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                need_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SoloExecution"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReleaseResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     select_v1_businesses__business_id__needs__need_id__select_post: {
         parameters: {
             query?: never;
@@ -1543,6 +1909,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NeedView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    solo_withdraw_v1_businesses__business_id__needs__need_id__withdraw_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                need_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SoloExecution"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalCommandResult"];
                 };
             };
             /** @description Validation Error */
@@ -1650,6 +2054,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApprovalCommandResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    release_v1_businesses__business_id__pools__pool_id__release_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                pool_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Mutation"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReleaseResult"];
                 };
             };
             /** @description Validation Error */

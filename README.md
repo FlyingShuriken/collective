@@ -20,7 +20,7 @@ Start these in separate terminals from the repository root:
 
 ```sh
 pnpm dev
-uv run --project services/api uvicorn collective.main:create_app --factory --app-dir services/api/src --port 8000
+uv run --project services/api uvicorn collective.main:create_app --factory --reload --reload-dir services/api/src --port 8000 --no-access-log
 ```
 
 Web: <http://localhost:3000>. API health: <http://localhost:8000/v1/health>.
@@ -34,7 +34,10 @@ uv run --project services/api python scripts/seed_demo.py --scenario three-cafes
 
 The seed prints the ignored local credential-file path. Sign in at
 <http://127.0.0.1:3000/en/sign-in> using one of those accounts. Public signup is disabled.
-The workspace link opens persisted need/quote comparisons and pool discovery at `/en/approvals`.
+The workspace link opens persisted comparisons, solo/pool approval, withdrawal, simulated
+order creation and activity at `/en/approvals`. Each owner approves their own cap and expiry;
+ready pools create no order until an approved owner explicitly executes the release.
+Orders are simulated outputs and are never sent to suppliers.
 Repeated seeding preserves the existing run; use a new `--run` after its order window expires.
 
 Run `scripts/setup_local.py` again after a local database reset, before starting the API:
@@ -51,7 +54,15 @@ pnpm contracts:check
 pnpm fixtures:check
 uv run --project services/api pytest services/api/tests/integration -q
 pnpm auth:check # Requires the running local web/API and the default demo seed.
+pnpm exec playwright install chromium
+pnpm exec playwright test tests/e2e/preliminary-flow.spec.ts
 ```
+
+The [Playwright runner](https://playwright.dev/docs/test-cli) starts missing local API/web
+servers, or reuses running ones. Restart an API without reload after source changes.
+Each browser test seeds a new isolated synthetic run; credentials stay under ignored
+`.cache/`. Login traces are disabled because they would record those credentials. Browser
+screenshots and failure output stay under ignored `test-results/`.
 
 The development roadmap is in `docs/plans/`. Actual task evidence and outstanding
 work are recorded in `docs/plans/development-progress.md`. The complete purchasing

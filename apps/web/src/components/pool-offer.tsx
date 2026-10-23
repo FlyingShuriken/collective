@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { BoundApproval } from "@/components/bound-approval";
+import { SimulatedPO } from "@/components/simulated-po";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
@@ -77,8 +78,8 @@ export function PoolOffer({
     }
   }
 
-  function changed(result: Result) {
-    setOffer(result.offer);
+  function changed(result: Pick<Result, "need" | "offer">) {
+    setOffer(result.offer ?? null);
     onReserved(result.need);
   }
 
@@ -99,7 +100,7 @@ export function PoolOffer({
 
   if (
     !need.reserved_pool_id &&
-    (!owner || need.state !== "selected" || !need.pool_opt_in)
+    (!owner || need.state !== "selected" || !need.pool_opt_in || need.approval_state === "valid")
   )
     return null;
   const date = (value: string) =>
@@ -193,7 +194,10 @@ export function PoolOffer({
             </>
           ) : <p>{text.unavailableQuote}</p>}
           {owner && offer.price_visibility !== "hidden" && (
-            <BoundApproval business={need.business_id} offer={offer} locale={locale} onChanged={changed} />
+            <BoundApproval need={need} offer={offer} locale={locale} onChanged={changed} />
+          )}
+          {offer.price_visibility !== "hidden" && offer.release_state === "ready" && (
+            <SimulatedPO need={need} offer={offer} owner={owner} locale={locale} onChanged={changed} />
           )}
           {offer.release_state !== "released" && (
             <p className="text-sm text-muted-foreground">{text.poolNoOrder}</p>

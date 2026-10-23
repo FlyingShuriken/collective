@@ -152,6 +152,8 @@ class NeedView(Snapshot):
     reserved_pool_id: UUID | None
     order_window: TimeWindow
     arrival_window: TimeWindow
+    approval_id: UUID | None = None
+    approval_state: Literal["valid", "void", "expired", "withdrawn", "released"] | None = None
 
 
 class HiddenNeedData(Snapshot):
@@ -276,18 +278,79 @@ class UnavailablePoolOffer(PoolSummary):
 
 class ApproveOrder(Snapshot):
     need_id: UUID
-    pool_id: UUID
+    pool_id: UUID | None
     cap: Money
     expires_at: Instant
     expected_evaluation_revision: Revision
+    quote_id: UUID | None = None
+    expected_quote_revision: Revision | None = None
+    reviewed_decision_cost: Money | None = None
+
+    @model_validator(mode="after")
+    def solo_review(self) -> Self:
+        solo_fields = (self.quote_id, self.expected_quote_revision, self.reviewed_decision_cost)
+        if self.pool_id is None and any(value is None for value in solo_fields):
+            raise ValueError("Solo approval requires the reviewed quote and decision cost")
+        if self.pool_id is not None and any(value is not None for value in solo_fields):
+            raise ValueError("A pool approval uses its authoritative member evaluation")
+        return self
+
+
+class SoloExecution(Mutation):
+    approval_id: UUID
 
 
 class ApprovalCommandResult(Snapshot):
     status: Literal["approved", "withdrawn", "refresh_required", "ineligible", "recalculated"]
     need: NeedView
-    offer: PoolOffer | UnavailablePoolOffer
+    offer: PoolOffer | UnavailablePoolOffer | None = None
     approval_id: UUID | None = None
     failure_codes: tuple[str, ...] = ()
+
+
+class HiddenPurchaseOrder(Snapshot):
+    id: UUID
+    business_id: UUID
+    need_id: UUID
+    approval_id: UUID
+    quantity: Positive
+    base_unit: BaseUnit
+    issued_at: Instant
+    implementation: Literal["simulated"] = "simulated"
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class VisiblePurchaseOrder(HiddenPurchaseOrder):
+    price_visibility: Literal["visible"] = "visible"
+    supplier_id: UUID
+    supplier_name: str
+    amount: Money
+    decision_amount: Money
+    terms: BoundTerms
+    cost: CostBreakdown
+
+
+class ReleaseResult(Snapshot):
+    state: Literal["released", "ready", "awaiting_approvals", "ineligible"]
+    need: NeedView
+    offer: PoolOffer | UnavailablePoolOffer | None = None
+    order: VisiblePurchaseOrder | None = None
+    failure_codes: tuple[str, ...] = ()
+
+
+class ActivityEvent(Snapshot):
+    id: UUID
+    event_type: str
+    entity_id: UUID
+    entity_revision: Revision | None
+    actor_kind: Literal["owner", "staff", "system"]
+    occurred_at: Instant
+    summary: str
+
+
+class ActivityPage(Snapshot):
+    items: tuple[ActivityEvent, ...]
+    next_cursor: UUID | None
 
 
 class DiscoverPool(Mutation):

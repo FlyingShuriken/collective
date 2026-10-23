@@ -148,6 +148,8 @@ def evaluate_pool(
             failures.append("POOLING_NOT_PERMITTED")
         if as_of >= order_end:
             failures.append("ORDER_WINDOW_EXPIRED")
+        if as_of < order_start:
+            failures.append("ORDER_WINDOW_NOT_OPEN")
         if need.quantity % need.pack_multiple:
             failures.append("INVALID_PACK_MULTIPLE")
         context = DeliveryContext(
@@ -202,6 +204,59 @@ def evaluate_pool(
         aggregate_quantity=aggregate,
         members=tuple(evaluations),
         failure_codes=tuple(group_failures),
+    )
+
+
+def evaluate_solo(member: MemberSnapshot, as_of: datetime) -> MemberEvaluation:
+    need, quote = member.need, member.quote
+    failures = []
+    if not need.mapping_confirmed:
+        failures.append("UNCONFIRMED_SPEC")
+    if need.state != "selected" or need.reserved_pool_id is not None:
+        failures.append("NEED_COMMITTED")
+    if not comparable_quote(need, quote):
+        failures.append("INCOMPARABLE_QUOTE")
+    if not need.order_window.start <= as_of < need.order_window.end:
+        failures.append(
+            "ORDER_WINDOW_EXPIRED" if as_of >= need.order_window.end else "ORDER_WINDOW_NOT_OPEN"
+        )
+    if need.quantity % need.pack_multiple:
+        failures.append("INVALID_PACK_MULTIPLE")
+    start = max(need.arrival_window.start, quote.delivery_window.start)
+    end = min(need.arrival_window.end, quote.delivery_window.end)
+    window = TimeWindow(start=start, end=end) if start < end else None
+    if window is None:
+        failures.append("NO_WINDOW_OVERLAP")
+    cost = calculate_cost(
+        need.quantity,
+        quote,
+        DeliveryContext(
+            aggregate_quantity=need.quantity,
+            member_count=1,
+            as_of=as_of,
+            collection_location=need.delivery_location,
+            collection_shares=(quote.delivery_fee,) if quote.delivery_fee is not None else (),
+            own_collection_share=quote.delivery_fee,
+        ),
+        applicable_fee_rule(quote, member.fee_rules),
+    )
+    history = historical_cost(need, member.history)
+    solo = solo_cost(need, member.solo_quotes, as_of, member.fee_rules)
+    total = solo.decision_cost if solo else None
+    return MemberEvaluation(
+        need=need,
+        quote=quote,
+        cost=cost,
+        historical_comparable_cost=history,
+        current_solo_comparable_cost=total,
+        historical_saving=history - cost.decision_cost
+        if history is not None and cost.decision_cost is not None
+        else None,
+        pooling_saving=total - cost.decision_cost
+        if total is not None and cost.decision_cost is not None
+        else None,
+        delivery_window=window,
+        failure_codes=tuple(dict.fromkeys((*failures, *cost.failure_codes))),
     )
 
 

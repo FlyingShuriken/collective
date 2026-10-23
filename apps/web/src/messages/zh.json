@@ -90,5 +90,20 @@
   "approveOrder": "授权这些条款",
   "approveAgain": "重新授权",
   "approvalInvalid": "上限必须涵盖决策成本。到期时间必须晚于现在且不迟于报价截止时间。",
-  "withdrawPool": "拒绝／退出拼单"
+  "withdrawPool": "拒绝／退出拼单",
+  "soloReview": "单独采购审核",
+  "reviewSolo": "审核单独采购",
+  "withdrawSolo": "撤回单独采购授权",
+  "simulatedPO": "模拟采购订单",
+  "simulationExplanation": "仅为演示输出，不会向供应商发送订单。",
+  "createPoolPOs": "创建模拟采购订单",
+  "createSoloPO": "创建模拟采购订单",
+  "orderReference": "订单编号",
+  "issuedAt": "签发时间",
+  "issuedUnitPrice": "签发单价",
+  "issuedTier": "所用价格档位最低数量",
+  "retry": "重试",
+  "activity": "活动记录",
+  "noActivity": "暂无活动记录。",
+  "refreshActivity": "刷新活动记录"
 }

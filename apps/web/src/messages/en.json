@@ -90,5 +90,20 @@
   "approveOrder": "Approve these terms",
   "approveAgain": "Give fresh approval",
   "approvalInvalid": "The cap must cover the decision cost. Expiry must be after now and no later than the offer deadline.",
-  "withdrawPool": "Decline / withdraw from pool"
+  "withdrawPool": "Decline / withdraw from pool",
+  "soloReview": "Solo order review",
+  "reviewSolo": "Review solo order",
+  "withdrawSolo": "Withdraw solo approval",
+  "simulatedPO": "Simulated purchase order",
+  "simulationExplanation": "Demo output only. No order is sent to a supplier.",
+  "createPoolPOs": "Create simulated POs",
+  "createSoloPO": "Create simulated PO",
+  "orderReference": "Order reference",
+  "issuedAt": "Issued",
+  "issuedUnitPrice": "Issued unit price",
+  "issuedTier": "Issued tier minimum",
+  "retry": "Try again",
+  "activity": "Activity",
+  "noActivity": "No activity yet.",
+  "refreshActivity": "Refresh activity"
 }
