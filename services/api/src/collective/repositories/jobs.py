@@ -18,13 +18,22 @@ class NotDue(Exception):
         self.due = due
 
 
-async def enqueue(connection, *, business, kind, revision, key, payload, due):
+async def enqueue(connection, *, business, kind, revision, key, payload, due, waiting_review=False):
     row = await (
         await connection.execute(
             """insert into collective.jobs
-        (id,business_id,kind,input_revision,dedup_key,payload,next_attempt_at)
-        values (%s,%s,%s,%s,%s,%s,%s) on conflict(dedup_key) do nothing returning *""",
-            (uuid4(), business, kind, revision, key, Jsonb(payload), due),
+        (id,business_id,kind,input_revision,dedup_key,payload,next_attempt_at,status)
+        values (%s,%s,%s,%s,%s,%s,%s,%s) on conflict(dedup_key) do nothing returning *""",
+            (
+                uuid4(),
+                business,
+                kind,
+                revision,
+                key,
+                Jsonb(payload),
+                due,
+                "waiting_review" if waiting_review else "queued",
+            ),
         )
     ).fetchone()
     if row is None:

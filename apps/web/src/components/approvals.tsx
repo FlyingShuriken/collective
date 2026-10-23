@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { QuoteComparison } from "@/components/quote-comparison";
 import { ActivityList } from "@/components/activity-list";
+import { SourceUpload } from "@/components/source-upload";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
@@ -125,6 +126,7 @@ export function Approvals({ locale }: { locale: Locale }) {
       )}
       {!identity && !error && <p role="status">{text.loading}</p>}
       {identity && !identity.memberships.length && <p>{text.noMembership}</p>}
+      {business && membership && <SourceUpload key={business} business={business} locale={locale} onChanged={() => setActivityRevision((value) => value + 1)} />}
       {business && !page && !error && <p role="status">{text.loading}</p>}
       {page?.items.length === 0 && <p>{text.noNeeds}</p>}
       {page?.items.map((need) => (

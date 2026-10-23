@@ -293,6 +293,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listing */
+        get: operations["listing_v1_businesses__business_id__sources_get"];
+        put?: never;
+        /** Upload */
+        post: operations["upload_v1_businesses__business_id__sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/sources/{source_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Source */
+        get: operations["source_v1_businesses__business_id__sources__source_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/sources/{source_id}/prepare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Prepare */
+        post: operations["prepare_v1_businesses__business_id__sources__source_id__prepare_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/sources/{source_id}/view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** View */
+        get: operations["view_v1_businesses__business_id__sources__source_id__view_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/health": {
         parameters: {
             query?: never;
@@ -927,6 +996,43 @@ export interface components {
             /** Quantity */
             quantity: string;
         };
+        /** HiddenSource */
+        HiddenSource: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "image" | "pdf" | "text" | "supplier_reply";
+            /** Mime Type */
+            mime_type: string | null;
+            /** Page Count */
+            page_count: number | null;
+            /** Preparation Status */
+            preparation_status: ("pending_review" | "ready") | null;
+            /**
+             * Price Visibility
+             * @default hidden
+             * @constant
+             */
+            price_visibility: "hidden";
+            /** Size Bytes */
+            size_bytes: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "uploading" | "available" | "failed";
+        };
         /** HubIdentity */
         HubIdentity: {
             /**
@@ -1016,7 +1122,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "queued" | "running" | "succeeded" | "failed";
+            status: "waiting_review" | "queued" | "running" | "succeeded" | "failed";
         };
         /** LedgerPage */
         LedgerPage: {
@@ -1024,6 +1130,18 @@ export interface components {
             items: (components["schemas"]["VisibleLedgerEntry"] | components["schemas"]["HiddenLedgerEntry"])[];
             /** Next Cursor */
             next_cursor: string | null;
+        };
+        /** MaskRegion */
+        MaskRegion: {
+            /** Bbox */
+            bbox: [
+                number,
+                number,
+                number,
+                number
+            ];
+            /** Page */
+            page: number;
         };
         /** Membership */
         Membership: {
@@ -1313,6 +1431,26 @@ export interface components {
             /** @default null */
             terms: components["schemas"]["BoundTerms"] | null;
         };
+        /** PrepareSource */
+        PrepareSource: {
+            /**
+             * Regions
+             * @default []
+             */
+            regions: components["schemas"]["MaskRegion"][];
+            /**
+             * Reviewed
+             * @constant
+             */
+            reviewed: true;
+            /**
+             * Sensitive Text
+             * @default []
+             */
+            sensitive_text: string[];
+            /** Source Sha256 */
+            source_sha256: string;
+        };
         /** QuantityOption */
         QuantityOption: {
             /** Assumptions */
@@ -1392,6 +1530,32 @@ export interface components {
             approval_id: string;
             /** Expected Revision */
             expected_revision: number;
+        };
+        /** SourcePage */
+        SourcePage: {
+            /** Height */
+            height: number;
+            /** Page */
+            page: number;
+            /** Transformations */
+            transformations: {
+                [key: string]: unknown;
+            };
+            /** Width */
+            width: number;
+        };
+        /** SourcePageList */
+        SourcePageList: {
+            /** Items */
+            items: (components["schemas"]["VisibleSource"] | components["schemas"]["HiddenSource"])[];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** SourceResult */
+        SourceResult: {
+            job: components["schemas"]["JobStatus"] | null;
+            /** Source */
+            source: components["schemas"]["VisibleSource"] | components["schemas"]["HiddenSource"];
         };
         /** TimeWindow */
         TimeWindow: {
@@ -1622,6 +1786,47 @@ export interface components {
             /** Supplier Name */
             supplier_name: string;
             terms: components["schemas"]["BoundTerms"];
+        };
+        /** VisibleSource */
+        VisibleSource: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "image" | "pdf" | "text" | "supplier_reply";
+            /** Mime Type */
+            mime_type: string | null;
+            /** Page Count */
+            page_count: number | null;
+            /** Pages */
+            pages: components["schemas"]["SourcePage"][];
+            /** Preparation Status */
+            preparation_status: ("pending_review" | "ready") | null;
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /** Sha256 */
+            sha256: string | null;
+            /** Size Bytes */
+            size_bytes: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "uploading" | "available" | "failed";
         };
     };
     responses: never;
@@ -2223,6 +2428,187 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApprovalCommandResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listing_v1_businesses__business_id__sources_get: {
+        parameters: {
+            query?: {
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourcePageList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_v1_businesses__business_id__sources_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file?: string;
+                    text?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    source_v1_businesses__business_id__sources__source_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    prepare_v1_businesses__business_id__sources__source_id__prepare_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrepareSource"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    view_v1_businesses__business_id__sources__source_id__view_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                variant?: "page" | "original" | "provider";
+                bbox?: number[] | null;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

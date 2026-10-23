@@ -81,6 +81,14 @@ Jobs have five-minute leases and at most three processing attempts. Expired leas
 be reclaimed; stale workers cannot commit outputs. Results, state and audit events commit
 together. Model/source handlers are added in their later roadmap stages.
 
+The Sources section accepts private PNG/JPEG/PDF files up to 10 MB and 10 pages,
+or UTF-8 text up to 16,000 characters. It saves normalized pages and provides actual
+source crops. Review sensitive values or draw image/PDF masks, then explicitly prepare
+the provider copy. Originals stay separate; restricted staff cannot fetch price-bearing
+sources. Preparation queues extraction but does not confirm a record. Model extraction
+is still pending T16–T17. The synthetic demo does not establish automatic masking or
+retention suitability for arbitrary real invoices.
+
 The development roadmap is in `docs/plans/`. Actual task evidence and outstanding
 work are recorded in `docs/plans/development-progress.md`. The complete purchasing
 workflow is still under development; application features are added in roadmap order.

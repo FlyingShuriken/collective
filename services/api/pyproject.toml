@@ -9,6 +9,9 @@ dependencies = [
   "psycopg[binary,pool]",
   "pyjwt[crypto]>=2.15.1",
   "httpx>=0.28.1",
+  "pillow==13.0.0",
+  "pypdfium2==5.14.0",
+  "python-multipart==0.0.32",
 ]
 
 [dependency-groups]
@@ -17,7 +20,6 @@ dev = [
     "pytest-asyncio",
     "httpx",
     "ruff",
-    "pillow>=13.0.0",
 ]
 
 [build-system]

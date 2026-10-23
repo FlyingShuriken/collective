@@ -49,7 +49,7 @@ async function forward(request: NextRequest, context: RouteContext<"/api/[...pat
       headers,
       cache: "no-store",
       redirect: "manual",
-      signal: AbortSignal.timeout(35_000),
+      signal: AbortSignal.timeout(path.includes("sources") ? 120_000 : 35_000),
     };
     if (!["GET", "HEAD"].includes(request.method)) {
       options.body = request.body;
@@ -64,6 +64,8 @@ async function forward(request: NextRequest, context: RouteContext<"/api/[...pat
       headers: {
         "Content-Type": upstream.headers.get("content-type") ?? "application/json",
         "Cache-Control": "private, no-store",
+        "X-Content-Type-Options": "nosniff",
+        ...(upstream.headers.has("content-disposition") ? { "Content-Disposition": upstream.headers.get("content-disposition")! } : {}),
       },
     });
   } catch {

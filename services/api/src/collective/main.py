@@ -16,6 +16,7 @@ from collective.api.ledger_routes import router as ledger_router
 from collective.api.need_routes import router as need_router
 from collective.api.order_routes import router as order_router
 from collective.api.pool_routes import router as pool_router
+from collective.api.source_routes import router as source_router
 from collective.jobs.runner import Runner
 from collective.repositories.db import Database
 from collective.settings import Settings
@@ -46,6 +47,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="Orbyte Collective", version="0.1.0", lifespan=lifespan)
     app.state.settings = settings
     app.state.database = None
+    app.state.source_slots = asyncio.Semaphore(1)
     app.state.verifier = JWTVerifier(settings) if settings.supabase_url else None
     install_error_handlers(app)
     app.include_router(hub_router)
@@ -56,6 +58,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(order_router)
     app.include_router(event_router)
     app.include_router(job_router)
+    app.include_router(source_router)
 
     @app.middleware("http")
     async def private_responses(request: Request, call_next):

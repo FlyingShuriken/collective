@@ -360,7 +360,7 @@ class DiscoverPool(Mutation):
 class JobStatus(Snapshot):
     id: UUID
     kind: str
-    status: Literal["queued", "running", "succeeded", "failed"]
+    status: Literal["waiting_review", "queued", "running", "succeeded", "failed"]
     input_revision: Revision | None
     attempts: int = Field(strict=True, ge=0)
     created_at: Instant
@@ -373,6 +373,69 @@ class JobStatus(Snapshot):
 class JobPage(Snapshot):
     items: tuple[JobStatus, ...]
     next_cursor: UUID | None
+
+
+class SourcePage(Snapshot):
+    page: int = Field(strict=True, ge=1, le=10)
+    width: int = Field(strict=True, ge=64)
+    height: int = Field(strict=True, ge=64)
+    transformations: dict
+
+
+class SourceSummary(Snapshot):
+    id: UUID
+    kind: Literal["image", "pdf", "text", "supplier_reply"]
+    status: Literal["uploading", "available", "failed"]
+    mime_type: str | None
+    size_bytes: int | None
+    page_count: int | None
+    created_at: Instant
+    preparation_status: Literal["pending_review", "ready"] | None
+
+
+class HiddenSource(SourceSummary):
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class VisibleSource(SourceSummary):
+    price_visibility: Literal["visible"] = "visible"
+    sha256: str | None
+    pages: tuple[SourcePage, ...]
+
+
+class SourcePageList(Snapshot):
+    items: tuple[VisibleSource | HiddenSource, ...]
+    next_cursor: UUID | None
+
+
+class SourceResult(Snapshot):
+    source: VisibleSource | HiddenSource
+    job: JobStatus | None
+
+
+class MaskRegion(Snapshot):
+    page: int = Field(strict=True, ge=1, le=10)
+    bbox: tuple[int, int, int, int]
+
+    @model_validator(mode="after")
+    def valid_box(self) -> Self:
+        left, top, right, bottom = self.bbox
+        if not 0 <= left < right <= 1000 or not 0 <= top < bottom <= 1000:
+            raise ValueError("Invalid normalized mask bounds")
+        return self
+
+
+class PrepareSource(Snapshot):
+    source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    regions: tuple[MaskRegion, ...] = Field(default=(), max_length=100)
+    sensitive_text: tuple[str, ...] = Field(default=(), max_length=20)
+    reviewed: Literal[True]
+
+    @model_validator(mode="after")
+    def sensitive_values(self) -> Self:
+        if any(not value.strip() or len(value) > 200 for value in self.sensitive_text):
+            raise ValueError("Sensitive values must be nonempty and at most 200 characters")
+        return self
 
 
 class DiscoveryResult(Snapshot):

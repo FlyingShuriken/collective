@@ -1256,6 +1256,106 @@
         "title": "HiddenPurchaseOrder",
         "type": "object"
       },
+      "HiddenSource": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "image",
+              "pdf",
+              "text",
+              "supplier_reply"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "mime_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mime Type"
+          },
+          "page_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Count"
+          },
+          "preparation_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pending_review",
+                  "ready"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preparation Status"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "size_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Bytes"
+          },
+          "status": {
+            "enum": [
+              "uploading",
+              "available",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "mime_type",
+          "size_bytes",
+          "page_count",
+          "created_at",
+          "preparation_status"
+        ],
+        "title": "HiddenSource",
+        "type": "object"
+      },
       "HubIdentity": {
         "additionalProperties": false,
         "properties": {
@@ -1447,6 +1547,7 @@
           },
           "status": {
             "enum": [
+              "waiting_review",
               "queued",
               "running",
               "succeeded",
@@ -1506,6 +1607,43 @@
           "next_cursor"
         ],
         "title": "LedgerPage",
+        "type": "object"
+      },
+      "MaskRegion": {
+        "additionalProperties": false,
+        "properties": {
+          "bbox": {
+            "maxItems": 4,
+            "minItems": 4,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Bbox",
+            "type": "array"
+          },
+          "page": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Page",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page",
+          "bbox"
+        ],
+        "title": "MaskRegion",
         "type": "object"
       },
       "Membership": {
@@ -2239,6 +2377,45 @@
         "title": "PoolOffer",
         "type": "object"
       },
+      "PrepareSource": {
+        "additionalProperties": false,
+        "properties": {
+          "regions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/MaskRegion"
+            },
+            "maxItems": 100,
+            "title": "Regions",
+            "type": "array"
+          },
+          "reviewed": {
+            "const": true,
+            "title": "Reviewed",
+            "type": "boolean"
+          },
+          "sensitive_text": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Sensitive Text",
+            "type": "array"
+          },
+          "source_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Source Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_sha256",
+          "reviewed"
+        ],
+        "title": "PrepareSource",
+        "type": "object"
+      },
       "QuantityOption": {
         "additionalProperties": false,
         "properties": {
@@ -2503,6 +2680,109 @@
           "approval_id"
         ],
         "title": "SoloExecution",
+        "type": "object"
+      },
+      "SourcePage": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "minimum": 64.0,
+            "title": "Height",
+            "type": "integer"
+          },
+          "page": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Page",
+            "type": "integer"
+          },
+          "transformations": {
+            "additionalProperties": true,
+            "title": "Transformations",
+            "type": "object"
+          },
+          "width": {
+            "minimum": 64.0,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page",
+          "width",
+          "height",
+          "transformations"
+        ],
+        "title": "SourcePage",
+        "type": "object"
+      },
+      "SourcePageList": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/VisibleSource"
+                },
+                {
+                  "$ref": "#/components/schemas/HiddenSource"
+                }
+              ]
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "SourcePageList",
+        "type": "object"
+      },
+      "SourceResult": {
+        "additionalProperties": false,
+        "properties": {
+          "job": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VisibleSource"
+              },
+              {
+                "$ref": "#/components/schemas/HiddenSource"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "source",
+          "job"
+        ],
+        "title": "SourceResult",
         "type": "object"
       },
       "TimeWindow": {
@@ -2989,6 +3269,126 @@
           "cost"
         ],
         "title": "VisiblePurchaseOrder",
+        "type": "object"
+      },
+      "VisibleSource": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "image",
+              "pdf",
+              "text",
+              "supplier_reply"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "mime_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mime Type"
+          },
+          "page_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Count"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/SourcePage"
+            },
+            "title": "Pages",
+            "type": "array"
+          },
+          "preparation_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pending_review",
+                  "ready"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preparation Status"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256"
+          },
+          "size_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Bytes"
+          },
+          "status": {
+            "enum": [
+              "uploading",
+              "available",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "mime_type",
+          "size_bytes",
+          "page_count",
+          "created_at",
+          "preparation_status",
+          "sha256",
+          "pages"
+        ],
+        "title": "VisibleSource",
         "type": "object"
       }
     },
@@ -4274,6 +4674,401 @@
         "summary": "Withdraw",
         "tags": [
           "pools"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/sources": {
+      "get": {
+        "operationId": "listing_v1_businesses__business_id__sources_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourcePageList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Listing",
+        "tags": [
+          "sources"
+        ]
+      },
+      "post": {
+        "operationId": "upload_v1_businesses__business_id__sources_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  },
+                  "text": {
+                    "maxLength": 16000,
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Upload",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/sources/{source_id}": {
+      "get": {
+        "operationId": "source_v1_businesses__business_id__sources__source_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Source Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/sources/{source_id}/prepare": {
+      "post": {
+        "operationId": "prepare_v1_businesses__business_id__sources__source_id__prepare_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Source Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepareSource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Prepare",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/sources/{source_id}/view": {
+      "get": {
+        "operationId": "view_v1_businesses__business_id__sources__source_id__view_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Source Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "maximum": 10,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "variant",
+            "required": false,
+            "schema": {
+              "default": "page",
+              "enum": [
+                "page",
+                "original",
+                "provider"
+              ],
+              "title": "Variant",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bbox",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "maxItems": 4,
+                  "minItems": 4,
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bbox"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "View",
+        "tags": [
+          "sources"
         ]
       }
     },
