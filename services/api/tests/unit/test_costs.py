@@ -78,6 +78,7 @@ def test_discount_tax_surcharge_and_rounding():
     )
     assert result.goods == D("300.01")
     assert result.tax == D("18.42")  # Confirmed rate on goods minus discount plus fees.
+    assert result.discount == D("10.00")
     assert result.agreed_cost == D("325.43")
 
 

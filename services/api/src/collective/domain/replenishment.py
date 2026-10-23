@@ -13,7 +13,7 @@ class StockMovement(Snapshot):
     id: UUID
     quantity: Positive
     at: Instant
-    kind: Literal["received", "incoming"]
+    kind: Literal["received", "incoming", "waste"]
     confirmed: bool
 
 
@@ -82,7 +82,10 @@ def estimate_replenishment(
         for receipt in receipts:
             if start < receipt.at <= end:
                 quantity = max(Decimal(0), quantity - rate * days_between(previous, receipt.at))
-                quantity += receipt.quantity
+                quantity = max(
+                    Decimal(0),
+                    quantity + (-receipt.quantity if receipt.kind == "waste" else receipt.quantity),
+                )
                 previous = receipt.at
         return max(Decimal(0), quantity - rate * days_between(previous, end))
 
@@ -90,7 +93,7 @@ def estimate_replenishment(
         stock.quantity,
         stock.observed_at,
         as_of,
-        [m for m in movements if m.kind == "received"],
+        [m for m in movements if m.kind in {"received", "waste"}],
     )
     future = [m for m in movements if m.kind == "incoming" and m.at > as_of]
     arrival = as_of + days_delta(lead_time.days)

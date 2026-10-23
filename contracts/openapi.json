@@ -91,6 +91,207 @@
         "title": "BoundTerms",
         "type": "object"
       },
+      "CostBreakdown": {
+        "additionalProperties": false,
+        "properties": {
+          "agreed_cost": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreed Cost"
+          },
+          "decision_cost": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Cost"
+          },
+          "delivery_fee": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Fee"
+          },
+          "discount": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount"
+          },
+          "expected_cost": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Cost"
+          },
+          "failure_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "fee_unverified": {
+            "default": true,
+            "title": "Fee Unverified",
+            "type": "boolean"
+          },
+          "free_delivery_qualified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Free Delivery Qualified"
+          },
+          "goods": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Goods"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "title": "Quote Id",
+            "type": "string"
+          },
+          "quote_revision": {
+            "minimum": 1.0,
+            "title": "Quote Revision",
+            "type": "integer"
+          },
+          "rule_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Id"
+          },
+          "rule_revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Revision"
+          },
+          "surcharge": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Surcharge"
+          },
+          "tax": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax"
+          },
+          "threshold_goods": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Goods"
+          },
+          "tier_min_quantity": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tier Min Quantity"
+          },
+          "unit_price": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Price"
+          }
+        },
+        "required": [
+          "quote_id",
+          "quote_revision"
+        ],
+        "title": "CostBreakdown",
+        "type": "object"
+      },
       "ErrorResponse": {
         "additionalProperties": false,
         "properties": {
@@ -121,6 +322,133 @@
           "message"
         ],
         "title": "ErrorResponse",
+        "type": "object"
+      },
+      "EvaluateNeed": {
+        "additionalProperties": false,
+        "properties": {
+          "arrival_window": {
+            "$ref": "#/components/schemas/TimeWindow"
+          },
+          "buffer_days": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Buffer Days",
+            "type": "string"
+          },
+          "collection_share": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collection Share"
+          },
+          "delivery_location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Location"
+          },
+          "delivery_mode": {
+            "enum": [
+              "per_business",
+              "collection_point"
+            ],
+            "title": "Delivery Mode",
+            "type": "string"
+          },
+          "lead_days": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Lead Days",
+            "type": "string"
+          },
+          "mapping_id": {
+            "format": "uuid",
+            "title": "Mapping Id",
+            "type": "string"
+          },
+          "mapping_revision": {
+            "minimum": 1.0,
+            "title": "Mapping Revision",
+            "type": "integer"
+          },
+          "max_stock": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Stock"
+          },
+          "min_credit_days": {
+            "minimum": 0.0,
+            "title": "Min Credit Days",
+            "type": "integer"
+          },
+          "order_window": {
+            "$ref": "#/components/schemas/TimeWindow"
+          },
+          "quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "saving_threshold": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Saving Threshold",
+            "type": "string"
+          },
+          "shelf_life_days": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shelf Life Days"
+          },
+          "usage_per_day": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Per Day"
+          }
+        },
+        "required": [
+          "mapping_id",
+          "mapping_revision",
+          "quantity",
+          "lead_days",
+          "buffer_days",
+          "saving_threshold",
+          "min_credit_days",
+          "delivery_mode",
+          "order_window",
+          "arrival_window"
+        ],
+        "title": "EvaluateNeed",
         "type": "object"
       },
       "Evidence": {
@@ -338,6 +666,82 @@
         "title": "HiddenApproval",
         "type": "object"
       },
+      "HiddenLedgerEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "purchase",
+              "stock",
+              "quote",
+              "po"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "revision",
+          "recorded_at",
+          "quantity"
+        ],
+        "title": "HiddenLedgerEntry",
+        "type": "object"
+      },
+      "HiddenNeedData": {
+        "additionalProperties": false,
+        "properties": {
+          "need": {
+            "$ref": "#/components/schemas/NeedView"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          }
+        },
+        "required": [
+          "need"
+        ],
+        "title": "HiddenNeedData",
+        "type": "object"
+      },
       "HubIdentity": {
         "additionalProperties": false,
         "properties": {
@@ -431,6 +835,43 @@
         "title": "Identity",
         "type": "object"
       },
+      "LedgerPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/VisibleLedgerEntry"
+                },
+                {
+                  "$ref": "#/components/schemas/HiddenLedgerEntry"
+                }
+              ]
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "LedgerPage",
+        "type": "object"
+      },
       "Membership": {
         "additionalProperties": false,
         "properties": {
@@ -490,6 +931,264 @@
         "title": "Mutation",
         "type": "object"
       },
+      "NeedComparisons": {
+        "additionalProperties": false,
+        "properties": {
+          "best_solo_cost": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Solo Cost"
+          },
+          "evaluated_at": {
+            "format": "date-time",
+            "title": "Evaluated At",
+            "type": "string"
+          },
+          "failure_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "historical_comparable_cost": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Comparable Cost"
+          },
+          "historical_reference": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Reference"
+          },
+          "historical_revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Revision"
+          },
+          "need": {
+            "$ref": "#/components/schemas/NeedView"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/OfferComparison"
+            },
+            "title": "Offers",
+            "type": "array"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          }
+        },
+        "required": [
+          "need",
+          "evaluated_at",
+          "historical_reference",
+          "historical_revision",
+          "historical_comparable_cost",
+          "best_solo_cost",
+          "offers",
+          "failure_codes"
+        ],
+        "title": "NeedComparisons",
+        "type": "object"
+      },
+      "NeedOptions": {
+        "additionalProperties": false,
+        "properties": {
+          "evaluated_at": {
+            "format": "date-time",
+            "title": "Evaluated At",
+            "type": "string"
+          },
+          "failure_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "need": {
+            "$ref": "#/components/schemas/NeedView"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/QuantityOption"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "replenishment": {
+            "$ref": "#/components/schemas/ReplenishmentResult"
+          },
+          "stated_quantity_valid": {
+            "title": "Stated Quantity Valid",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "need",
+          "evaluated_at",
+          "replenishment",
+          "options",
+          "stated_quantity_valid",
+          "failure_codes"
+        ],
+        "title": "NeedOptions",
+        "type": "object"
+      },
+      "NeedPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NeedView"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "NeedPage",
+        "type": "object"
+      },
+      "NeedView": {
+        "additionalProperties": false,
+        "properties": {
+          "arrival_window": {
+            "$ref": "#/components/schemas/TimeWindow"
+          },
+          "base_unit": {
+            "enum": [
+              "piece",
+              "ml",
+              "g"
+            ],
+            "title": "Base Unit",
+            "type": "string"
+          },
+          "business_id": {
+            "format": "uuid",
+            "title": "Business Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "mapping_confirmed": {
+            "title": "Mapping Confirmed",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "order_window": {
+            "$ref": "#/components/schemas/TimeWindow"
+          },
+          "quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "spec_id": {
+            "format": "uuid",
+            "title": "Spec Id",
+            "type": "string"
+          },
+          "spec_revision": {
+            "minimum": 1.0,
+            "title": "Spec Revision",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "suggested",
+              "selected",
+              "reserved",
+              "released",
+              "stale"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "business_id",
+          "revision",
+          "spec_id",
+          "spec_revision",
+          "name",
+          "quantity",
+          "base_unit",
+          "state",
+          "mapping_confirmed",
+          "order_window",
+          "arrival_window"
+        ],
+        "title": "NeedView",
+        "type": "object"
+      },
       "NetworkAccess": {
         "additionalProperties": false,
         "properties": {
@@ -514,6 +1213,95 @@
           "name"
         ],
         "title": "NetworkAccess",
+        "type": "object"
+      },
+      "OfferComparison": {
+        "additionalProperties": false,
+        "properties": {
+          "conditions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conditions"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/CostBreakdown"
+          },
+          "credit_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit Days"
+          },
+          "failure_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "missing_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Fields",
+            "type": "array"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "title": "Quote Id",
+            "type": "string"
+          },
+          "quote_revision": {
+            "minimum": 1.0,
+            "title": "Quote Revision",
+            "type": "integer"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          },
+          "supplier_name": {
+            "title": "Supplier Name",
+            "type": "string"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          }
+        },
+        "required": [
+          "quote_id",
+          "quote_revision",
+          "supplier_id",
+          "supplier_name",
+          "credit_days",
+          "conditions",
+          "valid_until",
+          "cost",
+          "missing_fields",
+          "failure_codes"
+        ],
+        "title": "OfferComparison",
         "type": "object"
       },
       "PoolOffer": {
@@ -653,6 +1441,195 @@
           "release_state"
         ],
         "title": "PoolOffer",
+        "type": "object"
+      },
+      "QuantityOption": {
+        "additionalProperties": false,
+        "properties": {
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "cost": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Cost",
+            "type": "string"
+          },
+          "coverage_days": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Days"
+          },
+          "credit_days": {
+            "title": "Credit Days",
+            "type": "integer"
+          },
+          "extra_cash_now": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Extra Cash Now",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "title": "Quote Id",
+            "type": "string"
+          },
+          "repeat_order_count": {
+            "title": "Repeat Order Count",
+            "type": "integer"
+          },
+          "saving_vs_repeat_orders": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Saving Vs Repeat Orders",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quantity",
+          "quote_id",
+          "cost",
+          "credit_days",
+          "coverage_days",
+          "extra_cash_now",
+          "saving_vs_repeat_orders",
+          "repeat_order_count",
+          "assumptions"
+        ],
+        "title": "QuantityOption",
+        "type": "object"
+      },
+      "ReplenishmentResult": {
+        "additionalProperties": false,
+        "properties": {
+          "daily_rate": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daily Rate"
+          },
+          "failure_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "reorder_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reorder At"
+          },
+          "reorder_due": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reorder Due"
+          },
+          "run_out_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Out At"
+          },
+          "stock_at_arrival": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock At Arrival"
+          },
+          "stock_at_now": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock At Now"
+          },
+          "usage_rule_revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Rule Revision"
+          }
+        },
+        "title": "ReplenishmentResult",
+        "type": "object"
+      },
+      "SelectNeed": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Quantity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "quantity"
+        ],
+        "title": "SelectNeed",
         "type": "object"
       },
       "TimeWindow": {
@@ -795,6 +1772,102 @@
         ],
         "title": "VisibleApproval",
         "type": "object"
+      },
+      "VisibleLedgerEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "purchase",
+              "stock",
+              "quote",
+              "po"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "supplier_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Id"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "revision",
+          "recorded_at",
+          "quantity",
+          "total",
+          "source_id",
+          "supplier_id"
+        ],
+        "title": "VisibleLedgerEntry",
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -810,6 +1883,456 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/v1/businesses/{business_id}/ledger": {
+      "get": {
+        "operationId": "ledger_v1_businesses__business_id__ledger_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "schema": {
+              "default": "purchase",
+              "enum": [
+                "purchase",
+                "stock",
+                "quote",
+                "po"
+              ],
+              "title": "Kind",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Ledger",
+        "tags": [
+          "ledger"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/needs": {
+      "get": {
+        "operationId": "listing_v1_businesses__business_id__needs_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeedPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Listing",
+        "tags": [
+          "needs"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/needs/evaluate": {
+      "post": {
+        "operationId": "evaluate_v1_businesses__business_id__needs_evaluate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluateNeed"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeedOptions"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Evaluate",
+        "tags": [
+          "needs"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/needs/{need_id}/comparisons": {
+      "get": {
+        "operationId": "comparisons_v1_businesses__business_id__needs__need_id__comparisons_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "need_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Need Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/NeedComparisons"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HiddenNeedData"
+                    }
+                  ],
+                  "title": "Response Comparisons V1 Businesses  Business Id  Needs  Need Id  Comparisons Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Comparisons",
+        "tags": [
+          "needs"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/needs/{need_id}/options": {
+      "get": {
+        "operationId": "options_v1_businesses__business_id__needs__need_id__options_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "need_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Need Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/NeedOptions"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HiddenNeedData"
+                    }
+                  ],
+                  "title": "Response Options V1 Businesses  Business Id  Needs  Need Id  Options Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Options",
+        "tags": [
+          "needs"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/needs/{need_id}/select": {
+      "post": {
+        "operationId": "select_v1_businesses__business_id__needs__need_id__select_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "need_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Need Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectNeed"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeedView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Select",
+        "tags": [
+          "needs"
+        ]
+      }
+    },
     "/v1/health": {
       "get": {
         "operationId": "health_v1_health_get",

@@ -183,12 +183,12 @@ async def insert_release(db, r):
     )
 
 
-async def insert_order(db, r, letter="a", *, amount="285.00"):
+async def insert_order(db, r, letter="a", *, amount="285.00", snapshot=None):
     await db.execute(
         """insert into collective.purchase_orders
         (id,business_id,release_id,need_id,approval_id,supplier_id,spec_id,spec_revision,
          quantity,amount,decision_amount,snapshot)
-        values (%s,%s,%s,%s,%s,%s,%s,1,1000,%s,%s,'{}')""",
+        values (%s,%s,%s,%s,%s,%s,%s,1,1000,%s,%s,%s)""",
         (
             uuid4(),
             r[letter],
@@ -199,7 +199,56 @@ async def insert_order(db, r, letter="a", *, amount="285.00"):
             r["spec"],
             amount,
             amount,
+            Jsonb(snapshot or {}),
         ),
+    )
+
+
+async def test_receipts_are_scoped_and_reduce_remaining_incoming_stock(db, records):
+    from collective.repositories.ledger import current_stock
+
+    terms = (
+        await (
+            await db.execute(
+                "select terms from collective.bound_approvals where id=%s", (records["approval_a"],)
+            )
+        ).fetchone()
+    )["terms"]
+    await insert_release(db, records)
+    await insert_order(db, records, snapshot={"terms": terms})
+    po = (
+        await (
+            await db.execute(
+                "select id from collective.purchase_orders where business_id=%s", (records["a"],)
+            )
+        ).fetchone()
+    )["id"]
+    now = datetime.now(UTC)
+    await db.execute(
+        """insert into collective.stock_observations
+        (id,business_id,spec_id,spec_revision,quantity,observed_at,provenance)
+        values (%s,%s,%s,1,100,%s,'synthetic')""",
+        (uuid4(), records["a"], records["spec"], now - timedelta(hours=2)),
+    )
+    with pytest.raises(psycopg.errors.ForeignKeyViolation):
+        async with db.transaction():
+            await db.execute(
+                """insert into collective.stock_observations
+                (id,business_id,spec_id,spec_revision,quantity,observed_at,kind,provenance,po_id)
+                values (%s,%s,%s,1,500,%s,'receipt','synthetic',%s)""",
+                (uuid4(), records["b"], records["spec"], now - timedelta(hours=1), po),
+            )
+    await db.execute(
+        """insert into collective.stock_observations
+        (id,business_id,spec_id,spec_revision,quantity,observed_at,kind,provenance,po_id)
+        values (%s,%s,%s,1,500,%s,'receipt','synthetic',%s)""",
+        (uuid4(), records["a"], records["spec"], now - timedelta(hours=1), po),
+    )
+    stock = await current_stock(db, records["a"], records["spec"], 1, now)
+    assert sum(m.quantity for m in stock.movements if m.kind == "received") == 500
+    assert sum(m.quantity for m in stock.movements if m.kind == "incoming") == 500
+    assert (
+        await current_stock(db, records["a"], records["spec"], 1, now + timedelta(days=6)) is None
     )
 
 

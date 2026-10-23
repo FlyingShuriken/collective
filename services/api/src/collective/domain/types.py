@@ -75,7 +75,7 @@ class NeedSnapshot(Snapshot):
     mapping_confirmed: bool
     zone: str
     pool_opt_in: bool
-    state: Literal["selected", "reserved", "released", "stale"]
+    state: Literal["suggested", "selected", "reserved", "released", "stale"]
     reserved_pool_id: UUID | None = None
     saving_threshold: Rate
     min_credit_days: int = Field(strict=True, ge=0)

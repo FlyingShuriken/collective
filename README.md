@@ -34,6 +34,7 @@ uv run --project services/api python scripts/seed_demo.py --scenario three-cafes
 
 The seed prints the ignored local credential-file path. Sign in at
 <http://127.0.0.1:3000/en/sign-in> using one of those accounts. Public signup is disabled.
+The workspace link opens persisted need and quote comparisons at `/en/approvals`.
 Repeated seeding preserves the existing run; use a new `--run` after its order window expires.
 
 Run `scripts/setup_local.py` again after a local database reset, before starting the API:
@@ -53,5 +54,5 @@ pnpm auth:check # Requires the running local web/API and the default demo seed.
 ```
 
 The development roadmap is in `docs/plans/`. Actual task evidence and outstanding
-work are recorded in `docs/plans/development-progress.md`. The initial scaffold is
-not a working purchasing product; application features are added in roadmap order.
+work are recorded in `docs/plans/development-progress.md`. The complete purchasing
+workflow is still under development; application features are added in roadmap order.

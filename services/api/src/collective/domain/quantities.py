@@ -38,6 +38,26 @@ class QuantityOption(Snapshot):
     assumptions: tuple[str, ...]
 
 
+def quantity_fits(
+    quantity: Decimal, pack_multiple: Decimal, constraints: QuantityConstraints
+) -> bool:
+    stock = constraints.stock_at_arrival + quantity
+    rate = constraints.usage_per_day
+    return (
+        quantity > 0
+        and quantity % pack_multiple == 0
+        and stock <= constraints.max_stock
+        and (
+            not constraints.perishable
+            or (rate is not None and constraints.shelf_life_days is not None)
+        )
+        and (
+            constraints.shelf_life_days is None
+            or (rate is not None and stock <= rate * constraints.shelf_life_days)
+        )
+    )
+
+
 def suggest_quantities(
     need: QuantityNeed,
     quotes: list[Quote],
@@ -63,6 +83,11 @@ def suggest_quantities(
                     aggregate_quantity=quantity,
                     member_count=1,
                     as_of=as_of,
+                    collection_location=quote.delivery_location,
+                    collection_shares=(quote.delivery_fee,)
+                    if quote.delivery_fee is not None
+                    else (),
+                    own_collection_share=quote.delivery_fee,
                 ),
                 None,
             )
@@ -89,13 +114,8 @@ def suggest_quantities(
     options = []
     for quantity in sorted(q for q in candidates if q >= base):
         stock = constraints.stock_at_arrival + quantity
-        if stock > constraints.max_stock:
+        if not quantity_fits(quantity, need.pack_multiple, constraints):
             continue
-        if constraints.perishable and (rate is None or constraints.shelf_life_days is None):
-            continue
-        if constraints.shelf_life_days is not None:
-            if rate is None or stock > rate * constraints.shelf_life_days:
-                continue
         offer = best(quantity)
         if offer is None:
             continue

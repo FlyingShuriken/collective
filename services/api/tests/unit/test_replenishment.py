@@ -107,3 +107,17 @@ def test_missing_evidence_has_no_fabricated_runout():
         scenario_time(),
     )
     assert result.failure_codes == ("MISSING_STOCK",)
+
+
+def test_confirmed_waste_reduces_usable_stock_without_becoming_consumption():
+    waste = StockMovement(
+        id=fixture_id("waste"), quantity="100", at=scenario_time(12), kind="waste", confirmed=True
+    )
+    result = estimate_replenishment(
+        stock(movements=[waste]),
+        UsageInput(stated_daily_rate="125"),
+        LeadTime(days="4", buffer_days="2"),
+        scenario_time(24),
+    )
+    assert result.stock_at_now == 525
+    assert result.stock_at_arrival == 25

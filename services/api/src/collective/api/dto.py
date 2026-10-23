@@ -4,14 +4,20 @@ from uuid import UUID
 from pydantic import Field, model_validator
 
 from collective.domain.approvals import BoundTerms
+from collective.domain.costs import CostBreakdown
+from collective.domain.quantities import QuantityOption
+from collective.domain.replenishment import ReplenishmentResult
 from collective.domain.types import (
     BaseUnit,
     Instant,
     Money,
+    NonNegative,
     Positive,
+    Rate,
     Revision,
     SignedMoney,
     Snapshot,
+    TimeWindow,
     whole_pieces,
 )
 
@@ -107,6 +113,109 @@ class VisibleApproval(ApprovalSummary):
 
 class Mutation(Snapshot):
     expected_revision: Revision
+
+
+class EvaluateNeed(Snapshot):
+    mapping_id: UUID
+    mapping_revision: Revision
+    quantity: Positive
+    usage_per_day: Positive | None = None
+    lead_days: NonNegative
+    buffer_days: NonNegative
+    max_stock: Positive | None = None
+    shelf_life_days: Positive | None = None
+    saving_threshold: Rate
+    min_credit_days: int = Field(strict=True, ge=0)
+    delivery_mode: Literal["per_business", "collection_point"]
+    delivery_location: str | None = None
+    collection_share: Money | None = None
+    order_window: TimeWindow
+    arrival_window: TimeWindow
+
+
+class SelectNeed(Mutation):
+    quantity: Positive
+
+
+class NeedView(Snapshot):
+    id: UUID
+    business_id: UUID
+    revision: Revision
+    spec_id: UUID
+    spec_revision: Revision
+    name: str
+    quantity: Positive
+    base_unit: BaseUnit
+    state: Literal["suggested", "selected", "reserved", "released", "stale"]
+    mapping_confirmed: bool
+    order_window: TimeWindow
+    arrival_window: TimeWindow
+
+
+class HiddenNeedData(Snapshot):
+    need: NeedView
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class NeedPage(Snapshot):
+    items: tuple[NeedView, ...]
+    next_cursor: UUID | None
+
+
+class NeedOptions(Snapshot):
+    need: NeedView
+    price_visibility: Literal["visible"] = "visible"
+    evaluated_at: Instant
+    replenishment: ReplenishmentResult
+    options: tuple[QuantityOption, ...]
+    stated_quantity_valid: bool
+    failure_codes: tuple[str, ...]
+
+
+class OfferComparison(Snapshot):
+    quote_id: UUID
+    quote_revision: Revision
+    supplier_id: UUID
+    supplier_name: str
+    credit_days: int | None
+    conditions: str | None
+    valid_until: Instant | None
+    cost: CostBreakdown
+    missing_fields: tuple[str, ...]
+    failure_codes: tuple[str, ...]
+
+
+class NeedComparisons(Snapshot):
+    need: NeedView
+    price_visibility: Literal["visible"] = "visible"
+    evaluated_at: Instant
+    historical_reference: UUID | None
+    historical_revision: Revision | None
+    historical_comparable_cost: Money | None
+    best_solo_cost: Money | None
+    offers: tuple[OfferComparison, ...]
+    failure_codes: tuple[str, ...]
+
+
+class HiddenLedgerEntry(Snapshot):
+    id: UUID
+    kind: Literal["purchase", "stock", "quote", "po"]
+    revision: Revision
+    recorded_at: Instant
+    quantity: NonNegative | None
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class VisibleLedgerEntry(HiddenLedgerEntry):
+    price_visibility: Literal["visible"] = "visible"
+    total: Money | None
+    source_id: UUID | None
+    supplier_id: UUID | None
+
+
+class LedgerPage(Snapshot):
+    items: tuple[VisibleLedgerEntry | HiddenLedgerEntry, ...]
+    next_cursor: UUID | None
 
 
 class PoolOffer(Snapshot):

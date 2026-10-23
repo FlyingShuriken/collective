@@ -102,6 +102,8 @@ class CostBreakdown(Snapshot):
     threshold_goods: Money | None = None
     free_delivery_qualified: bool | None = None
     delivery_fee: Money | None = None
+    discount: Money | None = None
+    surcharge: Money | None = None
     tax: Money | None = None
     agreed_cost: Money | None = None
     expected_cost: Money | None = None
@@ -232,6 +234,8 @@ def calculate_cost(
             threshold_goods=threshold_goods,
             free_delivery_qualified=qualifies,
             delivery_fee=fee,
+            discount=quote.discount,
+            surcharge=quote.surcharge,
             tax=tax,
             agreed_cost=agreed,
             expected_cost=expected,

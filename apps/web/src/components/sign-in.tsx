@@ -89,6 +89,7 @@ export function SignIn({ locale }: { locale: Locale }) {
             ))}
           </ul>
           {!identity.memberships.length && !identity.networks?.length && <p>{text.noMembership}</p>}
+          {identity.memberships.length > 0 && <a href={`/${locale}/approvals`} className="block text-sm underline underline-offset-4">{text.openWorkspace}</a>}
           <Button type="button" variant="outline" onClick={signOut} disabled={pending}>
             {text.signOut}
           </Button>

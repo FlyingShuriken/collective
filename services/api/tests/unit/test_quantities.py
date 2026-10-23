@@ -80,3 +80,13 @@ def test_pack_rounding_and_unknown_usage_do_not_invent_bulk_benefit():
     )
     assert [o.quantity for o in options] == [1100]
     assert options[0].coverage_days is None
+
+
+def test_solo_collection_uses_the_confirmed_full_collection_charge():
+    options = suggest_quantities(
+        QuantityNeed(quantity="1000", pack_multiple="100", selected=True),
+        [quote(delivery_mode="collection_point", delivery_location="Confirmed hub")],
+        constraints(),
+        scenario_time(),
+    )
+    assert options[0].cost == 315

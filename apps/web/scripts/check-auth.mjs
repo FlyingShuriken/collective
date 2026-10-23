@@ -42,6 +42,18 @@ const staff = await signIn("staff");
 await identity(owner.jar, owner.subject, "owner");
 await identity(staff.jar, staff.subject, "staff");
 
+const ownIdentity = await (await fetch(origin + "/api/v1/me", { headers: { cookie: cookie(owner.jar) } })).json();
+const businessPath = "/api/v1/businesses/" + ownIdentity.memberships[0].business_id;
+const needs = await (await fetch(origin + businessPath + "/needs", { headers: { cookie: cookie(owner.jar) } })).json();
+assert.ok(needs.items.length, "Default synthetic run must contain a need");
+const comparisonPath = businessPath + "/needs/" + needs.items[0].id + "/comparisons";
+const visible = await (await fetch(origin + comparisonPath, { headers: { cookie: cookie(owner.jar) } })).json();
+assert.equal(visible.price_visibility, "visible");
+assert.ok(Array.isArray(visible.offers));
+const hidden = await (await fetch(origin + comparisonPath, { headers: { cookie: cookie(staff.jar) } })).json();
+assert.equal(hidden.price_visibility, "hidden");
+assert.ok(!("offers" in hidden) && !("best_solo_cost" in hidden));
+
 const anonymous = await fetch(origin + "/api/v1/me");
 assert.equal(anonymous.status, 401);
 assert.equal((await anonymous.json()).code, "UNAUTHENTICATED");
@@ -75,4 +87,4 @@ owner.jar.set(root, "base64-" + Buffer.from(JSON.stringify(session)).toString("b
 const refreshed = await identity(owner.jar, owner.subject, "owner");
 assert.ok(refreshed.headers.getSetCookie().some((value) => value.startsWith(root)), "SSR refresh must return the updated session cookie");
 
-console.log("Auth proxy checks passed: owner/staff subjects, cookie refresh, private responses, forged headers and cross-origin mutation rejection.");
+console.log("Auth proxy checks passed: owner/staff subjects and price projection, cookie refresh, private responses, forged headers and cross-origin mutation rejection.");
