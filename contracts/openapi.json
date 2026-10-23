@@ -292,6 +292,67 @@
         "title": "CostBreakdown",
         "type": "object"
       },
+      "DiscoverPool": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "need_id"
+        ],
+        "title": "DiscoverPool",
+        "type": "object"
+      },
+      "DiscoveryResult": {
+        "additionalProperties": false,
+        "properties": {
+          "failure_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "need": {
+            "$ref": "#/components/schemas/NeedView"
+          },
+          "offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PoolOffer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "found",
+              "unavailable"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "need"
+        ],
+        "title": "DiscoveryResult",
+        "type": "object"
+      },
       "ErrorResponse": {
         "additionalProperties": false,
         "properties": {
@@ -742,6 +803,121 @@
         "title": "HiddenNeedData",
         "type": "object"
       },
+      "HiddenPoolOffer": {
+        "additionalProperties": false,
+        "properties": {
+          "approval_state": {
+            "enum": [
+              "not_approved",
+              "valid",
+              "void",
+              "expired",
+              "withdrawn",
+              "released"
+            ],
+            "title": "Approval State",
+            "type": "string"
+          },
+          "base_unit": {
+            "enum": [
+              "piece",
+              "ml",
+              "g"
+            ],
+            "title": "Base Unit",
+            "type": "string"
+          },
+          "deadline": {
+            "format": "date-time",
+            "title": "Deadline",
+            "type": "string"
+          },
+          "eligibility": {
+            "enum": [
+              "eligible",
+              "ineligible",
+              "unavailable"
+            ],
+            "title": "Eligibility",
+            "type": "string"
+          },
+          "evaluated_at": {
+            "format": "date-time",
+            "title": "Evaluated At",
+            "type": "string"
+          },
+          "evaluation_revision": {
+            "minimum": 1.0,
+            "title": "Evaluation Revision",
+            "type": "integer"
+          },
+          "failure_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "member_count": {
+            "minimum": 1.0,
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "need_revision": {
+            "minimum": 1.0,
+            "title": "Need Revision",
+            "type": "integer"
+          },
+          "own_quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Own Quantity",
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "title": "Pool Id",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "release_state": {
+            "enum": [
+              "waiting_for_approvals",
+              "ready",
+              "released",
+              "ineligible"
+            ],
+            "title": "Release State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pool_id",
+          "need_id",
+          "need_revision",
+          "evaluation_revision",
+          "evaluated_at",
+          "own_quantity",
+          "base_unit",
+          "deadline",
+          "member_count",
+          "eligibility",
+          "failure_codes",
+          "approval_state",
+          "release_state"
+        ],
+        "title": "HiddenPoolOffer",
+        "type": "object"
+      },
       "HubIdentity": {
         "additionalProperties": false,
         "properties": {
@@ -1140,10 +1316,26 @@
           "order_window": {
             "$ref": "#/components/schemas/TimeWindow"
           },
+          "pool_opt_in": {
+            "title": "Pool Opt In",
+            "type": "boolean"
+          },
           "quantity": {
             "pattern": "^-?\\d+(\\.\\d{1,6})?$",
             "title": "Quantity",
             "type": "string"
+          },
+          "reserved_pool_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reserved Pool Id"
           },
           "revision": {
             "minimum": 1.0,
@@ -1183,6 +1375,8 @@
           "base_unit",
           "state",
           "mapping_confirmed",
+          "pool_opt_in",
+          "reserved_pool_id",
           "order_window",
           "arrival_window"
         ],
@@ -1343,10 +1537,18 @@
             "title": "Current Solo Comparable Cost",
             "type": "string"
           },
+          "deadline": {
+            "format": "date-time",
+            "title": "Deadline",
+            "type": "string"
+          },
           "decision_delivered_cost": {
             "pattern": "^-?\\d+(\\.\\d{1,6})?$",
             "title": "Decision Delivered Cost",
             "type": "string"
+          },
+          "delivery_window": {
+            "$ref": "#/components/schemas/TimeWindow"
           },
           "eligibility": {
             "enum": [
@@ -1394,6 +1596,16 @@
             "title": "Member Count",
             "type": "integer"
           },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "need_revision": {
+            "minimum": 1,
+            "title": "Need Revision",
+            "type": "integer"
+          },
           "own_quantity": {
             "pattern": "^-?\\d+(\\.\\d{1,6})?$",
             "title": "Own Quantity",
@@ -1409,6 +1621,22 @@
             "title": "Pooling Saving",
             "type": "string"
           },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "title": "Quote Id",
+            "type": "string"
+          },
+          "quote_revision": {
+            "minimum": 1,
+            "title": "Quote Revision",
+            "type": "integer"
+          },
           "release_state": {
             "enum": [
               "waiting_for_approvals",
@@ -1418,14 +1646,36 @@
             ],
             "title": "Release State",
             "type": "string"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          },
+          "supplier_name": {
+            "title": "Supplier Name",
+            "type": "string"
           }
         },
         "required": [
           "pool_id",
+          "need_id",
+          "need_revision",
           "evaluation_revision",
           "evaluated_at",
           "own_quantity",
           "base_unit",
+          "deadline",
+          "member_count",
+          "eligibility",
+          "failure_codes",
+          "approval_state",
+          "release_state",
+          "supplier_id",
+          "supplier_name",
+          "quote_id",
+          "quote_revision",
+          "delivery_window",
           "agreed_delivered_cost",
           "expected_delivered_cost",
           "decision_delivered_cost",
@@ -1433,12 +1683,7 @@
           "current_solo_comparable_cost",
           "historical_saving",
           "pooling_saving",
-          "credit_days",
-          "member_count",
-          "eligibility",
-          "failure_codes",
-          "approval_state",
-          "release_state"
+          "credit_days"
         ],
         "title": "PoolOffer",
         "type": "object"
@@ -2330,6 +2575,141 @@
         "summary": "Select",
         "tags": [
           "needs"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/pools/discover": {
+      "post": {
+        "operationId": "discovery_v1_businesses__business_id__pools_discover_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscoverPool"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Discovery",
+        "tags": [
+          "pools"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/pools/{pool_id}/offer": {
+      "get": {
+        "operationId": "offer_v1_businesses__business_id__pools__pool_id__offer_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "pool_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pool Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PoolOffer"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HiddenPoolOffer"
+                    }
+                  ],
+                  "title": "Response Offer V1 Businesses  Business Id  Pools  Pool Id  Offer Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Offer",
+        "tags": [
+          "pools"
         ]
       }
     },

@@ -106,6 +106,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/pools/discover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Discovery */
+        post: operations["discovery_v1_businesses__business_id__pools_discover_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/pools/{pool_id}/offer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Offer */
+        get: operations["offer_v1_businesses__business_id__pools__pool_id__offer_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/health": {
         parameters: {
             query?: never;
@@ -335,6 +369,31 @@ export interface components {
             /** Unit Price */
             unit_price?: string | null;
         };
+        /** DiscoverPool */
+        DiscoverPool: {
+            /** Expected Revision */
+            expected_revision: number;
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+        };
+        /** DiscoveryResult */
+        DiscoveryResult: {
+            /**
+             * Failure Codes
+             * @default []
+             */
+            failure_codes: string[];
+            need: components["schemas"]["NeedView"];
+            offer?: components["schemas"]["PoolOffer"] | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "found" | "unavailable";
+        };
         /** ErrorResponse */
         ErrorResponse: {
             /** Code */
@@ -519,6 +578,65 @@ export interface components {
              */
             price_visibility: "hidden";
         };
+        /** HiddenPoolOffer */
+        HiddenPoolOffer: {
+            /**
+             * Approval State
+             * @enum {string}
+             */
+            approval_state: "not_approved" | "valid" | "void" | "expired" | "withdrawn" | "released";
+            /**
+             * Base Unit
+             * @enum {string}
+             */
+            base_unit: "piece" | "ml" | "g";
+            /**
+             * Deadline
+             * Format: date-time
+             */
+            deadline: string;
+            /**
+             * Eligibility
+             * @enum {string}
+             */
+            eligibility: "eligible" | "ineligible" | "unavailable";
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at: string;
+            /** Evaluation Revision */
+            evaluation_revision: number;
+            /** Failure Codes */
+            failure_codes: string[];
+            /** Member Count */
+            member_count: number;
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+            /** Need Revision */
+            need_revision: number;
+            /** Own Quantity */
+            own_quantity: string;
+            /**
+             * Pool Id
+             * Format: uuid
+             */
+            pool_id: string;
+            /**
+             * Price Visibility
+             * @default hidden
+             * @constant
+             */
+            price_visibility: "hidden";
+            /**
+             * Release State
+             * @enum {string}
+             */
+            release_state: "waiting_for_approvals" | "ready" | "released" | "ineligible";
+        };
         /** HubIdentity */
         HubIdentity: {
             /**
@@ -681,8 +799,12 @@ export interface components {
             /** Name */
             name: string;
             order_window: components["schemas"]["TimeWindow"];
+            /** Pool Opt In */
+            pool_opt_in: boolean;
             /** Quantity */
             quantity: string;
+            /** Reserved Pool Id */
+            reserved_pool_id: string | null;
             /** Revision */
             revision: number;
             /**
@@ -760,8 +882,14 @@ export interface components {
             credit_days: number;
             /** Current Solo Comparable Cost */
             current_solo_comparable_cost: string;
+            /**
+             * Deadline
+             * Format: date-time
+             */
+            deadline: string;
             /** Decision Delivered Cost */
             decision_delivered_cost: string;
+            delivery_window: components["schemas"]["TimeWindow"];
             /**
              * Eligibility
              * @enum {string}
@@ -784,6 +912,13 @@ export interface components {
             historical_saving: string;
             /** Member Count */
             member_count: number;
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+            /** Need Revision */
+            need_revision: number;
             /** Own Quantity */
             own_quantity: string;
             /**
@@ -794,10 +929,30 @@ export interface components {
             /** Pooling Saving */
             pooling_saving: string;
             /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /**
+             * Quote Id
+             * Format: uuid
+             */
+            quote_id: string;
+            /** Quote Revision */
+            quote_revision: number;
+            /**
              * Release State
              * @enum {string}
              */
             release_state: "waiting_for_approvals" | "ready" | "released" | "ineligible";
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Supplier Name */
+            supplier_name: string;
         };
         /** QuantityOption */
         QuantityOption: {
@@ -1157,6 +1312,75 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NeedView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    discovery_v1_businesses__business_id__pools_discover_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscoverPool"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    offer_v1_businesses__business_id__pools__pool_id__offer_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                pool_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoolOffer"] | components["schemas"]["HiddenPoolOffer"];
                 };
             };
             /** @description Validation Error */

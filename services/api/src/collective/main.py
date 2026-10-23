@@ -10,6 +10,7 @@ from collective.api.errors import DomainError, install_error_handlers
 from collective.api.hub_routes import router as hub_router
 from collective.api.ledger_routes import router as ledger_router
 from collective.api.need_routes import router as need_router
+from collective.api.pool_routes import router as pool_router
 from collective.repositories.db import Database
 from collective.settings import Settings
 
@@ -37,6 +38,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(hub_router)
     app.include_router(ledger_router)
     app.include_router(need_router)
+    app.include_router(pool_router)
 
     @app.middleware("http")
     async def private_responses(request: Request, call_next):

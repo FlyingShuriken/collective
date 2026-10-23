@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 
+import { PoolOffer } from "@/components/pool-offer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
 import { messages, type Locale } from "@/lib/i18n";
+import { money } from "@/lib/format";
 
 type Need = components["schemas"]["NeedView"];
 type Comparison =
@@ -15,10 +17,6 @@ type Comparison =
 type Options =
   | components["schemas"]["NeedOptions"]
   | components["schemas"]["HiddenNeedData"];
-
-function money(value: string | null | undefined) {
-  return value == null ? "—" : `RM ${value}`;
-}
 
 export function QuoteComparison({
   need,
@@ -183,68 +181,76 @@ export function QuoteComparison({
             </p>
           </>
         )}
-        {options?.price_visibility === "visible" && (
-          <section className="space-y-3 border-t pt-5">
-            <h3 className="font-semibold">{text.quantityOptions}</h3>
-            {options.replenishment.run_out_at && (
-              <p className="text-sm">
-                {text.runout}:{" "}
-                {new Intl.DateTimeFormat(locale, {
-                  dateStyle: "medium",
-                  timeZone: "Asia/Kuala_Lumpur",
-                }).format(new Date(options.replenishment.run_out_at))}
-              </p>
-            )}
-            {options.failure_codes.length > 0 && (
-              <p>
-                {options.stated_quantity_valid
-                  ? text.noConfirmedQuote
-                  : text.needMoreData}
-              </p>
-            )}
-            {owner &&
-              need.state === "suggested" &&
-              options.stated_quantity_valid &&
-              !options.options.length && (
-                <Button
-                  onClick={() => select(need.quantity)}
-                  disabled={pending}
-                >
-                  {text.keepStatedQuantity}
-                </Button>
+        {options?.price_visibility === "visible" &&
+          !["reserved", "released"].includes(need.state) && (
+            <section className="space-y-3 border-t pt-5">
+              <h3 className="font-semibold">{text.quantityOptions}</h3>
+              {options.replenishment.run_out_at && (
+                <p className="text-sm">
+                  {text.runout}:{" "}
+                  {new Intl.DateTimeFormat(locale, {
+                    dateStyle: "medium",
+                    timeZone: "Asia/Kuala_Lumpur",
+                  }).format(new Date(options.replenishment.run_out_at))}
+                </p>
               )}
-            {options.options.map((option) => (
-              <div
-                key={option.quantity}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"
-              >
-                <div>
-                  <p className="font-medium">
-                    {option.quantity} {need.base_unit} · {money(option.cost)}
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {text.extraCash}: {money(option.extra_cash_now)} ·{" "}
-                    {text.repeatSaving}: {money(option.saving_vs_repeat_orders)}
-                  </p>
-                  {option.assumptions.length > 0 && (
-                    <p className="mt-1 max-w-lg text-sm text-muted-foreground">
-                      {text.repeatAssumption}
-                    </p>
-                  )}
-                </div>
-                {owner && need.state === "suggested" && (
+              {options.failure_codes.length > 0 && (
+                <p>
+                  {options.stated_quantity_valid
+                    ? text.noConfirmedQuote
+                    : text.needMoreData}
+                </p>
+              )}
+              {owner &&
+                need.state === "suggested" &&
+                options.stated_quantity_valid &&
+                !options.options.length && (
                   <Button
-                    onClick={() => select(option.quantity)}
+                    onClick={() => select(need.quantity)}
                     disabled={pending}
-                    aria-label={`${text.selectQuantity} ${option.quantity} ${need.base_unit}`}
                   >
-                    {text.selectQuantity}
+                    {text.keepStatedQuantity}
                   </Button>
                 )}
-              </div>
-            ))}
-          </section>
-        )}
+              {options.options.map((option) => (
+                <div
+                  key={option.quantity}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"
+                >
+                  <div>
+                    <p className="font-medium">
+                      {option.quantity} {need.base_unit} · {money(option.cost)}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {text.extraCash}: {money(option.extra_cash_now)} ·{" "}
+                      {text.repeatSaving}:{" "}
+                      {money(option.saving_vs_repeat_orders)}
+                    </p>
+                    {option.assumptions.length > 0 && (
+                      <p className="mt-1 max-w-lg text-sm text-muted-foreground">
+                        {text.repeatAssumption}
+                      </p>
+                    )}
+                  </div>
+                  {owner && need.state === "suggested" && (
+                    <Button
+                      onClick={() => select(option.quantity)}
+                      disabled={pending}
+                      aria-label={`${text.selectQuantity} ${option.quantity} ${need.base_unit}`}
+                    >
+                      {text.selectQuantity}
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </section>
+          )}
+        <PoolOffer
+          need={need}
+          locale={locale}
+          owner={owner}
+          onReserved={onSelected}
+        />
       </CardContent>
     </Card>
   );

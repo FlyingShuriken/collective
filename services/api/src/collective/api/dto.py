@@ -148,6 +148,8 @@ class NeedView(Snapshot):
     base_unit: BaseUnit
     state: Literal["suggested", "selected", "reserved", "released", "stale"]
     mapping_confirmed: bool
+    pool_opt_in: bool
+    reserved_pool_id: UUID | None
     order_window: TimeWindow
     arrival_window: TimeWindow
 
@@ -218,20 +220,15 @@ class LedgerPage(Snapshot):
     next_cursor: UUID | None
 
 
-class PoolOffer(Snapshot):
+class PoolSummary(Snapshot):
     pool_id: UUID
+    need_id: UUID
+    need_revision: Revision
     evaluation_revision: Revision
     evaluated_at: Instant
     own_quantity: Positive
     base_unit: BaseUnit
-    agreed_delivered_cost: Money
-    expected_delivered_cost: Money
-    decision_delivered_cost: Money
-    historical_comparable_cost: Money
-    current_solo_comparable_cost: Money
-    historical_saving: SignedMoney
-    pooling_saving: SignedMoney
-    credit_days: int = Field(strict=True, ge=0)
+    deadline: Instant
     member_count: int = Field(strict=True, ge=1)
     eligibility: Literal["eligible", "ineligible", "unavailable"]
     failure_codes: tuple[str, ...]
@@ -243,6 +240,38 @@ class PoolOffer(Snapshot):
         if self.base_unit == "piece":
             whole_pieces(self.own_quantity)
         return self
+
+
+class HiddenPoolOffer(PoolSummary):
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class PoolOffer(PoolSummary):
+    price_visibility: Literal["visible"] = "visible"
+    supplier_id: UUID
+    supplier_name: str
+    quote_id: UUID
+    quote_revision: Revision
+    delivery_window: TimeWindow
+    agreed_delivered_cost: Money
+    expected_delivered_cost: Money
+    decision_delivered_cost: Money
+    historical_comparable_cost: Money
+    current_solo_comparable_cost: Money
+    historical_saving: SignedMoney
+    pooling_saving: SignedMoney
+    credit_days: int = Field(strict=True, ge=0)
+
+
+class DiscoverPool(Mutation):
+    need_id: UUID
+
+
+class DiscoveryResult(Snapshot):
+    state: Literal["found", "unavailable"]
+    need: NeedView
+    offer: PoolOffer | None = None
+    failure_codes: tuple[str, ...] = ()
 
 
 PUBLIC_MODELS = (HealthResponse, ErrorResponse, Evidence, Identity, Mutation, PoolOffer)
