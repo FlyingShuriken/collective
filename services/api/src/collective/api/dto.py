@@ -357,6 +357,24 @@ class DiscoverPool(Mutation):
     need_id: UUID
 
 
+class JobStatus(Snapshot):
+    id: UUID
+    kind: str
+    status: Literal["queued", "running", "succeeded", "failed"]
+    input_revision: Revision | None
+    attempts: int = Field(strict=True, ge=0)
+    created_at: Instant
+    next_attempt_at: Instant
+    completed_at: Instant | None
+    error_code: str | None
+    lease_expired: bool
+
+
+class JobPage(Snapshot):
+    items: tuple[JobStatus, ...]
+    next_cursor: UUID | None
+
+
 class DiscoveryResult(Snapshot):
     state: Literal["found", "unavailable"]
     need: NeedView

@@ -1,4 +1,5 @@
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, Request
 from fastapi.openapi.utils import get_openapi
@@ -10,10 +11,12 @@ from collective.api.dto import PUBLIC_MODELS, HealthResponse
 from collective.api.errors import DomainError, install_error_handlers
 from collective.api.event_routes import router as event_router
 from collective.api.hub_routes import router as hub_router
+from collective.api.job_routes import router as job_router
 from collective.api.ledger_routes import router as ledger_router
 from collective.api.need_routes import router as need_router
 from collective.api.order_routes import router as order_router
 from collective.api.pool_routes import router as pool_router
+from collective.jobs.runner import Runner
 from collective.repositories.db import Database
 from collective.settings import Settings
 
@@ -25,11 +28,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(app):
         db = Database(settings.database_url.get_secret_value()) if settings.database_url else None
         app.state.database = db
+        worker = None
         try:
             if db is not None:
                 await db.open()
+                if settings.enable_worker:
+                    worker = asyncio.create_task(Runner(db).run())
             yield
         finally:
+            if worker is not None:
+                worker.cancel()
+                with suppress(asyncio.CancelledError):
+                    await worker
             if db is not None:
                 await db.close()
 
@@ -45,6 +55,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(approval_router)
     app.include_router(order_router)
     app.include_router(event_router)
+    app.include_router(job_router)
 
     @app.middleware("http")
     async def private_responses(request: Request, call_next):

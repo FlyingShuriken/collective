@@ -55,7 +55,7 @@ pnpm fixtures:check
 uv run --project services/api pytest services/api/tests/integration -q
 pnpm auth:check # Requires the running local web/API and the default demo seed.
 pnpm exec playwright install chromium
-pnpm exec playwright test tests/e2e/preliminary-flow.spec.ts
+pnpm exec playwright test
 ```
 
 The [Playwright runner](https://playwright.dev/docs/test-cli) starts missing local API/web
@@ -63,6 +63,23 @@ servers, or reuses running ones. Restart an API without reload after source chan
 Each browser test seeds a new isolated synthetic run; credentials stay under ignored
 `.cache/`. Login traces are disabled because they would record those credentials. Browser
 screenshots and failure output stay under ignored `test-results/`.
+
+The API starts the durable worker by default. [Supabase Cron](https://supabase.com/docs/guides/cron/quickstart)
+enqueues due reorder/expiry evaluations once per minute; it never issues orders. The
+Activity view separates queued, retrying, processing, completed and failed tasks from
+human confirmation. Expiry is also checked synchronously when an owner releases an order.
+
+To run the same worker separately, set `ENABLE_WORKER=false` for the API and start:
+
+```sh
+uv run --project services/api python -m collective.jobs.runner
+# One processing iteration for a local check:
+uv run --project services/api python -m collective.jobs.runner --once
+```
+
+Jobs have five-minute leases and at most three processing attempts. Expired leases can
+be reclaimed; stale workers cannot commit outputs. Results, state and audit events commit
+together. Model/source handlers are added in their later roadmap stages.
 
 The development roadmap is in `docs/plans/`. Actual task evidence and outstanding
 work are recorded in `docs/plans/development-progress.md`. The complete purchasing

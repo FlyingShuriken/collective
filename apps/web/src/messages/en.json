@@ -105,5 +105,21 @@
   "retry": "Try again",
   "activity": "Activity",
   "noActivity": "No activity yet.",
-  "refreshActivity": "Refresh activity"
+  "refreshActivity": "Refresh activity",
+  "backgroundTasks": "Background tasks",
+  "taskNotApproval": "Completing a task does not approve a record, rule or order.",
+  "noJobs": "No background tasks yet.",
+  "reorderTask": "Reorder review",
+  "expiryTask": "Expiry review",
+  "backgroundTask": "Background processing",
+  "leaseExpired": "Worker lease expired · awaiting recovery",
+  "retryScheduled": "Retry scheduled",
+  "job_queued": "Queued",
+  "job_running": "Processing",
+  "job_succeeded": "Completed · owner review remains separate",
+  "job_failed": "Needs review",
+  "attempts": "Attempts",
+  "nextRetry": "Next attempt",
+  "taskNeedsReview": "Processing needs review. This status does not confirm an action.",
+  "moreTasks": "More tasks"
 }

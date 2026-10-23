@@ -105,5 +105,21 @@
   "retry": "Cuba lagi",
   "activity": "Aktiviti",
   "noActivity": "Belum ada aktiviti.",
-  "refreshActivity": "Muat semula aktiviti"
+  "refreshActivity": "Muat semula aktiviti",
+  "backgroundTasks": "Tugas latar belakang",
+  "taskNotApproval": "Tugas selesai tidak meluluskan rekod, peraturan atau pesanan.",
+  "noJobs": "Belum ada tugas latar belakang.",
+  "reorderTask": "Semakan pesanan semula",
+  "expiryTask": "Semakan tamat tempoh",
+  "backgroundTask": "Pemprosesan latar belakang",
+  "leaseExpired": "Tempoh pekerja tamat · menunggu pemulihan",
+  "retryScheduled": "Cubaan semula dijadualkan",
+  "job_queued": "Dalam giliran",
+  "job_running": "Sedang diproses",
+  "job_succeeded": "Selesai · semakan pemilik masih berasingan",
+  "job_failed": "Perlu semakan",
+  "attempts": "Bilangan cubaan",
+  "nextRetry": "Cubaan seterusnya",
+  "taskNeedsReview": "Pemprosesan perlu disemak. Status ini tidak mengesahkan tindakan.",
+  "moreTasks": "Lagi tugas"
 }

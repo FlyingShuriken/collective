@@ -102,7 +102,7 @@ def access_id(access_seed):
 
 @pytest.fixture
 async def api(access_seed):
-    app = create_app(Settings(_env_file=ROOT / ".env"))
+    app = create_app(Settings(_env_file=ROOT / ".env", enable_worker=False))
     async with app.router.lifespan_context(app):
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://collective.test"

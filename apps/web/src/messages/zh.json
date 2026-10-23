@@ -105,5 +105,21 @@
   "retry": "重试",
   "activity": "活动记录",
   "noActivity": "暂无活动记录。",
-  "refreshActivity": "刷新活动记录"
+  "refreshActivity": "刷新活动记录",
+  "backgroundTasks": "后台任务",
+  "taskNotApproval": "任务完成不代表已确认记录、规则或订单。",
+  "noJobs": "暂无后台任务。",
+  "reorderTask": "补货审核",
+  "expiryTask": "到期审核",
+  "backgroundTask": "后台处理",
+  "leaseExpired": "工作租约已到期，等待恢复",
+  "retryScheduled": "已安排重试",
+  "job_queued": "排队中",
+  "job_running": "处理中",
+  "job_succeeded": "已完成，店主审核另行进行",
+  "job_failed": "需要审核",
+  "attempts": "尝试次数",
+  "nextRetry": "下次尝试",
+  "taskNeedsReview": "处理需要审核，此状态不代表操作已确认。",
+  "moreTasks": "更多任务"
 }

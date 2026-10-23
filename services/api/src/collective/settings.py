@@ -15,5 +15,5 @@ class Settings(BaseSettings):
     supabase_jwt_audience: str = "authenticated"
     model_mode: Literal["live", "record", "replay"] = "replay"
     embedding_mode: Literal["local", "hosted", "replay"] = "replay"
-    enable_worker: bool = False
+    enable_worker: bool = True
     demo_mode: bool = False
