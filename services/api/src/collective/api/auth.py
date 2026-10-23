@@ -9,6 +9,7 @@ from pydantic import SecretStr
 from starlette.concurrency import run_in_threadpool
 
 from collective.api.errors import DomainError
+from collective.repositories.db import Database
 from collective.settings import Settings
 
 
@@ -75,10 +76,10 @@ async def authenticated(
 SignedIn = Annotated[Principal, Depends(authenticated)]
 
 
-def database(request: Request):
+def database(request: Request) -> Database:
     if request.app.state.database is None:
         raise DomainError("NOT_READY", "The application is not ready.", 503)
     return request.app.state.database
 
 
-DatabaseDependency = Annotated[object, Depends(database)]
+DatabaseDependency = Annotated[Database, Depends(database)]

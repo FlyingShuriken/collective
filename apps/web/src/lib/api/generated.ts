@@ -21,10 +21,170 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/hub/approvals/{approval_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Approval */
+        get: operations["approval_v1_hub_approvals__approval_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/hub/identity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hub Identity */
+        get: operations["hub_identity_v1_hub_identity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/hub/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hub Identity */
+        get: operations["hub_identity_v1_hub_roles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/hub/services": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Services */
+        get: operations["services_v1_hub_services_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/hub/services/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Service Detail */
+        get: operations["service_detail_v1_hub_services__name__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Me */
+        get: operations["me_v1_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ready */
+        get: operations["ready_v1_ready_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** BoundTerms */
+        BoundTerms: {
+            /**
+             * Base Unit
+             * @enum {string}
+             */
+            base_unit: "piece" | "ml" | "g";
+            /** Conditions Fingerprint */
+            conditions_fingerprint: string;
+            /** Credit Days */
+            credit_days: number;
+            /** Delivery Location */
+            delivery_location: string | null;
+            /**
+             * Delivery Mode
+             * @enum {string}
+             */
+            delivery_mode: "per_business" | "collection_point";
+            delivery_window: components["schemas"]["TimeWindow"];
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+            /** Need Revision */
+            need_revision: number;
+            /** Quantity */
+            quantity: string;
+            /**
+             * Spec Id
+             * Format: uuid
+             */
+            spec_id: string;
+            /** Spec Revision */
+            spec_revision: number;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+        };
         /** ErrorResponse */
         ErrorResponse: {
             /** Code */
@@ -82,6 +242,11 @@ export interface components {
                 number
             ] | null;
         };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** HealthResponse */
         HealthResponse: {
             /**
@@ -90,6 +255,78 @@ export interface components {
              * @constant
              */
             status: "ok";
+        };
+        /** HiddenApproval */
+        HiddenApproval: {
+            /**
+             * Business Id
+             * Format: uuid
+             */
+            business_id: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+            /** Pool Id */
+            pool_id: string | null;
+            /**
+             * Price Visibility
+             * @default hidden
+             * @constant
+             */
+            price_visibility: "hidden";
+            /** Revision */
+            revision: number;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "valid" | "void" | "expired" | "withdrawn" | "released";
+        };
+        /** HubIdentity */
+        HubIdentity: {
+            /**
+             * Implementation
+             * @default mock
+             * @constant
+             */
+            implementation: "mock";
+            /** Memberships */
+            memberships: components["schemas"]["Membership"][];
+            /**
+             * Networks
+             * @default []
+             */
+            networks: components["schemas"]["NetworkAccess"][];
+            /**
+             * Subject
+             * Format: uuid
+             */
+            subject: string;
+        };
+        /** HubService */
+        HubService: {
+            /** Description */
+            description: string;
+            /**
+             * Implementation
+             * @default mock
+             * @constant
+             */
+            implementation: "mock";
+            /** Name */
+            name: string;
         };
         /** Identity */
         Identity: {
@@ -206,6 +443,73 @@ export interface components {
              */
             release_state: "waiting_for_approvals" | "ready" | "released" | "ineligible";
         };
+        /** TimeWindow */
+        TimeWindow: {
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
+        /** VisibleApproval */
+        VisibleApproval: {
+            /**
+             * Business Id
+             * Format: uuid
+             */
+            business_id: string;
+            /** Cap */
+            cap: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+            /** Pool Id */
+            pool_id: string | null;
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /** Revision */
+            revision: number;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "valid" | "void" | "expired" | "withdrawn" | "released";
+            terms: components["schemas"]["BoundTerms"];
+        };
     };
     responses: never;
     parameters: never;
@@ -216,6 +520,168 @@ export interface components {
 export type $defs = Record<string, never>;
 export interface operations {
     health_v1_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    approval_v1_hub_approvals__approval_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                approval_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VisibleApproval"] | components["schemas"]["HiddenApproval"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    hub_identity_v1_hub_identity_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubIdentity"];
+                };
+            };
+        };
+    };
+    hub_identity_v1_hub_roles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubIdentity"];
+                };
+            };
+        };
+    };
+    services_v1_hub_services_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubService"][];
+                };
+            };
+        };
+    };
+    service_detail_v1_hub_services__name__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubService"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    me_v1_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Identity"];
+                };
+            };
+        };
+    };
+    ready_v1_ready_get: {
         parameters: {
             query?: never;
             header?: never;

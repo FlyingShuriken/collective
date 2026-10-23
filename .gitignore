@@ -16,3 +16,5 @@ supabase/.branches/
 uploads/
 test-results/
 playwright-report/
+.playwright-cli/
+output/playwright/

@@ -1,0 +1,16 @@
+{
+  "signIn": "登录",
+  "intro": "费用清晰，机会共享，由您批准。",
+  "email": "电子邮箱",
+  "password": "密码",
+  "working": "正在登录…",
+  "failed": "无法登录。请检查账号信息后重试。",
+  "unavailable": "工作区暂时无法使用，请稍后重试。",
+  "signedIn": "您已登录",
+  "signOut": "退出登录",
+  "assigned": "您的工作区",
+  "noMembership": "此账号尚未分配工作区。",
+  "owner": "店主",
+  "staff": "员工",
+  "network_admin": "网络管理员"
+}

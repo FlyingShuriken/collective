@@ -50,6 +50,7 @@ class Database:
             open=False,
             min_size=1,
             max_size=max_size,
+            check=AsyncConnectionPool.check_connection,
             kwargs={"autocommit": True, "row_factory": dict_row},
         )
 

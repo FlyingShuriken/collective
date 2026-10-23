@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import Field, model_validator
 
+from collective.domain.approvals import BoundTerms
 from collective.domain.types import (
     BaseUnit,
     Instant,
@@ -62,16 +63,46 @@ class Membership(Snapshot):
     can_view_prices: bool
 
 
-class Identity(Snapshot):
-    subject: UUID
-    memberships: tuple[Membership, ...]
-    networks: tuple["NetworkAccess", ...] = ()
-
-
 class NetworkAccess(Snapshot):
     network_id: UUID
     name: str
     role: Literal["network_admin"] = "network_admin"
+
+
+class Identity(Snapshot):
+    subject: UUID
+    memberships: tuple[Membership, ...]
+    networks: tuple[NetworkAccess, ...] = ()
+
+
+class HubIdentity(Identity):
+    implementation: Literal["mock"] = "mock"
+
+
+class HubService(Snapshot):
+    name: str
+    description: str
+    implementation: Literal["mock"] = "mock"
+
+
+class ApprovalSummary(Snapshot):
+    id: UUID
+    business_id: UUID
+    need_id: UUID
+    pool_id: UUID | None
+    state: Literal["valid", "void", "expired", "withdrawn", "released"]
+    expires_at: Instant
+    revision: Revision
+
+
+class HiddenApproval(ApprovalSummary):
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class VisibleApproval(ApprovalSummary):
+    price_visibility: Literal["visible"] = "visible"
+    cap: Money
+    terms: BoundTerms
 
 
 class Mutation(Snapshot):

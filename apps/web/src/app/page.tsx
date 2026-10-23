@@ -8,6 +8,7 @@ export default function Home() {
       <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
         Clear costs. Shared opportunities. Your approval.
       </p>
+      <a href="/en/sign-in" className="mt-8 w-fit rounded-md bg-primary px-5 py-3 text-primary-foreground">Sign in</a>
     </main>
   );
 }

@@ -1,0 +1,16 @@
+{
+  "signIn": "Sign in",
+  "intro": "Clear costs. Shared opportunities. Your approval.",
+  "email": "Email",
+  "password": "Password",
+  "working": "Signing in…",
+  "failed": "Unable to sign in. Check your credentials and try again.",
+  "unavailable": "The workspace is temporarily unavailable. Try again shortly.",
+  "signedIn": "You are signed in",
+  "signOut": "Sign out",
+  "assigned": "Your workspaces",
+  "noMembership": "No workspace has been assigned to this account.",
+  "owner": "Owner",
+  "staff": "Staff",
+  "network_admin": "Network administrator"
+}

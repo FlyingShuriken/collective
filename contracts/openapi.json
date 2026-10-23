@@ -1,6 +1,96 @@
 {
   "components": {
     "schemas": {
+      "BoundTerms": {
+        "additionalProperties": false,
+        "properties": {
+          "base_unit": {
+            "enum": [
+              "piece",
+              "ml",
+              "g"
+            ],
+            "title": "Base Unit",
+            "type": "string"
+          },
+          "conditions_fingerprint": {
+            "title": "Conditions Fingerprint",
+            "type": "string"
+          },
+          "credit_days": {
+            "title": "Credit Days",
+            "type": "integer"
+          },
+          "delivery_location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Location"
+          },
+          "delivery_mode": {
+            "enum": [
+              "per_business",
+              "collection_point"
+            ],
+            "title": "Delivery Mode",
+            "type": "string"
+          },
+          "delivery_window": {
+            "$ref": "#/components/schemas/TimeWindow"
+          },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "need_revision": {
+            "minimum": 1.0,
+            "title": "Need Revision",
+            "type": "integer"
+          },
+          "quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "spec_id": {
+            "format": "uuid",
+            "title": "Spec Id",
+            "type": "string"
+          },
+          "spec_revision": {
+            "minimum": 1.0,
+            "title": "Spec Revision",
+            "type": "integer"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "need_id",
+          "need_revision",
+          "supplier_id",
+          "spec_id",
+          "spec_revision",
+          "quantity",
+          "base_unit",
+          "delivery_mode",
+          "delivery_location",
+          "delivery_window",
+          "credit_days",
+          "conditions_fingerprint"
+        ],
+        "title": "BoundTerms",
+        "type": "object"
+      },
       "ErrorResponse": {
         "additionalProperties": false,
         "properties": {
@@ -152,6 +242,19 @@
         "title": "Evidence",
         "type": "object"
       },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "HealthResponse": {
         "additionalProperties": false,
         "properties": {
@@ -163,6 +266,138 @@
           }
         },
         "title": "HealthResponse",
+        "type": "object"
+      },
+      "HiddenApproval": {
+        "additionalProperties": false,
+        "properties": {
+          "business_id": {
+            "format": "uuid",
+            "title": "Business Id",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "pool_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pool Id"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "valid",
+              "void",
+              "expired",
+              "withdrawn",
+              "released"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "business_id",
+          "need_id",
+          "pool_id",
+          "state",
+          "expires_at",
+          "revision"
+        ],
+        "title": "HiddenApproval",
+        "type": "object"
+      },
+      "HubIdentity": {
+        "additionalProperties": false,
+        "properties": {
+          "implementation": {
+            "const": "mock",
+            "default": "mock",
+            "title": "Implementation",
+            "type": "string"
+          },
+          "memberships": {
+            "items": {
+              "$ref": "#/components/schemas/Membership"
+            },
+            "title": "Memberships",
+            "type": "array"
+          },
+          "networks": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/NetworkAccess"
+            },
+            "title": "Networks",
+            "type": "array"
+          },
+          "subject": {
+            "format": "uuid",
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject",
+          "memberships"
+        ],
+        "title": "HubIdentity",
+        "type": "object"
+      },
+      "HubService": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "implementation": {
+            "const": "mock",
+            "default": "mock",
+            "title": "Implementation",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ],
+        "title": "HubService",
         "type": "object"
       },
       "Identity": {
@@ -419,6 +654,153 @@
         ],
         "title": "PoolOffer",
         "type": "object"
+      },
+      "TimeWindow": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "TimeWindow",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "VisibleApproval": {
+        "additionalProperties": false,
+        "properties": {
+          "business_id": {
+            "format": "uuid",
+            "title": "Business Id",
+            "type": "string"
+          },
+          "cap": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Cap",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "pool_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pool Id"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "valid",
+              "void",
+              "expired",
+              "withdrawn",
+              "released"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/BoundTerms"
+          }
+        },
+        "required": [
+          "id",
+          "business_id",
+          "need_id",
+          "pool_id",
+          "state",
+          "expires_at",
+          "revision",
+          "cap",
+          "terms"
+        ],
+        "title": "VisibleApproval",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "scheme": "bearer",
+        "type": "http"
       }
     }
   },
@@ -444,6 +826,238 @@
           }
         },
         "summary": "Health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/hub/approvals/{approval_id}": {
+      "get": {
+        "operationId": "approval_v1_hub_approvals__approval_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "approval_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Approval Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/VisibleApproval"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HiddenApproval"
+                    }
+                  ],
+                  "title": "Response Approval V1 Hub Approvals  Approval Id  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Approval",
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/v1/hub/identity": {
+      "get": {
+        "operationId": "hub_identity_v1_hub_identity_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubIdentity"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Hub Identity",
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/v1/hub/roles": {
+      "get": {
+        "operationId": "hub_identity_v1_hub_roles_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubIdentity"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Hub Identity",
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/v1/hub/services": {
+      "get": {
+        "operationId": "services_v1_hub_services_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/HubService"
+                  },
+                  "title": "Response Services V1 Hub Services Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Services",
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/v1/hub/services/{name}": {
+      "get": {
+        "operationId": "service_detail_v1_hub_services__name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubService"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Service Detail",
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "me_v1_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Identity"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Me",
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/v1/ready": {
+      "get": {
+        "operationId": "ready_v1_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ready",
         "tags": [
           "health"
         ]

@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.openapi.utils import get_openapi
 from pydantic.json_schema import models_json_schema
 
-from collective.api.auth import JWTVerifier
+from collective.api.auth import DatabaseDependency, JWTVerifier
 from collective.api.dto import PUBLIC_MODELS, HealthResponse
-from collective.api.errors import install_error_handlers
+from collective.api.errors import DomainError, install_error_handlers
+from collective.api.hub_routes import router as hub_router
 from collective.repositories.db import Database
 from collective.settings import Settings
 
@@ -31,9 +32,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.database = None
     app.state.verifier = JWTVerifier(settings) if settings.supabase_url else None
     install_error_handlers(app)
+    app.include_router(hub_router)
+
+    @app.middleware("http")
+    async def private_responses(request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/v1/"):
+            response.headers["Cache-Control"] = "no-store"
+        return response
 
     @app.get("/v1/health", tags=["health"])
     def health() -> HealthResponse:
+        return HealthResponse()
+
+    @app.get("/v1/ready", tags=["health"])
+    async def ready(db: DatabaseDependency) -> HealthResponse:
+        if app.state.verifier is None:
+            raise DomainError("NOT_READY", "The application is not ready.", 503)
+        async with db.transaction("coordinator", None) as connection:
+            await connection.execute("select 1")
         return HealthResponse()
 
     def openapi():

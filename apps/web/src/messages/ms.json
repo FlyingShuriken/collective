@@ -1,0 +1,16 @@
+{
+  "signIn": "Log masuk",
+  "intro": "Kos yang jelas. Peluang bersama. Kelulusan anda.",
+  "email": "E-mel",
+  "password": "Kata laluan",
+  "working": "Sedang log masuk…",
+  "failed": "Tidak dapat log masuk. Semak butiran anda dan cuba lagi.",
+  "unavailable": "Ruang kerja tidak tersedia buat sementara waktu. Cuba sebentar lagi.",
+  "signedIn": "Anda telah log masuk",
+  "signOut": "Log keluar",
+  "assigned": "Ruang kerja anda",
+  "noMembership": "Tiada ruang kerja diberikan kepada akaun ini.",
+  "owner": "Pemilik",
+  "staff": "Kakitangan",
+  "network_admin": "Pentadbir rangkaian"
+}

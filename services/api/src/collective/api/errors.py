@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException
 
 from collective.api.dto import ErrorResponse
 
@@ -13,6 +14,20 @@ class DomainError(Exception):
 
 
 def install_error_handlers(app: FastAPI) -> None:
+    @app.exception_handler(HTTPException)
+    async def http_error(_: Request, exc: HTTPException) -> JSONResponse:
+        code, message = {
+            401: ("UNAUTHENTICATED", "A valid sign-in is required."),
+            403: ("FORBIDDEN", "This action is not permitted."),
+            404: ("NOT_FOUND", "Resource not found."),
+            405: ("METHOD_NOT_ALLOWED", "This method is not supported."),
+        }.get(exc.status_code, ("REQUEST_FAILED", "The request could not be completed."))
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=ErrorResponse(code=code, message=message).model_dump(mode="json"),
+            headers={"Cache-Control": "no-store"},
+        )
+
     @app.exception_handler(DomainError)
     async def domain_error(_: Request, exc: DomainError) -> JSONResponse:
         return JSONResponse(
