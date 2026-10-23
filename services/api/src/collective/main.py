@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.openapi.utils import get_openapi
 from pydantic.json_schema import models_json_schema
 
+from collective.api.approval_routes import router as approval_router
 from collective.api.auth import DatabaseDependency, JWTVerifier
 from collective.api.dto import PUBLIC_MODELS, HealthResponse
 from collective.api.errors import DomainError, install_error_handlers
@@ -39,6 +40,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(ledger_router)
     app.include_router(need_router)
     app.include_router(pool_router)
+    app.include_router(approval_router)
 
     @app.middleware("http")
     async def private_responses(request: Request, call_next):

@@ -229,11 +229,16 @@ class PoolSummary(Snapshot):
     own_quantity: Positive
     base_unit: BaseUnit
     deadline: Instant
-    member_count: int = Field(strict=True, ge=1)
+    member_count: int = Field(strict=True, ge=0)
     eligibility: Literal["eligible", "ineligible", "unavailable"]
     failure_codes: tuple[str, ...]
     approval_state: Literal["not_approved", "valid", "void", "expired", "withdrawn", "released"]
     release_state: Literal["waiting_for_approvals", "ready", "released", "ineligible"]
+    approval_id: UUID | None = None
+    approval_reason: str | None = None
+    member_state: Literal[
+        "offered", "approved", "awaiting_reapproval", "withdrawn", "expired", "released"
+    ] = "offered"
 
     @model_validator(mode="after")
     def validate_pieces(self) -> Self:
@@ -261,6 +266,28 @@ class PoolOffer(PoolSummary):
     historical_saving: SignedMoney
     pooling_saving: SignedMoney
     credit_days: int = Field(strict=True, ge=0)
+    terms: BoundTerms | None = None
+    conditions: str | None = None
+
+
+class UnavailablePoolOffer(PoolSummary):
+    price_visibility: Literal["unavailable"] = "unavailable"
+
+
+class ApproveOrder(Snapshot):
+    need_id: UUID
+    pool_id: UUID
+    cap: Money
+    expires_at: Instant
+    expected_evaluation_revision: Revision
+
+
+class ApprovalCommandResult(Snapshot):
+    status: Literal["approved", "withdrawn", "refresh_required", "ineligible", "recalculated"]
+    need: NeedView
+    offer: PoolOffer | UnavailablePoolOffer
+    approval_id: UUID | None = None
+    failure_codes: tuple[str, ...] = ()
 
 
 class DiscoverPool(Mutation):
@@ -270,7 +297,7 @@ class DiscoverPool(Mutation):
 class DiscoveryResult(Snapshot):
     state: Literal["found", "unavailable"]
     need: NeedView
-    offer: PoolOffer | None = None
+    offer: PoolOffer | UnavailablePoolOffer | None = None
     failure_codes: tuple[str, ...] = ()
 
 

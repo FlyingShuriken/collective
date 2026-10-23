@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/v1/businesses/{business_id}/approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approval */
+        post: operations["approval_v1_businesses__business_id__approvals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/businesses/{business_id}/ledger": {
         parameters: {
             query?: never;
@@ -134,6 +151,40 @@ export interface paths {
         get: operations["offer_v1_businesses__business_id__pools__pool_id__offer_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/pools/{pool_id}/reevaluate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reevaluate */
+        post: operations["reevaluate_v1_businesses__business_id__pools__pool_id__reevaluate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/pools/{pool_id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Withdraw */
+        post: operations["withdraw_v1_businesses__business_id__pools__pool_id__withdraw_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -280,6 +331,46 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ApprovalCommandResult */
+        ApprovalCommandResult: {
+            /** Approval Id */
+            approval_id?: string | null;
+            /**
+             * Failure Codes
+             * @default []
+             */
+            failure_codes: string[];
+            need: components["schemas"]["NeedView"];
+            /** Offer */
+            offer: components["schemas"]["PoolOffer"] | components["schemas"]["UnavailablePoolOffer"];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "approved" | "withdrawn" | "refresh_required" | "ineligible" | "recalculated";
+        };
+        /** ApproveOrder */
+        ApproveOrder: {
+            /** Cap */
+            cap: string;
+            /** Expected Evaluation Revision */
+            expected_evaluation_revision: number;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+            /**
+             * Pool Id
+             * Format: uuid
+             */
+            pool_id: string;
+        };
         /** BoundTerms */
         BoundTerms: {
             /**
@@ -387,7 +478,8 @@ export interface components {
              */
             failure_codes: string[];
             need: components["schemas"]["NeedView"];
-            offer?: components["schemas"]["PoolOffer"] | null;
+            /** Offer */
+            offer?: components["schemas"]["PoolOffer"] | components["schemas"]["UnavailablePoolOffer"] | null;
             /**
              * State
              * @enum {string}
@@ -580,6 +672,10 @@ export interface components {
         };
         /** HiddenPoolOffer */
         HiddenPoolOffer: {
+            /** Approval Id */
+            approval_id?: string | null;
+            /** Approval Reason */
+            approval_reason?: string | null;
             /**
              * Approval State
              * @enum {string}
@@ -611,6 +707,12 @@ export interface components {
             failure_codes: string[];
             /** Member Count */
             member_count: number;
+            /**
+             * Member State
+             * @default offered
+             * @enum {string}
+             */
+            member_state: "offered" | "approved" | "awaiting_reapproval" | "withdrawn" | "expired" | "released";
             /**
              * Need Id
              * Format: uuid
@@ -869,6 +971,16 @@ export interface components {
             /** Agreed Delivered Cost */
             agreed_delivered_cost: string;
             /**
+             * Approval Id
+             * @default null
+             */
+            approval_id: string | null;
+            /**
+             * Approval Reason
+             * @default null
+             */
+            approval_reason: string | null;
+            /**
              * Approval State
              * @enum {string}
              */
@@ -878,6 +990,11 @@ export interface components {
              * @enum {string}
              */
             base_unit: "piece" | "ml" | "g";
+            /**
+             * Conditions
+             * @default null
+             */
+            conditions: string | null;
             /** Credit Days */
             credit_days: number;
             /** Current Solo Comparable Cost */
@@ -912,6 +1029,12 @@ export interface components {
             historical_saving: string;
             /** Member Count */
             member_count: number;
+            /**
+             * Member State
+             * @default offered
+             * @enum {string}
+             */
+            member_state: "offered" | "approved" | "awaiting_reapproval" | "withdrawn" | "expired" | "released";
             /**
              * Need Id
              * Format: uuid
@@ -953,6 +1076,8 @@ export interface components {
             supplier_id: string;
             /** Supplier Name */
             supplier_name: string;
+            /** @default null */
+            terms: components["schemas"]["BoundTerms"] | null;
         };
         /** QuantityOption */
         QuantityOption: {
@@ -1019,6 +1144,75 @@ export interface components {
              * Format: date-time
              */
             start: string;
+        };
+        /** UnavailablePoolOffer */
+        UnavailablePoolOffer: {
+            /** Approval Id */
+            approval_id?: string | null;
+            /** Approval Reason */
+            approval_reason?: string | null;
+            /**
+             * Approval State
+             * @enum {string}
+             */
+            approval_state: "not_approved" | "valid" | "void" | "expired" | "withdrawn" | "released";
+            /**
+             * Base Unit
+             * @enum {string}
+             */
+            base_unit: "piece" | "ml" | "g";
+            /**
+             * Deadline
+             * Format: date-time
+             */
+            deadline: string;
+            /**
+             * Eligibility
+             * @enum {string}
+             */
+            eligibility: "eligible" | "ineligible" | "unavailable";
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at: string;
+            /** Evaluation Revision */
+            evaluation_revision: number;
+            /** Failure Codes */
+            failure_codes: string[];
+            /** Member Count */
+            member_count: number;
+            /**
+             * Member State
+             * @default offered
+             * @enum {string}
+             */
+            member_state: "offered" | "approved" | "awaiting_reapproval" | "withdrawn" | "expired" | "released";
+            /**
+             * Need Id
+             * Format: uuid
+             */
+            need_id: string;
+            /** Need Revision */
+            need_revision: number;
+            /** Own Quantity */
+            own_quantity: string;
+            /**
+             * Pool Id
+             * Format: uuid
+             */
+            pool_id: string;
+            /**
+             * Price Visibility
+             * @default unavailable
+             * @constant
+             */
+            price_visibility: "unavailable";
+            /**
+             * Release State
+             * @enum {string}
+             */
+            release_state: "waiting_for_approvals" | "ready" | "released" | "ineligible";
         };
         /** ValidationError */
         ValidationError: {
@@ -1117,6 +1311,43 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    approval_v1_businesses__business_id__approvals_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveOrder"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalCommandResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     ledger_v1_businesses__business_id__ledger_get: {
         parameters: {
             query?: {
@@ -1380,7 +1611,83 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PoolOffer"] | components["schemas"]["HiddenPoolOffer"];
+                    "application/json": components["schemas"]["PoolOffer"] | components["schemas"]["HiddenPoolOffer"] | components["schemas"]["UnavailablePoolOffer"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reevaluate_v1_businesses__business_id__pools__pool_id__reevaluate_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                pool_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Mutation"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalCommandResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    withdraw_v1_businesses__business_id__pools__pool_id__withdraw_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                pool_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Mutation"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalCommandResult"];
                 };
             };
             /** @description Validation Error */

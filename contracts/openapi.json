@@ -1,6 +1,102 @@
 {
   "components": {
     "schemas": {
+      "ApprovalCommandResult": {
+        "additionalProperties": false,
+        "properties": {
+          "approval_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Id"
+          },
+          "failure_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "need": {
+            "$ref": "#/components/schemas/NeedView"
+          },
+          "offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PoolOffer"
+              },
+              {
+                "$ref": "#/components/schemas/UnavailablePoolOffer"
+              }
+            ],
+            "title": "Offer"
+          },
+          "status": {
+            "enum": [
+              "approved",
+              "withdrawn",
+              "refresh_required",
+              "ineligible",
+              "recalculated"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "need",
+          "offer"
+        ],
+        "title": "ApprovalCommandResult",
+        "type": "object"
+      },
+      "ApproveOrder": {
+        "additionalProperties": false,
+        "properties": {
+          "cap": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Cap",
+            "type": "string"
+          },
+          "expected_evaluation_revision": {
+            "minimum": 1.0,
+            "title": "Expected Evaluation Revision",
+            "type": "integer"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "title": "Pool Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "need_id",
+          "pool_id",
+          "cap",
+          "expires_at",
+          "expected_evaluation_revision"
+        ],
+        "title": "ApproveOrder",
+        "type": "object"
+      },
       "BoundTerms": {
         "additionalProperties": false,
         "properties": {
@@ -49,7 +145,7 @@
             "type": "string"
           },
           "need_revision": {
-            "minimum": 1.0,
+            "minimum": 1,
             "title": "Need Revision",
             "type": "integer"
           },
@@ -64,7 +160,7 @@
             "type": "string"
           },
           "spec_revision": {
-            "minimum": 1.0,
+            "minimum": 1,
             "title": "Spec Revision",
             "type": "integer"
           },
@@ -333,9 +429,13 @@
                 "$ref": "#/components/schemas/PoolOffer"
               },
               {
+                "$ref": "#/components/schemas/UnavailablePoolOffer"
+              },
+              {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Offer"
           },
           "state": {
             "enum": [
@@ -806,6 +906,29 @@
       "HiddenPoolOffer": {
         "additionalProperties": false,
         "properties": {
+          "approval_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Id"
+          },
+          "approval_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Reason"
+          },
           "approval_state": {
             "enum": [
               "not_approved",
@@ -859,9 +982,22 @@
             "type": "array"
           },
           "member_count": {
-            "minimum": 1.0,
+            "minimum": 0.0,
             "title": "Member Count",
             "type": "integer"
+          },
+          "member_state": {
+            "default": "offered",
+            "enum": [
+              "offered",
+              "approved",
+              "awaiting_reapproval",
+              "withdrawn",
+              "expired",
+              "released"
+            ],
+            "title": "Member State",
+            "type": "string"
           },
           "need_id": {
             "format": "uuid",
@@ -1506,6 +1642,31 @@
             "title": "Agreed Delivered Cost",
             "type": "string"
           },
+          "approval_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Approval Id"
+          },
+          "approval_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Approval Reason"
+          },
           "approval_state": {
             "enum": [
               "not_approved",
@@ -1526,6 +1687,18 @@
             ],
             "title": "Base Unit",
             "type": "string"
+          },
+          "conditions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Conditions"
           },
           "credit_days": {
             "minimum": 0,
@@ -1592,9 +1765,22 @@
             "type": "string"
           },
           "member_count": {
-            "minimum": 1,
+            "minimum": 0,
             "title": "Member Count",
             "type": "integer"
+          },
+          "member_state": {
+            "default": "offered",
+            "enum": [
+              "offered",
+              "approved",
+              "awaiting_reapproval",
+              "withdrawn",
+              "expired",
+              "released"
+            ],
+            "title": "Member State",
+            "type": "string"
           },
           "need_id": {
             "format": "uuid",
@@ -1655,6 +1841,17 @@
           "supplier_name": {
             "title": "Supplier Name",
             "type": "string"
+          },
+          "terms": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BoundTerms"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           }
         },
         "required": [
@@ -1898,6 +2095,157 @@
         "title": "TimeWindow",
         "type": "object"
       },
+      "UnavailablePoolOffer": {
+        "additionalProperties": false,
+        "properties": {
+          "approval_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Id"
+          },
+          "approval_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Reason"
+          },
+          "approval_state": {
+            "enum": [
+              "not_approved",
+              "valid",
+              "void",
+              "expired",
+              "withdrawn",
+              "released"
+            ],
+            "title": "Approval State",
+            "type": "string"
+          },
+          "base_unit": {
+            "enum": [
+              "piece",
+              "ml",
+              "g"
+            ],
+            "title": "Base Unit",
+            "type": "string"
+          },
+          "deadline": {
+            "format": "date-time",
+            "title": "Deadline",
+            "type": "string"
+          },
+          "eligibility": {
+            "enum": [
+              "eligible",
+              "ineligible",
+              "unavailable"
+            ],
+            "title": "Eligibility",
+            "type": "string"
+          },
+          "evaluated_at": {
+            "format": "date-time",
+            "title": "Evaluated At",
+            "type": "string"
+          },
+          "evaluation_revision": {
+            "minimum": 1.0,
+            "title": "Evaluation Revision",
+            "type": "integer"
+          },
+          "failure_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "member_count": {
+            "minimum": 0.0,
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "member_state": {
+            "default": "offered",
+            "enum": [
+              "offered",
+              "approved",
+              "awaiting_reapproval",
+              "withdrawn",
+              "expired",
+              "released"
+            ],
+            "title": "Member State",
+            "type": "string"
+          },
+          "need_id": {
+            "format": "uuid",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "need_revision": {
+            "minimum": 1.0,
+            "title": "Need Revision",
+            "type": "integer"
+          },
+          "own_quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Own Quantity",
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "title": "Pool Id",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "unavailable",
+            "default": "unavailable",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "release_state": {
+            "enum": [
+              "waiting_for_approvals",
+              "ready",
+              "released",
+              "ineligible"
+            ],
+            "title": "Release State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pool_id",
+          "need_id",
+          "need_revision",
+          "evaluation_revision",
+          "evaluated_at",
+          "own_quantity",
+          "base_unit",
+          "deadline",
+          "member_count",
+          "eligibility",
+          "failure_codes",
+          "approval_state",
+          "release_state"
+        ],
+        "title": "UnavailablePoolOffer",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -2128,6 +2476,75 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/v1/businesses/{business_id}/approvals": {
+      "post": {
+        "operationId": "approval_v1_businesses__business_id__approvals_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveOrder"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalCommandResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Approval",
+        "tags": [
+          "approvals"
+        ]
+      }
+    },
     "/v1/businesses/{business_id}/ledger": {
       "get": {
         "operationId": "ledger_v1_businesses__business_id__ledger_get",
@@ -2683,6 +3100,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/HiddenPoolOffer"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UnavailablePoolOffer"
                     }
                   ],
                   "title": "Response Offer V1 Businesses  Business Id  Pools  Pool Id  Offer Get"
@@ -2708,6 +3128,164 @@
           }
         ],
         "summary": "Offer",
+        "tags": [
+          "pools"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/pools/{pool_id}/reevaluate": {
+      "post": {
+        "operationId": "reevaluate_v1_businesses__business_id__pools__pool_id__reevaluate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "pool_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pool Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mutation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalCommandResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reevaluate",
+        "tags": [
+          "pools"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/pools/{pool_id}/withdraw": {
+      "post": {
+        "operationId": "withdraw_v1_businesses__business_id__pools__pool_id__withdraw_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "pool_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pool Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mutation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalCommandResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Withdraw",
         "tags": [
           "pools"
         ]

@@ -69,7 +69,9 @@ def view(row: dict) -> NeedView:
     )
 
 
-async def options(connection: AsyncConnection, row: dict, as_of: datetime) -> NeedOptions:
+async def options(
+    connection: AsyncConnection, row: dict, as_of: datetime, *, pool_id: UUID | None = None
+) -> NeedOptions:
     need = snapshot(row)
     stock = await current_stock(
         connection, need.business_id, need.spec_id, need.spec_revision, as_of
@@ -90,7 +92,10 @@ async def options(connection: AsyncConnection, row: dict, as_of: datetime) -> Ne
         failures.append("UNCONFIRMED_SPEC")
     if as_of >= need.order_window.end:
         failures.append("ORDER_WINDOW_EXPIRED")
-    if need.state in {"reserved", "released", "stale"}:
+    own_reservation = (
+        need.state == "reserved" and pool_id is not None and need.reserved_pool_id == pool_id
+    )
+    if need.state in {"reserved", "released", "stale"} and not own_reservation:
         failures.append("NEED_COMMITTED" if need.state != "stale" else "STALE_NEED")
     candidates = []
     stated_valid = False
@@ -109,7 +114,7 @@ async def options(connection: AsyncConnection, row: dict, as_of: datetime) -> Ne
             QuantityNeed(
                 quantity=need.quantity,
                 pack_multiple=need.pack_multiple,
-                selected=need.state == "selected",
+                selected=need.state == "selected" or own_reservation,
             ),
             quotes,
             constraints,

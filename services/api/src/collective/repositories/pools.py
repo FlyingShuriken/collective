@@ -4,8 +4,9 @@ from uuid import UUID
 from psycopg import AsyncConnection
 from psycopg.types.json import Jsonb
 
-from collective.api.dto import PoolOffer
+from collective.api.dto import PoolOffer, UnavailablePoolOffer
 from collective.api.errors import DomainError
+from collective.domain.approvals import bound_terms
 from collective.domain.pools import PoolEvaluation
 from collective.repositories.events import Event, append_event
 from collective.repositories.locks import lock_cohorts
@@ -70,7 +71,7 @@ async def supplier_mapping_confirmed(
 
 async def own_offer(
     connection: AsyncConnection, business: UUID, pool: UUID, as_of: datetime
-) -> PoolOffer:
+) -> PoolOffer | UnavailablePoolOffer:
     row = await (
         await connection.execute(
             """select e.snapshot from collective.member_evaluations e
@@ -80,7 +81,10 @@ async def own_offer(
     ).fetchone()
     if row is None:
         raise DomainError("NOT_FOUND", "Resource not found.", 404)
-    offer = PoolOffer.model_validate(row["snapshot"])
+    model = (
+        UnavailablePoolOffer if row["snapshot"]["price_visibility"] == "unavailable" else PoolOffer
+    )
+    offer = model.model_validate(row["snapshot"])
     if offer.deadline <= as_of and offer.release_state != "released":
         offer = offer.model_copy(
             update={
@@ -178,6 +182,8 @@ async def reserve(
             historical_saving=member.historical_saving,
             pooling_saving=member.pooling_saving,
             credit_days=member.quote.credit_days,
+            terms=bound_terms(member),
+            conditions=member.quote.conditions,
             member_count=len(final.members),
             eligibility="eligible",
             failure_codes=(),

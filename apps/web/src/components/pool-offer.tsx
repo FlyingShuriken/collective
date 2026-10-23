@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { BoundApproval } from "@/components/bound-approval";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
@@ -10,8 +11,9 @@ import { messages, type Locale } from "@/lib/i18n";
 
 type Need = components["schemas"]["NeedView"];
 type Offer =
-  components["schemas"]["PoolOffer"] | components["schemas"]["HiddenPoolOffer"];
+  components["schemas"]["PoolOffer"] | components["schemas"]["HiddenPoolOffer"] | components["schemas"]["UnavailablePoolOffer"];
 type Discovery = components["schemas"]["DiscoveryResult"];
+type Result = components["schemas"]["ApprovalCommandResult"];
 
 export function PoolOffer({
   need,
@@ -75,6 +77,26 @@ export function PoolOffer({
     }
   }
 
+  function changed(result: Result) {
+    setOffer(result.offer);
+    onReserved(result.need);
+  }
+
+  async function command(action: "reevaluate" | "withdraw") {
+    if (!offer) return;
+    setPending(true);
+    setError("");
+    try {
+      changed(await apiRequest<Result>(`${root}/pools/${offer.pool_id}/${action}`, {
+        method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() },
+        body: JSON.stringify({ expected_revision: offer.evaluation_revision }),
+      }));
+    } catch {
+      setError(text.refreshRequired);
+      setRefresh((value) => value + 1);
+    } finally { setPending(false); }
+  }
+
   if (
     !need.reserved_pool_id &&
     (!owner || need.state !== "selected" || !need.pool_opt_in)
@@ -132,10 +154,12 @@ export function PoolOffer({
           {offer.eligibility !== "eligible" && <p>{text.poolNeedsReview}</p>}
           {offer.price_visibility === "hidden" ? (
             <p>{text.pricesHidden}</p>
-          ) : (
+          ) : offer.price_visibility === "visible" ? (
             <>
               <p className="font-medium">{offer.supplier_name}</p>
               <dl className="grid gap-3 sm:grid-cols-2">
+                <div><dt className="text-sm">{text.agreed}</dt><dd>{money(offer.agreed_delivered_cost)}</dd></div>
+                <div><dt className="text-sm">{text.expected}</dt><dd>{money(offer.expected_delivered_cost)}</dd></div>
                 <div>
                   <dt className="text-sm">{text.poolOwnCost}</dt>
                   <dd className="mt-1 text-2xl font-semibold">
@@ -164,7 +188,12 @@ export function PoolOffer({
                 {text.poolDelivery}: {date(offer.delivery_window.start)} –{" "}
                 {date(offer.delivery_window.end)}
               </p>
+              {offer.conditions && <p className="text-sm">{offer.conditions}</p>}
+              {offer.terms?.delivery_location && <p className="text-sm">{offer.terms.delivery_location}</p>}
             </>
+          ) : <p>{text.unavailableQuote}</p>}
+          {owner && offer.price_visibility !== "hidden" && (
+            <BoundApproval business={need.business_id} offer={offer} locale={locale} onChanged={changed} />
           )}
           {offer.release_state !== "released" && (
             <p className="text-sm text-muted-foreground">{text.poolNoOrder}</p>
@@ -174,12 +203,18 @@ export function PoolOffer({
       {need.reserved_pool_id && (
         <Button
           variant="outline"
+          disabled={pending}
           onClick={() => {
-            setError("");
-            setRefresh((value) => value + 1);
+            if (owner) void command("reevaluate");
+            else { setError(""); setRefresh((value) => value + 1); }
           }}
         >
           {text.refreshOffer}
+        </Button>
+      )}
+      {owner && offer && ["offered", "approved", "awaiting_reapproval"].includes(offer.member_state ?? "offered") && (
+        <Button variant="outline" disabled={pending} onClick={() => void command("withdraw")}>
+          {text.withdrawPool}
         </Button>
       )}
     </section>

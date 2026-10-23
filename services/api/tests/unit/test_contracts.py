@@ -37,6 +37,11 @@ def offer_data():
         "eligibility": "eligible",
         "failure_codes": [],
         "approval_state": "not_approved",
+        "approval_id": None,
+        "approval_reason": None,
+        "member_state": "offered",
+        "terms": None,
+        "conditions": None,
         "release_state": "waiting_for_approvals",
     }
 
