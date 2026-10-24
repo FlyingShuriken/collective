@@ -20,6 +20,7 @@ From the repository root:
 pnpm install --frozen-lockfile
 uv sync --project services/api --frozen
 cp .env.example .env
+uv run --project services/api python scripts/generate_replay_fixtures.py
 pnpm exec supabase start
 uv run --project services/api python scripts/setup_local.py
 ```

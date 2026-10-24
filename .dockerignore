@@ -6,9 +6,13 @@
 !services/api/src/
 !services/api/src/**
 !fixtures/
-!fixtures/replay/
-!fixtures/replay/**
+!fixtures/sources/
+!fixtures/sources/**
+!fixtures/gold/
+!fixtures/gold/**
 !fixtures/matching/
 !fixtures/matching/**
+!scripts/
+!scripts/generate_replay_fixtures.py
 **/__pycache__
 **/*.pyc

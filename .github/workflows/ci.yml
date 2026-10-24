@@ -25,6 +25,7 @@ jobs:
           enable-cache: true
       - run: pnpm install --frozen-lockfile
       - run: uv sync --project services/api --frozen
+      - run: uv run --project services/api python scripts/generate_replay_fixtures.py
       - run: pnpm exec playwright install --with-deps chromium
       - name: Start disposable Auth, Storage and PostgreSQL
         run: pnpm exec supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor

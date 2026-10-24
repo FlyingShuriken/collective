@@ -197,13 +197,19 @@ def main():
         ]
     readings = intake_cases()
     store = ReplayStore(ROOT / "fixtures/replay")
-    manifest = json.loads((store.root / "manifest.json").read_text())
+    store.root.mkdir(parents=True, exist_ok=True)
+    manifest_path = store.root / "manifest.json"
+    manifest = (
+        json.loads(manifest_path.read_text())
+        if manifest_path.exists()
+        else {"version": "1", "synthetic_sources": []}
+    )
     manifest["synthetic_sources"] = sorted(
         set(manifest["synthetic_sources"])
         | {doc["sha256"] for doc in documents.values()}
         | {doc["sha256"] for doc, _, _ in readings}
     )
-    (store.root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
     gateway = ReaderGateway(Settings(_env_file=ROOT / ".env"), replay=store)
     for filename, document in documents.items():
         value = QuoteReading.model_validate(cases[filename])
