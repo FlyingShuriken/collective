@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: orbyte-collective-api
+    runtime: docker
+    dockerfilePath: ./services/api/Dockerfile
+    dockerContext: .
+    plan: 0.5c-512mb
+    numInstances: 1
+    healthCheckPath: /v1/ready
+    autoDeployTrigger: "off"
+    envVars:
+      - key: ENABLE_WORKER
+        value: "true"
+      - key: DEMO_MODE
+        value: "false"
+      - key: MODEL_MODE
+        value: live
+      - key: MODEL_FAST_ID
+        sync: false
+      - key: MODEL_STRONG_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: EMBEDDING_MODE
+        value: hosted
+      - key: EMBEDDING_URL
+        sync: false
+      - key: EMBEDDING_API_KEY
+        sync: false
+      - key: EMBEDDING_MODEL_REVISION
+        value: 2d48f1737679ad900d5c26c5aad5410e9c70fdca
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SUPABASE_JWT_ISSUER
+        sync: false

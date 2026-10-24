@@ -1,0 +1,14 @@
+**
+!services/
+!services/api/
+!services/api/pyproject.toml
+!services/api/uv.lock
+!services/api/src/
+!services/api/src/**
+!fixtures/
+!fixtures/replay/
+!fixtures/replay/**
+!fixtures/matching/
+!fixtures/matching/**
+**/__pycache__
+**/*.pyc

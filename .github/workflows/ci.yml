@@ -1,0 +1,56 @@
+name: Acceptance checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      MODEL_MODE: replay
+      EMBEDDING_MODE: replay
+      DEMO_MODE: "true"
+      ENABLE_WORKER: "false"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.1
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: 0.13.1
+          enable-cache: true
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --project services/api --frozen
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Start disposable Auth, Storage and PostgreSQL
+        run: pnpm exec supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - run: uv run --project services/api python scripts/setup_local.py
+      - run: pnpm lint
+      - run: pnpm --dir apps/web typecheck
+      - run: pnpm --dir apps/web build
+      - run: pnpm contracts:check
+      - run: pnpm fixtures:check
+      - run: pnpm --dir apps/web test:format
+      - run: pnpm exec supabase db lint --local --schema collective,collective_private --level warning --fail-on warning
+      - name: Verify migration schema matches PostgreSQL
+        run: |
+          mkdir -p .cache
+          pnpm exec supabase db diff --local --schema collective,collective_private --output json > .cache/schema-drift.json
+          python -c 'import json; d=json.load(open(".cache/schema-drift.json")); assert not d["diff"] and not d["dropStatements"], "Migration schema drift detected"'
+      - name: Unit and restricted-role PostgreSQL integration tests
+        run: uv run --project services/api pytest services/api/tests/unit services/api/tests/integration -q
+      - name: Browser acceptance against the production build
+        run: pnpm exec playwright test
+        env:
+          ENABLE_WORKER: "true"
+      - name: Build API deployment image
+        run: |
+          docker build -f services/api/Dockerfile -t orbyte-api:ci .
+          docker run --rm --network none orbyte-api:ci python -c 'import json,os; from collective.adapters.replay import ReplayStore; from collective.adapters.embeddings import ROOT; assert os.getuid()!=0; s=ReplayStore(); rows=[p for p in s.root.glob("*.json") if p.name!="manifest.json"]; assert rows and (ROOT/"vectors.json").is_file(); [s.read(json.loads(p.read_text())["key"]) for p in rows]'
+      - name: Stop disposable Supabase
+        if: always()
+        run: pnpm exec supabase stop --no-backup
