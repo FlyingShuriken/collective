@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "provenance": "synthetic",
+  "id_namespace": "orbyte-fixture:",
+  "description": "Separate historical Gate 2 evidence; these are not members of the three-café purchasing demo. Expand each invoice template once per business. IDs use fixture_id(business_key + ':' + invoice_key + ':' + entity_kind).",
+  "as_of": "2026-10-23T01:00:00Z",
+  "supplier_id": "345cd004-de39-552c-8d90-154b10686c25",
+  "context": {
+    "zone": "sepang",
+    "delivery_mode": "per_business",
+    "currency": "MYR"
+  },
+  "business_keys": ["historical-a", "historical-b", "historical-c", "historical-d", "historical-e"],
+  "invoices_per_business": [
+    {"key": "july", "at": "2026-07-01T01:00:00Z", "delivery_fee": "10.00", "mismatch": false},
+    {"key": "august", "at": "2026-08-01T01:00:00Z", "delivery_fee": "15.00", "mismatch": true},
+    {"key": "september", "at": "2026-09-01T01:00:00Z", "delivery_fee": "20.00", "mismatch": false}
+  ],
+  "expected": {
+    "private_sample_count": 3,
+    "network_sample_count": 15,
+    "distinct_businesses": 5,
+    "observed_mean_fee": "15.00",
+    "minimum_fee": "10.00",
+    "maximum_fee": "20.00",
+    "mismatch_count": 5,
+    "checked_count": 15,
+    "three_business_network_eligible": false,
+    "five_business_network_eligible": true
+  }
+}
