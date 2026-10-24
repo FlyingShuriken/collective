@@ -8,6 +8,9 @@ For a step-by-step café-owner walkthrough, see the [user guide](USAGE.md).
 
 For hosted setup, environment variables and verification, follow the [deployment guide](DEPLOYMENT.md).
 
+## Pitching Video Link
+https://youtu.be/Qhsa5VxFQh8
+
 ## Getting started
 
 ### Prerequisites
