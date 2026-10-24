@@ -97,7 +97,7 @@
           "amount": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -268,7 +268,7 @@
         "additionalProperties": false,
         "properties": {
           "cap": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Cap",
             "type": "string"
           },
@@ -326,7 +326,7 @@
           "reviewed_decision_cost": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -442,7 +442,7 @@
           "agreed_cost": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -454,7 +454,7 @@
           "decision_cost": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -466,7 +466,7 @@
           "delivery_fee": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -478,7 +478,7 @@
           "discount": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -490,7 +490,7 @@
           "expected_cost": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -526,7 +526,7 @@
           "goods": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -572,7 +572,7 @@
           "surcharge": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -584,7 +584,7 @@
           "tax": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -596,7 +596,7 @@
           "threshold_goods": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -801,7 +801,7 @@
           "review_value": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -1103,7 +1103,7 @@
           "collection_share": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -1507,6 +1507,84 @@
           "created_at"
         ],
         "title": "HiddenDraft",
+        "type": "object"
+      },
+      "HiddenInvoiceCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "po_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Id"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "purchase_id": {
+            "format": "uuid",
+            "title": "Purchase Id",
+            "type": "string"
+          },
+          "purchase_revision": {
+            "minimum": 1.0,
+            "title": "Purchase Revision",
+            "type": "integer"
+          },
+          "review_status": {
+            "enum": [
+              "pending",
+              "confirmed",
+              "rejected"
+            ],
+            "title": "Review Status",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "unmatched",
+              "passed",
+              "flagged"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "purchase_id",
+          "purchase_revision",
+          "po_id",
+          "status",
+          "review_status",
+          "revision",
+          "created_at"
+        ],
+        "title": "HiddenInvoiceCheck",
         "type": "object"
       },
       "HiddenLedgerEntry": {
@@ -2154,7 +2232,7 @@
           "calculated_goods": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -2166,7 +2244,7 @@
           "calculated_total": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -2250,7 +2328,7 @@
           "delivery_fee": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -2277,7 +2355,7 @@
           "discount": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -2321,7 +2399,7 @@
           "goods_total": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -2443,7 +2521,7 @@
           "surcharge": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -2455,7 +2533,7 @@
           "tax_amount": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -2479,7 +2557,7 @@
           "total": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -2493,6 +2571,199 @@
           "kind"
         ],
         "title": "IntakeReading",
+        "type": "object"
+      },
+      "InvoiceCheckPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/VisibleInvoiceCheck"
+                },
+                {
+                  "$ref": "#/components/schemas/HiddenInvoiceCheck"
+                }
+              ]
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "InvoiceCheckPage",
+        "type": "object"
+      },
+      "InvoiceCheckResult": {
+        "additionalProperties": false,
+        "properties": {
+          "complete": {
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "differences": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceDifference"
+            },
+            "title": "Differences",
+            "type": "array"
+          },
+          "failure_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failure Codes",
+            "type": "array"
+          },
+          "missing_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Fields",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "unmatched",
+              "passed",
+              "flagged"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "tolerances": {
+            "$ref": "#/components/schemas/InvoiceTolerances"
+          },
+          "total_variance": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Variance"
+          },
+          "version": {
+            "const": "invoice-v1",
+            "default": "invoice-v1",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "differences",
+          "missing_fields",
+          "failure_codes",
+          "total_variance",
+          "complete",
+          "tolerances"
+        ],
+        "title": "InvoiceCheckResult",
+        "type": "object"
+      },
+      "InvoiceDifference": {
+        "additionalProperties": false,
+        "properties": {
+          "agreed": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "type": "string"
+              }
+            ],
+            "title": "Agreed"
+          },
+          "amount_difference": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Difference"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "type": "string"
+              }
+            ],
+            "title": "Delta"
+          },
+          "field_path": {
+            "title": "Field Path",
+            "type": "string"
+          },
+          "invoiced": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "type": "string"
+              }
+            ],
+            "title": "Invoiced"
+          },
+          "kind": {
+            "enum": [
+              "unit_price",
+              "quantity",
+              "line_total",
+              "fee",
+              "total",
+              "arithmetic"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "material": {
+            "title": "Material",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "field_path",
+          "kind",
+          "agreed",
+          "invoiced",
+          "delta",
+          "material"
+        ],
+        "title": "InvoiceDifference",
         "type": "object"
       },
       "InvoiceLineReading": {
@@ -2513,7 +2784,7 @@
           "line_total": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -2572,6 +2843,130 @@
           }
         },
         "title": "InvoiceLineReading",
+        "type": "object"
+      },
+      "InvoiceOrderOption": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "issued_at": {
+            "format": "date-time",
+            "title": "Issued At",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "spec_id": {
+            "format": "uuid",
+            "title": "Spec Id",
+            "type": "string"
+          },
+          "spec_revision": {
+            "minimum": 1.0,
+            "title": "Spec Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "spec_id",
+          "spec_revision",
+          "quantity",
+          "amount",
+          "issued_at"
+        ],
+        "title": "InvoiceOrderOption",
+        "type": "object"
+      },
+      "InvoiceOrderOptions": {
+        "additionalProperties": false,
+        "properties": {
+          "orders": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceOrderOption"
+            },
+            "title": "Orders",
+            "type": "array"
+          }
+        },
+        "required": [
+          "orders"
+        ],
+        "title": "InvoiceOrderOptions",
+        "type": "object"
+      },
+      "InvoiceResolution": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "document_reference": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Document Reference",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "credit_note",
+              "corrected_invoice"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Source Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "source_id",
+          "source_sha256",
+          "document_reference",
+          "amount"
+        ],
+        "title": "InvoiceResolution",
+        "type": "object"
+      },
+      "InvoiceTolerances": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "default": "0.01",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "unit_price": {
+            "default": "0.01",
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Unit Price",
+            "type": "string"
+          }
+        },
+        "title": "InvoiceTolerances",
         "type": "object"
       },
       "JobPage": {
@@ -3022,7 +3417,7 @@
           "best_solo_cost": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -3046,7 +3441,7 @@
           "historical_comparable_cost": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -3480,7 +3875,7 @@
         "additionalProperties": false,
         "properties": {
           "agreed_delivered_cost": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Agreed Delivered Cost",
             "type": "string"
           },
@@ -3548,7 +3943,7 @@
             "type": "integer"
           },
           "current_solo_comparable_cost": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Current Solo Comparable Cost",
             "type": "string"
           },
@@ -3558,7 +3953,7 @@
             "type": "string"
           },
           "decision_delivered_cost": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Decision Delivered Cost",
             "type": "string"
           },
@@ -3585,7 +3980,7 @@
             "type": "integer"
           },
           "expected_delivered_cost": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Expected Delivered Cost",
             "type": "string"
           },
@@ -3597,12 +3992,12 @@
             "type": "array"
           },
           "historical_comparable_cost": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Historical Comparable Cost",
             "type": "string"
           },
           "historical_saving": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
             "title": "Historical Saving",
             "type": "string"
           },
@@ -3645,7 +4040,7 @@
             "type": "string"
           },
           "pooling_saving": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
             "title": "Pooling Saving",
             "type": "string"
           },
@@ -3816,7 +4211,7 @@
             "type": "array"
           },
           "cost": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Cost",
             "type": "string"
           },
@@ -3837,7 +4232,7 @@
             "type": "integer"
           },
           "extra_cash_now": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
             "title": "Extra Cash Now",
             "type": "string"
           },
@@ -3856,7 +4251,7 @@
             "type": "integer"
           },
           "saving_vs_repeat_orders": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
             "title": "Saving Vs Repeat Orders",
             "type": "string"
           }
@@ -4140,7 +4535,7 @@
           "delivery_fee": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -4191,7 +4586,7 @@
           "discount": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -4211,7 +4606,7 @@
           "free_delivery_threshold": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -4266,7 +4661,7 @@
           "surcharge": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -4673,6 +5068,39 @@
         "title": "RequestDraft",
         "type": "object"
       },
+      "RequestInvoiceCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "po_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Id"
+          },
+          "purchase_id": {
+            "format": "uuid",
+            "title": "Purchase Id",
+            "type": "string"
+          },
+          "purchase_revision": {
+            "minimum": 1.0,
+            "title": "Purchase Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "purchase_id",
+          "purchase_revision"
+        ],
+        "title": "RequestInvoiceCheck",
+        "type": "object"
+      },
       "RetryIntake": {
         "additionalProperties": false,
         "properties": {
@@ -4686,6 +5114,53 @@
           "source_sha256"
         ],
         "title": "RetryIntake",
+        "type": "object"
+      },
+      "ReviewInvoiceCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "confirm",
+              "reject",
+              "recover"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "confirmed_amount": {
+            "anyOf": [
+              {
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed Amount"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceResolution"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "expected_revision",
+          "action"
+        ],
+        "title": "ReviewInvoiceCheck",
         "type": "object"
       },
       "ReviewProposal": {
@@ -5150,7 +5625,7 @@
             "type": "string"
           },
           "cap": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Cap",
             "type": "string"
           },
@@ -5219,6 +5694,163 @@
           "terms"
         ],
         "title": "VisibleApproval",
+        "type": "object"
+      },
+      "VisibleInvoiceCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmed_amount": {
+            "anyOf": [
+              {
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed Amount"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "document_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Number"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "po_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Id"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "purchase_id": {
+            "format": "uuid",
+            "title": "Purchase Id",
+            "type": "string"
+          },
+          "purchase_revision": {
+            "minimum": 1.0,
+            "title": "Purchase Revision",
+            "type": "integer"
+          },
+          "recovery_amount": {
+            "anyOf": [
+              {
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recovery Amount"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceResolution"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceCheckResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_status": {
+            "enum": [
+              "pending",
+              "confirmed",
+              "rejected"
+            ],
+            "title": "Review Status",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "status": {
+            "enum": [
+              "unmatched",
+              "passed",
+              "flagged"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "purchase_id",
+          "purchase_revision",
+          "po_id",
+          "status",
+          "review_status",
+          "revision",
+          "created_at",
+          "result",
+          "supplier_id",
+          "source_id",
+          "document_number",
+          "confirmed_amount",
+          "recovery_amount",
+          "resolution"
+        ],
+        "title": "VisibleInvoiceCheck",
         "type": "object"
       },
       "VisibleLedgerEntry": {
@@ -5294,7 +5926,7 @@
           "total": {
             "anyOf": [
               {
-                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "pattern": "^\\d+(\\.\\d{1,2})?$",
                 "type": "string"
               },
               {
@@ -5321,7 +5953,7 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Amount",
             "type": "string"
           },
@@ -5348,7 +5980,7 @@
             "$ref": "#/components/schemas/CostBreakdown"
           },
           "decision_amount": {
-            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
             "title": "Decision Amount",
             "type": "string"
           },
@@ -6058,6 +6690,396 @@
         "summary": "Events",
         "tags": [
           "activity"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/invoice-checks": {
+      "get": {
+        "operationId": "listing_v1_businesses__business_id__invoice_checks_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "purchase_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Purchase Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "purchase_revision",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Purchase Revision"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceCheckPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Listing",
+        "tags": [
+          "invoices"
+        ]
+      },
+      "post": {
+        "operationId": "create_v1_businesses__business_id__invoice_checks_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestInvoiceCheck"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create",
+        "tags": [
+          "invoices"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/invoice-checks/order-options": {
+      "get": {
+        "operationId": "options_v1_businesses__business_id__invoice_checks_order_options_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "purchase_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Purchase Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "purchase_revision",
+            "required": true,
+            "schema": {
+              "title": "Purchase Revision",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOrderOptions"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Options",
+        "tags": [
+          "invoices"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/invoice-checks/{check_id}": {
+      "get": {
+        "operationId": "check_v1_businesses__business_id__invoice_checks__check_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "check_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Check Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/VisibleInvoiceCheck"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HiddenInvoiceCheck"
+                    }
+                  ],
+                  "title": "Response Check V1 Businesses  Business Id  Invoice Checks  Check Id  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check",
+        "tags": [
+          "invoices"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/invoice-checks/{check_id}/review": {
+      "post": {
+        "operationId": "review_v1_businesses__business_id__invoice_checks__check_id__review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "check_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Check Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewInvoiceCheck"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisibleInvoiceCheck"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review",
+        "tags": [
+          "invoices"
         ]
       }
     },

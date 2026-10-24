@@ -132,9 +132,11 @@ HANDLERS = {"reorder": handle_due, "expiry": handle_due}
 
 def configured_handlers(settings):
     from collective.services.intake_jobs import handle as handle_intake
+    from collective.services.invoice_checks import handle as handle_invoice
     from collective.services.liaison_jobs import handle_draft, handle_quote
 
     return HANDLERS | {
+        "invoice_check": handle_invoice,
         "intake": partial(handle_intake, settings=settings),
         "quote_parse": partial(handle_quote, settings=settings),
         "draft": partial(handle_draft, settings=settings),

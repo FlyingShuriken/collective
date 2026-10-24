@@ -6,7 +6,7 @@ from psycopg.types.json import Jsonb
 from pydantic import TypeAdapter, ValidationError
 
 from collective.agents.schemas import IntakeReading
-from collective.api.dto import DocumentProposal, ProposalSummary, RecordContext
+from collective.api.dto import DocumentProposal, ProposalSummary, RecordContext, RequestInvoiceCheck
 from collective.api.errors import DomainError
 from collective.domain.intake_checks import check_reading
 from collective.domain.money import round_money
@@ -415,6 +415,7 @@ async def purchase(connection, row, reading, context, lines, flags, subject):
         "update collective.purchases set sealed=true where business_id=%s and id=%s",
         (row["business_id"], identity),
     )
+    return identity
 
 
 async def stock(connection, row, reading, context, selected, value, subject, as_of):
@@ -510,7 +511,22 @@ async def confirm(connection, subject, business, identity, body, key, clock):
             raise DomainError("OWNER_REVIEW_REQUIRED", "This record requires owner review.", 403)
         as_of = clock.now()
         if reading.kind == "purchase":
-            await purchase(connection, row, reading, context, lines, flags, subject)
+            record_id = await purchase(connection, row, reading, context, lines, flags, subject)
+            if context.purpose == "delivered":
+                from collective.services import invoice_checks
+
+                await set_context(connection, "coordinator", subject)
+                await invoice_checks.enqueue(
+                    connection,
+                    business,
+                    RequestInvoiceCheck(
+                        purchase_id=record_id,
+                        purchase_revision=1,
+                    ),
+                    str(identity),
+                    as_of,
+                )
+                await set_context(connection, "tenant", subject)
         else:
             await stock(connection, row, reading, context, selected, value, subject, as_of)
         await connection.execute(

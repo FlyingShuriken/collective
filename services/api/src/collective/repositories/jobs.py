@@ -12,8 +12,14 @@ LEASE = timedelta(minutes=5)
 
 def public_status(row, as_of):
     reference = None
-    if row["kind"] in {"intake", "quote_parse", "draft"} and isinstance(row["result"], dict):
-        value = row["result"].get("proposal_id") or row["result"].get("draft_id")
+    if row["kind"] in {"intake", "quote_parse", "draft", "invoice_check"} and isinstance(
+        row["result"], dict
+    ):
+        value = (
+            row["result"].get("proposal_id")
+            or row["result"].get("draft_id")
+            or row["result"].get("invoice_check_id")
+        )
         if value:
             reference = UUID(value)
     return JobStatus(

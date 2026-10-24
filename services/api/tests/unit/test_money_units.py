@@ -1,8 +1,10 @@
 from decimal import Decimal as D
 
 import pytest
+from pydantic import TypeAdapter, ValidationError
 
 from collective.domain.money import round_money
+from collective.domain.types import DecimalValue, Money, SignedMoney
 from collective.domain.units import PackMapping, SourceLine, normalize_line
 
 
@@ -12,6 +14,21 @@ def test_money_uses_half_up_at_exact_boundaries():
     assert round_money(D("-1.005")) == D("-1.01")
     with pytest.raises(ValueError):
         round_money(D("10000000000000000"))
+
+
+def test_money_precision_matches_numeric_18_2_without_narrowing_quantity_precision():
+    assert TypeAdapter(Money).validate_python("9999999999999999.99") == D("9999999999999999.99")
+    assert TypeAdapter(SignedMoney).validate_python("-9999999999999999.99") == D(
+        "-9999999999999999.99"
+    )
+    for value in ("10000000000000000.00", "1.005", "NaN", "Infinity", 1.01):
+        for schema in (Money, SignedMoney):
+            with pytest.raises(ValidationError):
+                TypeAdapter(schema).validate_python(value)
+    with pytest.raises(ValidationError):
+        TypeAdapter(Money).validate_python("-0.01")
+    with pytest.raises(ValidationError):
+        TypeAdapter(DecimalValue).validate_python("1000000000000")
 
 
 def test_confirmed_pack_hierarchy_preserves_original_price():

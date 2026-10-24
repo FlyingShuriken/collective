@@ -34,8 +34,19 @@ DecimalValue = Annotated[
 ]
 NonNegative = Annotated[DecimalValue, Field(ge=0)]
 Positive = Annotated[DecimalValue, Field(gt=0)]
-Money = Annotated[NonNegative, Field(decimal_places=2)]
-SignedMoney = Annotated[DecimalValue, Field(decimal_places=2)]
+# Money has its own precision; nesting the six-place type retains its whole-digit limit.
+SignedMoney = Annotated[
+    Decimal,
+    BeforeValidator(decimal_input),
+    Field(max_digits=18, decimal_places=2, allow_inf_nan=False),
+    PlainSerializer(str, return_type=str),
+    WithJsonSchema({"type": "string", "pattern": r"^-?\d+(\.\d{1,2})?$"}),
+]
+Money = Annotated[
+    SignedMoney,
+    Field(ge=0),
+    WithJsonSchema({"type": "string", "pattern": r"^\d+(\.\d{1,2})?$"}),
+]
 Rate = Annotated[NonNegative, Field(le=1)]
 Revision = Annotated[int, Field(strict=True, ge=1)]
 Instant = AwareDatetime

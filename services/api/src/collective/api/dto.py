@@ -7,6 +7,7 @@ from collective.agents.schemas import IntakeReading, QuoteReading
 from collective.domain.approvals import BoundTerms
 from collective.domain.costs import CostBreakdown
 from collective.domain.intake_checks import IntakeChecks
+from collective.domain.invoices import InvoiceCheckResult
 from collective.domain.quantities import QuantityOption
 from collective.domain.replenishment import ReplenishmentResult
 from collective.domain.types import (
@@ -601,6 +602,85 @@ class ReviewProposal(Snapshot):
 
 class HiddenDraft(DraftSummary):
     price_visibility: Literal["hidden"] = "hidden"
+
+
+class RequestInvoiceCheck(Snapshot):
+    purchase_id: UUID
+    purchase_revision: Revision
+    po_id: UUID | None = None
+
+
+class InvoiceResolution(Snapshot):
+    kind: Literal["credit_note", "corrected_invoice"]
+    source_id: UUID
+    source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    document_reference: str = Field(min_length=1, max_length=300)
+    amount: Money
+
+    @model_validator(mode="after")
+    def meaningful(self) -> Self:
+        if (
+            not self.document_reference.strip()
+            or "\x00" in self.document_reference
+            or self.amount <= 0
+        ):
+            raise ValueError("A positive documented resolution needs a readable reference")
+        return self
+
+
+class ReviewInvoiceCheck(Mutation):
+    action: Literal["confirm", "reject", "recover"]
+    confirmed_amount: Money | None = None
+    resolution: InvoiceResolution | None = None
+
+    @model_validator(mode="after")
+    def action_fields(self) -> Self:
+        if (self.action == "recover") != (self.resolution is not None):
+            raise ValueError("Recovery requires a documented resolution")
+        if (self.action == "confirm") != (self.confirmed_amount is not None):
+            raise ValueError("Confirm the discrepancy value separately")
+        return self
+
+
+class HiddenInvoiceCheck(Snapshot):
+    id: UUID
+    purchase_id: UUID
+    purchase_revision: Revision
+    po_id: UUID | None
+    status: Literal["unmatched", "passed", "flagged"]
+    review_status: Literal["pending", "confirmed", "rejected"]
+    revision: Revision
+    created_at: Instant
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class VisibleInvoiceCheck(HiddenInvoiceCheck):
+    price_visibility: Literal["visible"] = "visible"
+    result: InvoiceCheckResult | None
+    supplier_id: UUID
+    source_id: UUID | None
+    document_number: str | None
+    confirmed_amount: Money | None
+    recovery_amount: Money | None
+    resolution: InvoiceResolution | None
+
+
+class InvoiceCheckPage(Snapshot):
+    items: tuple[VisibleInvoiceCheck | HiddenInvoiceCheck, ...]
+    next_cursor: UUID | None = None
+
+
+class InvoiceOrderOption(Snapshot):
+    id: UUID
+    spec_id: UUID
+    spec_revision: Revision
+    quantity: Positive
+    amount: Money
+    issued_at: Instant
+
+
+class InvoiceOrderOptions(Snapshot):
+    orders: tuple[InvoiceOrderOption, ...]
 
 
 class DraftView(DraftSummary):

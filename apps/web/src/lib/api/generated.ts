@@ -91,6 +91,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/invoice-checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listing */
+        get: operations["listing_v1_businesses__business_id__invoice_checks_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_v1_businesses__business_id__invoice_checks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/invoice-checks/order-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Options */
+        get: operations["options_v1_businesses__business_id__invoice_checks_order_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/invoice-checks/{check_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check */
+        get: operations["check_v1_businesses__business_id__invoice_checks__check_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/invoice-checks/{check_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review */
+        post: operations["review_v1_businesses__business_id__invoice_checks__check_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/businesses/{business_id}/jobs": {
         parameters: {
             query?: never;
@@ -1228,6 +1297,46 @@ export interface components {
              */
             status: "draft" | "sent_simulated";
         };
+        /** HiddenInvoiceCheck */
+        HiddenInvoiceCheck: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Po Id */
+            po_id: string | null;
+            /**
+             * Price Visibility
+             * @default hidden
+             * @constant
+             */
+            price_visibility: "hidden";
+            /**
+             * Purchase Id
+             * Format: uuid
+             */
+            purchase_id: string;
+            /** Purchase Revision */
+            purchase_revision: number;
+            /**
+             * Review Status
+             * @enum {string}
+             */
+            review_status: "pending" | "confirmed" | "rejected";
+            /** Revision */
+            revision: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "unmatched" | "passed" | "flagged";
+        };
         /** HiddenLedgerEntry */
         HiddenLedgerEntry: {
             /**
@@ -1599,6 +1708,58 @@ export interface components {
             /** Total */
             total?: string | null;
         };
+        /** InvoiceCheckPage */
+        InvoiceCheckPage: {
+            /** Items */
+            items: (components["schemas"]["VisibleInvoiceCheck"] | components["schemas"]["HiddenInvoiceCheck"])[];
+            /** Next Cursor */
+            next_cursor?: string | null;
+        };
+        /** InvoiceCheckResult */
+        InvoiceCheckResult: {
+            /** Complete */
+            complete: boolean;
+            /** Differences */
+            differences: components["schemas"]["InvoiceDifference"][];
+            /** Failure Codes */
+            failure_codes: string[];
+            /** Missing Fields */
+            missing_fields: string[];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "unmatched" | "passed" | "flagged";
+            tolerances: components["schemas"]["InvoiceTolerances"];
+            /** Total Variance */
+            total_variance: string | null;
+            /**
+             * Version
+             * @default invoice-v1
+             * @constant
+             */
+            version: "invoice-v1";
+        };
+        /** InvoiceDifference */
+        InvoiceDifference: {
+            /** Agreed */
+            agreed: string;
+            /** Amount Difference */
+            amount_difference?: string | null;
+            /** Delta */
+            delta: string;
+            /** Field Path */
+            field_path: string;
+            /** Invoiced */
+            invoiced: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "unit_price" | "quantity" | "line_total" | "fee" | "total" | "arithmetic";
+            /** Material */
+            material: boolean;
+        };
         /** InvoiceLineReading */
         InvoiceLineReading: {
             /** Description */
@@ -1613,6 +1774,67 @@ export interface components {
             unit?: string | null;
             /** Unit Price */
             unit_price?: string | null;
+        };
+        /** InvoiceOrderOption */
+        InvoiceOrderOption: {
+            /** Amount */
+            amount: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Issued At
+             * Format: date-time
+             */
+            issued_at: string;
+            /** Quantity */
+            quantity: string;
+            /**
+             * Spec Id
+             * Format: uuid
+             */
+            spec_id: string;
+            /** Spec Revision */
+            spec_revision: number;
+        };
+        /** InvoiceOrderOptions */
+        InvoiceOrderOptions: {
+            /** Orders */
+            orders: components["schemas"]["InvoiceOrderOption"][];
+        };
+        /** InvoiceResolution */
+        InvoiceResolution: {
+            /** Amount */
+            amount: string;
+            /** Document Reference */
+            document_reference: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "credit_note" | "corrected_invoice";
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Source Sha256 */
+            source_sha256: string;
+        };
+        /** InvoiceTolerances */
+        InvoiceTolerances: {
+            /**
+             * Amount
+             * @default 0.01
+             */
+            amount: string;
+            /**
+             * Unit Price
+             * @default 0.01
+             */
+            unit_price: string;
         };
         /** JobPage */
         JobPage: {
@@ -2359,10 +2581,35 @@ export interface components {
              */
             supplier_id: string;
         };
+        /** RequestInvoiceCheck */
+        RequestInvoiceCheck: {
+            /** Po Id */
+            po_id?: string | null;
+            /**
+             * Purchase Id
+             * Format: uuid
+             */
+            purchase_id: string;
+            /** Purchase Revision */
+            purchase_revision: number;
+        };
         /** RetryIntake */
         RetryIntake: {
             /** Source Sha256 */
             source_sha256: string;
+        };
+        /** ReviewInvoiceCheck */
+        ReviewInvoiceCheck: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "confirm" | "reject" | "recover";
+            /** Confirmed Amount */
+            confirmed_amount?: string | null;
+            /** Expected Revision */
+            expected_revision: number;
+            resolution?: components["schemas"]["InvoiceResolution"] | null;
         };
         /** ReviewProposal */
         ReviewProposal: {
@@ -2575,6 +2822,61 @@ export interface components {
              */
             state: "valid" | "void" | "expired" | "withdrawn" | "released";
             terms: components["schemas"]["BoundTerms"];
+        };
+        /** VisibleInvoiceCheck */
+        VisibleInvoiceCheck: {
+            /** Confirmed Amount */
+            confirmed_amount: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Document Number */
+            document_number: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Po Id */
+            po_id: string | null;
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /**
+             * Purchase Id
+             * Format: uuid
+             */
+            purchase_id: string;
+            /** Purchase Revision */
+            purchase_revision: number;
+            /** Recovery Amount */
+            recovery_amount: string | null;
+            resolution: components["schemas"]["InvoiceResolution"] | null;
+            result: components["schemas"]["InvoiceCheckResult"] | null;
+            /**
+             * Review Status
+             * @enum {string}
+             */
+            review_status: "pending" | "confirmed" | "rejected";
+            /** Revision */
+            revision: number;
+            /** Source Id */
+            source_id: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "unmatched" | "passed" | "flagged";
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
         };
         /** VisibleLedgerEntry */
         VisibleLedgerEntry: {
@@ -2957,6 +3259,183 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ActivityPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listing_v1_businesses__business_id__invoice_checks_get: {
+        parameters: {
+            query?: {
+                purchase_id?: string | null;
+                purchase_revision?: number | null;
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceCheckPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_v1_businesses__business_id__invoice_checks_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestInvoiceCheck"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    options_v1_businesses__business_id__invoice_checks_order_options_get: {
+        parameters: {
+            query: {
+                purchase_id: string;
+                purchase_revision: number;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceOrderOptions"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_v1_businesses__business_id__invoice_checks__check_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                check_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VisibleInvoiceCheck"] | components["schemas"]["HiddenInvoiceCheck"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_v1_businesses__business_id__invoice_checks__check_id__review_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                check_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewInvoiceCheck"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VisibleInvoiceCheck"];
                 };
             };
             /** @description Validation Error */

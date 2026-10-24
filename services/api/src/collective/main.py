@@ -12,6 +12,7 @@ from collective.api.dto import PUBLIC_MODELS, HealthResponse
 from collective.api.errors import DomainError, install_error_handlers
 from collective.api.event_routes import router as event_router
 from collective.api.hub_routes import router as hub_router
+from collective.api.invoice_routes import router as invoice_router
 from collective.api.job_routes import router as job_router
 from collective.api.ledger_routes import router as ledger_router
 from collective.api.need_routes import router as need_router
@@ -63,6 +64,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(source_router)
     app.include_router(draft_router)
     app.include_router(proposal_router)
+    app.include_router(invoice_router)
 
     @app.middleware("http")
     async def private_responses(request: Request, call_next):

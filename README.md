@@ -82,7 +82,7 @@ uv run --project services/api python -m collective.jobs.runner --once
 
 Jobs have five-minute leases and at most three processing attempts. Expired leases can
 be reclaimed; stale workers cannot commit outputs. Results, state and audit events commit
-together. Reorder/expiry, invoice/stock intake, supplier quote-reading and message-drafting
+together. Reorder/expiry, invoice/stock intake, invoice checking, supplier quote-reading and message-drafting
 handlers use this runner.
 
 The Sources section accepts private PNG/JPEG/PDF files up to 10 MB and 10 pages,
@@ -105,6 +105,14 @@ its pending reading and original evidence, edit fields, select confirmed mapping
 revision and explicitly confirm or reject. Confirmation refreshes current buying comparisons.
 The synthetic demo does not establish automatic masking or
 retention suitability for arbitrary real invoices.
+
+Confirming a delivered purchase queues a deterministic invoice check. An invoice without
+an explicitly selected usable PO remains unmatched. The invoice-check API can bind the
+confirmed purchase revision to an own issued PO; it compares the final issued tier and
+agreed fees, preserves every difference and records ringgit materiality. Owners can confirm
+or reject a discrepancy, then separately record a documented correction/credit from a
+different reviewed source. A query draft or simulated Send never counts as recovered money.
+The invoice-check interface and complete single-business browser walkthrough remain T18 work.
 
 `MODEL_MODE=replay` is the default. Declared synthetic quote text, invoice PNG/PDF and
 BM stock text have authored replays; these are workflow fixtures, not measured model output.
