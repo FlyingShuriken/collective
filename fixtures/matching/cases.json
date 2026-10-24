@@ -1,0 +1,21 @@
+{
+  "version": "1",
+  "provenance": "synthetic",
+  "catalogue": [
+    {"key": "paper-250-80", "text": "250ml paper cup, paper material, 80mm lid diameter", "capacity_ml": "250", "lid_diameter_mm": "80", "material": "paper"},
+    {"key": "paper-350-90", "text": "350ml paper cup, paper material, 90mm lid diameter", "capacity_ml": "350", "lid_diameter_mm": "90", "material": "paper"},
+    {"key": "plastic-250-80", "text": "250ml plastic cup, plastic material, 80mm lid diameter", "capacity_ml": "250", "lid_diameter_mm": "80", "material": "plastic"},
+    {"key": "paper-250-90", "text": "250ml paper cup, paper material, 90mm lid diameter", "capacity_ml": "250", "lid_diameter_mm": "90", "material": "paper"}
+  ],
+  "queries": [
+    {"key": "english", "text": "250ml paper cup with 80mm lid", "expected": "paper-250-80", "capacity_ml": "250", "lid_diameter_mm": "80", "material": "paper", "pack_factors": ["1"]},
+    {"key": "malay", "text": "Cawan kertas 250ml, diameter penutup 80mm", "expected": "paper-250-80", "capacity_ml": "250", "lid_diameter_mm": "80", "material": "paper", "pack_factors": ["1"]},
+    {"key": "chinese", "text": "250毫升纸杯，80毫米杯盖", "expected": "paper-250-80", "capacity_ml": "250", "lid_diameter_mm": "80", "material": "paper", "pack_factors": ["1"]},
+    {"key": "carton", "text": "250ml paper cups 80mm lid, carton of 20 packs of 50 pieces", "expected": "paper-250-80", "capacity_ml": "250", "lid_diameter_mm": "80", "material": "paper", "pack_factors": ["20", "50"]},
+    {"key": "box", "text": "250ml paper cups 80mm lid, box of 100 pieces", "expected": "paper-250-80", "capacity_ml": "250", "lid_diameter_mm": "80", "material": "paper", "pack_factors": ["100"]},
+    {"key": "eight-oz", "text": "8oz paper cups with 80mm lids", "expected": null, "capacity_ml": null, "lid_diameter_mm": "80", "material": "paper", "ambiguous_capacity": true},
+    {"key": "wrong-lid", "text": "250ml paper cup with 90mm lid", "expected": "paper-250-90", "capacity_ml": "250", "lid_diameter_mm": "90", "material": "paper"},
+    {"key": "wrong-material", "text": "250ml plastic cup with 80mm lid", "expected": "plastic-250-80", "capacity_ml": "250", "lid_diameter_mm": "80", "material": "plastic"},
+    {"key": "unspecified", "text": "Cups for drinks", "expected": null, "capacity_ml": null, "lid_diameter_mm": null, "material": null}
+  ]
+}

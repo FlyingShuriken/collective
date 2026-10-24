@@ -1,0 +1,12 @@
+{
+  "version": "1",
+  "provenance": "recorded_synthetic_local_quantized_inference",
+  "source_model": "BAAI/bge-m3",
+  "model_id": "gpustack/bge-m3-GGUF",
+  "model_revision": "2d48f1737679ad900d5c26c5aad5410e9c70fdca",
+  "weights_sha256": "6d39681b26c61279ac1f82db35a04a05009e94c415b51c858ff571489a82fc06",
+  "pooling": "cls",
+  "dimensions": 1024,
+  "vectors_path": "vectors.json",
+  "vectors_sha256": "b60f8e21102cd3bf88c5968bb12625a520d0dc3681e963655470c2f8d5868b8d"
+}
