@@ -7,7 +7,7 @@ from collective.api.dto import DiscoverPool, DiscoveryResult
 from collective.api.errors import DomainError
 from collective.domain.clock import Clock
 from collective.domain.pools import MemberSnapshot, discover_pool, shared_terms
-from collective.repositories import pools
+from collective.repositories import pools, rules
 from collective.repositories.db import set_context
 from collective.repositories.ledger import historical_basis
 from collective.repositories.mutations import previous_mutation, save_mutation
@@ -84,7 +84,11 @@ async def discover(
                 ):
                     continue
                 member = MemberSnapshot(
-                    need=needs.snapshot(row), quote=quote, solo_quotes=quotes, history=history
+                    need=needs.snapshot(row),
+                    quote=quote,
+                    solo_quotes=quotes,
+                    history=history,
+                    fee_rules=await rules.fee_rules(connection, row["business_id"]),
                 )
                 groups.setdefault(shared_terms(quote), []).append(member)
         # shortcut: enumerate this small demo; replace the solver before supporting larger cohorts.

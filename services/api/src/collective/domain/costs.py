@@ -88,6 +88,7 @@ class FeeRule(Snapshot):
     supplier_id: UUID
     zone: str
     delivery_mode: Literal["per_business", "collection_point"]
+    delivery_location: str | None = None
     amount: Money
 
 
@@ -126,6 +127,7 @@ def applicable_fee_rule(quote: Quote, rules: tuple[FeeRule, ...]) -> FeeRule | N
         and r.sample_count >= 3
         and (r.business_id, r.supplier_id, r.zone, r.delivery_mode)
         == (quote.business_id, quote.supplier_id, quote.zone, quote.delivery_mode)
+        and r.delivery_location == quote.delivery_location
     ]
     return max(matches, key=lambda rule: (rule.revision, str(rule.id)), default=None)
 
@@ -216,6 +218,7 @@ def calculate_cost(
             and rule.supplier_id == quote.supplier_id
             and rule.zone == quote.zone
             and rule.delivery_mode == quote.delivery_mode
+            and rule.delivery_location == quote.delivery_location
         )
         expected_fee = rule.amount if comparable_rule else fee
 

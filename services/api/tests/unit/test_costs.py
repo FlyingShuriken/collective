@@ -2,7 +2,13 @@ from decimal import Decimal as D
 
 import pytest
 
-from collective.domain.costs import DeliveryContext, FeeRule, Quote, calculate_cost
+from collective.domain.costs import (
+    DeliveryContext,
+    FeeRule,
+    Quote,
+    applicable_fee_rule,
+    calculate_cost,
+)
 from tests.fixtures import fixture_id, scenario, scenario_time
 
 
@@ -105,6 +111,34 @@ def test_accepted_fee_warning_never_rewrites_the_agreement():
     assert result.expected_cost == 300 and result.decision_cost == 315
     unaccepted = FeeRule.model_validate(fee.model_dump() | {"accepted": False})
     assert calculate_cost(D("1000"), quote(), context(), unaccepted).fee_unverified
+
+
+def test_collection_fee_rule_must_match_the_frozen_collection_location():
+    q = quote(delivery_mode="collection_point", delivery_location="hub-a")
+    delivery = context().model_copy(
+        update={
+            "collection_location": "hub-a",
+            "collection_shares": (D("15"),),
+            "own_collection_share": D("15"),
+        }
+    )
+    rule = FeeRule(
+        id=fixture_id("collection-fee"),
+        revision=1,
+        accepted=True,
+        sample_count=3,
+        business_id=q.business_id,
+        supplier_id=q.supplier_id,
+        zone=q.zone,
+        delivery_mode="collection_point",
+        delivery_location="hub-a",
+        amount="20.00",
+    )
+    other = rule.model_copy(update={"delivery_location": "hub-b"})
+    assert applicable_fee_rule(q, (other,)) is None
+    assert calculate_cost(D("1000"), q, delivery, other).fee_unverified
+    result = calculate_cost(D("1000"), q, delivery, applicable_fee_rule(q, (rule, other)))
+    assert result.agreed_cost == 315 and result.expected_cost == result.decision_cost == 320
 
 
 @pytest.mark.parametrize(

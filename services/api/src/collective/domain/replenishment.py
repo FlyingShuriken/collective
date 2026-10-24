@@ -34,6 +34,7 @@ class UsageInput(Snapshot):
     rule_daily_rate: Positive | None = None
     rule_accepted: bool = False
     rule_revision: Revision | None = None
+    rule_id: UUID | None = None
 
     @model_validator(mode="after")
     def accepted_rule_has_provenance(self) -> Self:
@@ -50,6 +51,7 @@ class LeadTime(Snapshot):
 class ReplenishmentResult(Snapshot):
     daily_rate: Positive | None = None
     usage_rule_revision: Revision | None = None
+    usage_rule_id: UUID | None = None
     stock_at_now: NonNegative | None = None
     stock_at_arrival: NonNegative | None = None
     run_out_at: Instant | None = None
@@ -107,6 +109,7 @@ def estimate_replenishment(
     return ReplenishmentResult(
         daily_rate=rate,
         usage_rule_revision=usage.rule_revision if usage.rule_accepted else None,
+        usage_rule_id=usage.rule_id if usage.rule_accepted else None,
         stock_at_now=current.quantize(Decimal("0.000001")),
         stock_at_arrival=at_arrival.quantize(Decimal("0.000001")),
         run_out_at=run_out,

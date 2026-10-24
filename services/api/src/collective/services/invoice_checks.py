@@ -230,6 +230,9 @@ async def handle(database, job, clock):
                 }[checked.status],
             ),
         )
+        from collective.services.rules import enqueue as enqueue_rules
+
+        await enqueue_rules(connection, business, identity, 1, clock.now())
         await jobs.complete(connection, job, {"invoice_check_id": str(identity)}, clock.now())
 
 

@@ -2,7 +2,13 @@ from datetime import datetime
 from decimal import ROUND_CEILING, Decimal
 from uuid import UUID
 
-from collective.domain.costs import DeliveryContext, Quote, calculate_cost
+from collective.domain.costs import (
+    DeliveryContext,
+    FeeRule,
+    Quote,
+    applicable_fee_rule,
+    calculate_cost,
+)
 from collective.domain.types import (
     Money,
     NonNegative,
@@ -63,6 +69,7 @@ def suggest_quantities(
     quotes: list[Quote],
     constraints: QuantityConstraints,
     as_of: datetime,
+    fee_rules: tuple[FeeRule, ...] = (),
 ) -> list[QuantityOption]:
     def pack_round(quantity):
         return (quantity / need.pack_multiple).to_integral_value(
@@ -89,7 +96,7 @@ def suggest_quantities(
                     else (),
                     own_collection_share=quote.delivery_fee,
                 ),
-                None,
+                applicable_fee_rule(quote, fee_rules),
             )
             if cost.decision_cost is not None:
                 candidates.append((cost.decision_cost, str(quote.id), quote))

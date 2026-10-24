@@ -185,7 +185,12 @@ async def draft_context(connection, business, body):
             (business,),
         )
     ).fetchone()
+    from collective.repositories.rules import accuracy_warnings
+
     facts |= {"supplier": target["name"], "language": business_row["locale"]}
+    warnings = await accuracy_warnings(connection, business, body.supplier_id)
+    if warnings:
+        facts["accuracy_warnings"] = warnings
     return json.loads(json.dumps(facts, default=str)), target["contact"] or target["name"]
 
 

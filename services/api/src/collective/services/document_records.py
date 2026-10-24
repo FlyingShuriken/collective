@@ -360,6 +360,12 @@ async def purchase(connection, row, reading, context, lines, flags, subject):
         "delivery_mode",
     )
     values = {name: getattr(reading, name) for name in fields}
+    business_context = await (
+        await connection.execute(
+            "select zone from collective.businesses where id=%s",
+            (row["business_id"],),
+        )
+    ).fetchone()
     unresolved = set(flags) - {"reading:review", "fields:review", "evidence:review"}
     values |= {
         "business_id": row["business_id"],
@@ -367,6 +373,7 @@ async def purchase(connection, row, reading, context, lines, flags, subject):
         "revision": 1,
         "supplier_id": context.supplier_id,
         "purpose": context.purpose,
+        "delivery_zone": business_context["zone"],
         "source_id": row["source_id"],
         "proposal_id": row["id"],
         "proposal_revision": row["current_revision"],
@@ -543,6 +550,9 @@ async def confirm(connection, subject, business, identity, body, key, clock):
                 (list(specs),),
             )
         ).fetchall()
+        from collective.services.rules import enqueue as enqueue_rules
+
+        await enqueue_rules(connection, business, row["id"], row["current_revision"], as_of)
         for pool in active:
             await recalculate(connection, pool, as_of)
         for approval in approvals:

@@ -299,6 +299,16 @@ def test_equivalent_timezones_do_not_change_evidence_identity_or_proposal_digest
     )
 
 
+def test_a_new_excluded_check_changes_the_proposal_audit_digest():
+    valid = checked("valid")
+    original = accuracy_proposal([valid], ACCURACY, scenario_time())
+    updated = accuracy_proposal(
+        [valid, checked("unmatched", check_invoice(fixtures()[0], None))], ACCURACY, scenario_time()
+    )
+    assert updated.value == original.value
+    assert updated.excluded_count == 1 and updated.evidence_digest != original.evidence_digest
+
+
 def test_five_business_history_has_independent_counts_and_network_threshold():
     fixture = json.loads((ROOT / "fixtures/scenarios/five-business-history.json").read_text())
     as_of = datetime.fromisoformat(fixture["as_of"])

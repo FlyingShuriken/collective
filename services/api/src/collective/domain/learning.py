@@ -174,6 +174,8 @@ def calculation(context, value, samples, records, dates, excluded, uncertainty):
         "version": "learning-v1",
         "context": context.model_dump(mode="json"),
         "value": value.model_dump(mode="json"),
+        "excluded_count": excluded,
+        "uncertainty": uncertainty,
         "records": [r.model_dump(mode="json") for r in records],
     }
     digest = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode())

@@ -14,7 +14,12 @@ from collective.api.dto import (
 )
 from collective.api.errors import DomainError
 from collective.domain.baselines import comparable_quote, historical_cost, solo_cost
-from collective.domain.costs import CostBreakdown, DeliveryContext, calculate_cost
+from collective.domain.costs import (
+    CostBreakdown,
+    DeliveryContext,
+    applicable_fee_rule,
+    calculate_cost,
+)
 from collective.domain.quantities import (
     QuantityConstraints,
     QuantityNeed,
@@ -23,6 +28,7 @@ from collective.domain.quantities import (
 )
 from collective.domain.replenishment import LeadTime, UsageInput, estimate_replenishment
 from collective.domain.types import NeedSnapshot
+from collective.repositories import rules
 from collective.repositories.events import Event, append_event
 from collective.repositories.ledger import current_stock, historical_basis
 from collective.repositories.locks import lock_cohorts
@@ -82,7 +88,7 @@ async def options(
     stock = await current_stock(
         connection, need.business_id, need.spec_id, need.spec_revision, as_of
     )
-    usage = UsageInput.model_validate(row["usage_input"] or {})
+    usage = await rules.usage_input(connection, row)
     failures = []
     if row["lead_days"] is None or row["buffer_days"] is None:
         raise DomainError(
@@ -125,6 +131,7 @@ async def options(
             quotes,
             constraints,
             as_of,
+            await rules.fee_rules(connection, need.business_id),
         )
         if not candidates:
             failures.append("NO_ELIGIBLE_QUOTE" if stated_valid else "QUANTITY_CONSTRAINT_FAILED")
@@ -142,6 +149,7 @@ async def comparisons(connection: AsyncConnection, row: dict, as_of: datetime) -
     need = snapshot(row)
     records = await confirmed_quotes(connection, need.business_id, need.spec_id)
     basis = await historical_basis(connection, need)
+    fees = await rules.fee_rules(connection, need.business_id)
     offers = []
     for record in records:
         raw, quote = record.row, record.quote
@@ -172,7 +180,7 @@ async def comparisons(connection: AsyncConnection, row: dict, as_of: datetime) -
                     else (),
                     own_collection_share=quote.delivery_fee,
                 ),
-                None,
+                applicable_fee_rule(quote, fees),
             )
         failures.extend(cost.failure_codes)
         offers.append(
@@ -187,9 +195,12 @@ async def comparisons(connection: AsyncConnection, row: dict, as_of: datetime) -
                 cost=cost,
                 missing_fields=record.missing_fields,
                 failure_codes=tuple(failures),
+                accuracy_warnings=await rules.accuracy_warnings(
+                    connection, need.business_id, raw["supplier_id"]
+                ),
             )
         )
-    solo = solo_cost(need, tuple(r.quote for r in records if r.quote), as_of, ())
+    solo = solo_cost(need, tuple(r.quote for r in records if r.quote), as_of, fees)
     return NeedComparisons(
         need=view(row),
         evaluated_at=as_of,

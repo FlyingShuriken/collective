@@ -8,6 +8,15 @@ from collective.domain.approvals import BoundTerms
 from collective.domain.costs import CostBreakdown
 from collective.domain.intake_checks import IntakeChecks
 from collective.domain.invoices import InvoiceCheckResult
+from collective.domain.learning import (
+    AccuracyContext,
+    AccuracyValue,
+    EvidenceReference,
+    FeeContext,
+    FeeValue,
+    UsageContext,
+    UsageValue,
+)
 from collective.domain.quantities import QuantityOption
 from collective.domain.replenishment import ReplenishmentResult
 from collective.domain.types import (
@@ -179,6 +188,16 @@ class NeedOptions(Snapshot):
     failure_codes: tuple[str, ...]
 
 
+class AccuracyWarning(Snapshot):
+    rule_id: UUID
+    rule_revision: Revision
+    mismatch_count: int = Field(strict=True, ge=0)
+    checked_count: int = Field(strict=True, ge=1)
+    period_start: Instant
+    period_end: Instant
+    uncertainty: tuple[str, ...]
+
+
 class OfferComparison(Snapshot):
     quote_id: UUID
     quote_revision: Revision
@@ -190,6 +209,7 @@ class OfferComparison(Snapshot):
     cost: CostBreakdown
     missing_fields: tuple[str, ...]
     failure_codes: tuple[str, ...]
+    accuracy_warnings: tuple[AccuracyWarning, ...] = ()
 
 
 class NeedComparisons(Snapshot):
@@ -726,6 +746,55 @@ class MessageReceipt(Snapshot):
     draft_revision: Revision
     created_at: Instant
     simulated: Literal[True] = True
+
+
+class RuleTransition(Snapshot):
+    revision: Revision
+    state: Literal["accepted", "rejected", "revoked", "superseded"]
+    reviewed_by: UUID
+    reviewed_at: Instant
+
+
+class RuleSummary(Snapshot):
+    id: UUID
+    revision: Revision
+    scope: Literal["private", "network"]
+    kind: Literal["usage", "observed_fee", "quote_accuracy"]
+    state: Literal["proposed", "accepted", "rejected", "revoked", "superseded"]
+    sample_count: int = Field(strict=True, ge=1)
+    distinct_businesses: int = Field(strict=True, ge=1)
+    period_start: Instant
+    period_end: Instant
+    uncertainty: tuple[str, ...]
+    excluded_count: int = Field(strict=True, ge=0)
+    eligible: bool
+    history: tuple[RuleTransition, ...]
+
+
+class HiddenRule(RuleSummary):
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class AggregateRule(RuleSummary):
+    scope: Literal["network"] = "network"
+    price_visibility: Literal["visible"] = "visible"
+    context: UsageContext | FeeContext | AccuracyContext
+    value: UsageValue | FeeValue | AccuracyValue = Field(discriminator="kind")
+
+
+class PrivateRule(RuleSummary):
+    scope: Literal["private"] = "private"
+    price_visibility: Literal["visible"] = "visible"
+    context: UsageContext | FeeContext | AccuracyContext
+    value: UsageValue | FeeValue | AccuracyValue = Field(discriminator="kind")
+    evidence: tuple[EvidenceReference, ...]
+
+
+class RulePage(Snapshot):
+    items: tuple[PrivateRule | AggregateRule | HiddenRule, ...]
+    next_cursor: UUID | None
+    minimum_network_businesses: Literal[5] = 5
+    latest_job: JobStatus | None = None
 
 
 PUBLIC_MODELS = (HealthResponse, ErrorResponse, Evidence, Identity, Mutation, PoolOffer)

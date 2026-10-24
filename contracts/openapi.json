@@ -1,6 +1,107 @@
 {
   "components": {
     "schemas": {
+      "AccuracyContext": {
+        "additionalProperties": false,
+        "properties": {
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "supplier_id"
+        ],
+        "title": "AccuracyContext",
+        "type": "object"
+      },
+      "AccuracyValue": {
+        "additionalProperties": false,
+        "properties": {
+          "basis": {
+            "const": "complete_issued_order_checks",
+            "default": "complete_issued_order_checks",
+            "title": "Basis",
+            "type": "string"
+          },
+          "checked_count": {
+            "minimum": 1.0,
+            "title": "Checked Count",
+            "type": "integer"
+          },
+          "kind": {
+            "const": "quote_accuracy",
+            "default": "quote_accuracy",
+            "title": "Kind",
+            "type": "string"
+          },
+          "mismatch_count": {
+            "minimum": 0.0,
+            "title": "Mismatch Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "mismatch_count",
+          "checked_count"
+        ],
+        "title": "AccuracyValue",
+        "type": "object"
+      },
+      "AccuracyWarning": {
+        "additionalProperties": false,
+        "properties": {
+          "checked_count": {
+            "minimum": 1.0,
+            "title": "Checked Count",
+            "type": "integer"
+          },
+          "mismatch_count": {
+            "minimum": 0.0,
+            "title": "Mismatch Count",
+            "type": "integer"
+          },
+          "period_end": {
+            "format": "date-time",
+            "title": "Period End",
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "title": "Period Start",
+            "type": "string"
+          },
+          "rule_id": {
+            "format": "uuid",
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "rule_revision": {
+            "minimum": 1.0,
+            "title": "Rule Revision",
+            "type": "integer"
+          },
+          "uncertainty": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Uncertainty",
+            "type": "array"
+          }
+        },
+        "required": [
+          "rule_id",
+          "rule_revision",
+          "mismatch_count",
+          "checked_count",
+          "period_start",
+          "period_end",
+          "uncertainty"
+        ],
+        "title": "AccuracyWarning",
+        "type": "object"
+      },
       "ActivityEvent": {
         "additionalProperties": false,
         "properties": {
@@ -120,6 +221,150 @@
           }
         },
         "title": "AdditionalFee",
+        "type": "object"
+      },
+      "AggregateRule": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UsageContext"
+              },
+              {
+                "$ref": "#/components/schemas/FeeContext"
+              },
+              {
+                "$ref": "#/components/schemas/AccuracyContext"
+              }
+            ],
+            "title": "Context"
+          },
+          "distinct_businesses": {
+            "minimum": 1.0,
+            "title": "Distinct Businesses",
+            "type": "integer"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "excluded_count": {
+            "minimum": 0.0,
+            "title": "Excluded Count",
+            "type": "integer"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/RuleTransition"
+            },
+            "title": "History",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "usage",
+              "observed_fee",
+              "quote_accuracy"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "period_end": {
+            "format": "date-time",
+            "title": "Period End",
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "title": "Period Start",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "sample_count": {
+            "minimum": 1.0,
+            "title": "Sample Count",
+            "type": "integer"
+          },
+          "scope": {
+            "const": "network",
+            "default": "network",
+            "title": "Scope",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "proposed",
+              "accepted",
+              "rejected",
+              "revoked",
+              "superseded"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "uncertainty": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Uncertainty",
+            "type": "array"
+          },
+          "value": {
+            "discriminator": {
+              "mapping": {
+                "observed_fee": "#/components/schemas/FeeValue",
+                "quote_accuracy": "#/components/schemas/AccuracyValue",
+                "usage": "#/components/schemas/UsageValue"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageValue"
+              },
+              {
+                "$ref": "#/components/schemas/FeeValue"
+              },
+              {
+                "$ref": "#/components/schemas/AccuracyValue"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "kind",
+          "state",
+          "sample_count",
+          "distinct_businesses",
+          "period_start",
+          "period_end",
+          "uncertainty",
+          "excluded_count",
+          "eligible",
+          "history",
+          "context",
+          "value"
+        ],
+        "title": "AggregateRule",
         "type": "object"
       },
       "Anchor": {
@@ -1347,6 +1592,125 @@
         "title": "Evidence",
         "type": "object"
       },
+      "EvidenceReference": {
+        "additionalProperties": false,
+        "properties": {
+          "business_id": {
+            "format": "uuid",
+            "title": "Business Id",
+            "type": "string"
+          },
+          "record_id": {
+            "format": "uuid",
+            "title": "Record Id",
+            "type": "string"
+          },
+          "revision": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "business_id",
+          "source_id",
+          "record_id"
+        ],
+        "title": "EvidenceReference",
+        "type": "object"
+      },
+      "FeeContext": {
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "const": "MYR",
+            "default": "MYR",
+            "title": "Currency",
+            "type": "string"
+          },
+          "delivery_location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Location"
+          },
+          "delivery_mode": {
+            "enum": [
+              "per_business",
+              "collection_point"
+            ],
+            "title": "Delivery Mode",
+            "type": "string"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          },
+          "zone": {
+            "minLength": 1,
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "supplier_id",
+          "zone",
+          "delivery_mode"
+        ],
+        "title": "FeeContext",
+        "type": "object"
+      },
+      "FeeValue": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "basis": {
+            "const": "mean_confirmed_invoice_delivery",
+            "default": "mean_confirmed_invoice_delivery",
+            "title": "Basis",
+            "type": "string"
+          },
+          "kind": {
+            "const": "observed_fee",
+            "default": "observed_fee",
+            "title": "Kind",
+            "type": "string"
+          },
+          "maximum": {
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
+            "title": "Maximum",
+            "type": "string"
+          },
+          "minimum": {
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
+            "title": "Minimum",
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "minimum",
+          "maximum"
+        ],
+        "title": "FeeValue",
+        "type": "object"
+      },
       "FieldIssue": {
         "additionalProperties": false,
         "properties": {
@@ -1950,6 +2314,115 @@
           "issued_at"
         ],
         "title": "HiddenPurchaseOrder",
+        "type": "object"
+      },
+      "HiddenRule": {
+        "additionalProperties": false,
+        "properties": {
+          "distinct_businesses": {
+            "minimum": 1.0,
+            "title": "Distinct Businesses",
+            "type": "integer"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "excluded_count": {
+            "minimum": 0.0,
+            "title": "Excluded Count",
+            "type": "integer"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/RuleTransition"
+            },
+            "title": "History",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "usage",
+              "observed_fee",
+              "quote_accuracy"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "period_end": {
+            "format": "date-time",
+            "title": "Period End",
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "title": "Period Start",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "sample_count": {
+            "minimum": 1.0,
+            "title": "Sample Count",
+            "type": "integer"
+          },
+          "scope": {
+            "enum": [
+              "private",
+              "network"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "proposed",
+              "accepted",
+              "rejected",
+              "revoked",
+              "superseded"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "uncertainty": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Uncertainty",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "scope",
+          "kind",
+          "state",
+          "sample_count",
+          "distinct_businesses",
+          "period_start",
+          "period_end",
+          "uncertainty",
+          "excluded_count",
+          "eligible",
+          "history"
+        ],
+        "title": "HiddenRule",
         "type": "object"
       },
       "HiddenSource": {
@@ -3768,6 +4241,14 @@
       "OfferComparison": {
         "additionalProperties": false,
         "properties": {
+          "accuracy_warnings": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AccuracyWarning"
+            },
+            "title": "Accuracy Warnings",
+            "type": "array"
+          },
           "conditions": {
             "anyOf": [
               {
@@ -4181,6 +4662,158 @@
           "reviewed"
         ],
         "title": "PrepareSource",
+        "type": "object"
+      },
+      "PrivateRule": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UsageContext"
+              },
+              {
+                "$ref": "#/components/schemas/FeeContext"
+              },
+              {
+                "$ref": "#/components/schemas/AccuracyContext"
+              }
+            ],
+            "title": "Context"
+          },
+          "distinct_businesses": {
+            "minimum": 1.0,
+            "title": "Distinct Businesses",
+            "type": "integer"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceReference"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "excluded_count": {
+            "minimum": 0.0,
+            "title": "Excluded Count",
+            "type": "integer"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/RuleTransition"
+            },
+            "title": "History",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "usage",
+              "observed_fee",
+              "quote_accuracy"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "period_end": {
+            "format": "date-time",
+            "title": "Period End",
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "title": "Period Start",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "sample_count": {
+            "minimum": 1.0,
+            "title": "Sample Count",
+            "type": "integer"
+          },
+          "scope": {
+            "const": "private",
+            "default": "private",
+            "title": "Scope",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "proposed",
+              "accepted",
+              "rejected",
+              "revoked",
+              "superseded"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "uncertainty": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Uncertainty",
+            "type": "array"
+          },
+          "value": {
+            "discriminator": {
+              "mapping": {
+                "observed_fee": "#/components/schemas/FeeValue",
+                "quote_accuracy": "#/components/schemas/AccuracyValue",
+                "usage": "#/components/schemas/UsageValue"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageValue"
+              },
+              {
+                "$ref": "#/components/schemas/FeeValue"
+              },
+              {
+                "$ref": "#/components/schemas/AccuracyValue"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "kind",
+          "state",
+          "sample_count",
+          "distinct_businesses",
+          "period_start",
+          "period_end",
+          "uncertainty",
+          "excluded_count",
+          "eligible",
+          "history",
+          "context",
+          "value",
+          "evidence"
+        ],
+        "title": "PrivateRule",
         "type": "object"
       },
       "ProposalPage": {
@@ -5038,6 +5671,18 @@
             ],
             "title": "Stock At Now"
           },
+          "usage_rule_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Rule Id"
+          },
           "usage_rule_revision": {
             "anyOf": [
               {
@@ -5231,6 +5876,100 @@
           "expected_revision"
         ],
         "title": "ReviewProposal",
+        "type": "object"
+      },
+      "RulePage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PrivateRule"
+                },
+                {
+                  "$ref": "#/components/schemas/AggregateRule"
+                },
+                {
+                  "$ref": "#/components/schemas/HiddenRule"
+                }
+              ]
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "latest_job": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "minimum_network_businesses": {
+            "const": 5,
+            "default": 5,
+            "title": "Minimum Network Businesses",
+            "type": "integer"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "RulePage",
+        "type": "object"
+      },
+      "RuleTransition": {
+        "additionalProperties": false,
+        "properties": {
+          "reviewed_at": {
+            "format": "date-time",
+            "title": "Reviewed At",
+            "type": "string"
+          },
+          "reviewed_by": {
+            "format": "uuid",
+            "title": "Reviewed By",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "accepted",
+              "rejected",
+              "revoked",
+              "superseded"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "state",
+          "reviewed_by",
+          "reviewed_at"
+        ],
+        "title": "RuleTransition",
         "type": "object"
       },
       "SelectNeed": {
@@ -5596,6 +6335,70 @@
           "release_state"
         ],
         "title": "UnavailablePoolOffer",
+        "type": "object"
+      },
+      "UsageContext": {
+        "additionalProperties": false,
+        "properties": {
+          "base_unit": {
+            "enum": [
+              "piece",
+              "ml",
+              "g"
+            ],
+            "title": "Base Unit",
+            "type": "string"
+          },
+          "spec_id": {
+            "format": "uuid",
+            "title": "Spec Id",
+            "type": "string"
+          },
+          "spec_revision": {
+            "minimum": 1.0,
+            "title": "Spec Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "spec_id",
+          "spec_revision",
+          "base_unit"
+        ],
+        "title": "UsageContext",
+        "type": "object"
+      },
+      "UsageValue": {
+        "additionalProperties": false,
+        "properties": {
+          "basis": {
+            "const": "measured_stock_intervals",
+            "default": "measured_stock_intervals",
+            "title": "Basis",
+            "type": "string"
+          },
+          "daily_rate": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Daily Rate",
+            "type": "string"
+          },
+          "kind": {
+            "const": "usage",
+            "default": "usage",
+            "title": "Kind",
+            "type": "string"
+          },
+          "slowest_daily_rate": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Slowest Daily Rate",
+            "type": "string"
+          }
+        },
+        "required": [
+          "daily_rate",
+          "slowest_daily_rate"
+        ],
+        "title": "UsageValue",
         "type": "object"
       },
       "ValidationError": {
@@ -8836,6 +9639,219 @@
         ]
       }
     },
+    "/v1/businesses/{business_id}/rules": {
+      "get": {
+        "operationId": "private_listing_v1_businesses__business_id__rules_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Private Listing",
+        "tags": [
+          "rules"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/rules/evaluate": {
+      "post": {
+        "operationId": "private_evaluate_v1_businesses__business_id__rules_evaluate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Private Evaluate",
+        "tags": [
+          "rules"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/rules/{rule_id}/{action}": {
+      "post": {
+        "operationId": "private_change_v1_businesses__business_id__rules__rule_id___action__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rule_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Rule Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "action",
+            "required": true,
+            "schema": {
+              "title": "Action",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mutation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateRule"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Private Change",
+        "tags": [
+          "rules"
+        ]
+      }
+    },
     "/v1/businesses/{business_id}/sources": {
       "get": {
         "operationId": "listing_v1_businesses__business_id__sources_get",
@@ -9539,6 +10555,219 @@
         "summary": "Me",
         "tags": [
           "identity"
+        ]
+      }
+    },
+    "/v1/networks/{network_id}/rules": {
+      "get": {
+        "operationId": "network_listing_v1_networks__network_id__rules_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Network Listing",
+        "tags": [
+          "rules"
+        ]
+      }
+    },
+    "/v1/networks/{network_id}/rules/evaluate": {
+      "post": {
+        "operationId": "network_evaluate_v1_networks__network_id__rules_evaluate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Network Evaluate",
+        "tags": [
+          "rules"
+        ]
+      }
+    },
+    "/v1/networks/{network_id}/rules/{rule_id}/{action}": {
+      "post": {
+        "operationId": "network_change_v1_networks__network_id__rules__rule_id___action__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rule_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Rule Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "action",
+            "required": true,
+            "schema": {
+              "title": "Action",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mutation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AggregateRule"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Network Change",
+        "tags": [
+          "rules"
         ]
       }
     },

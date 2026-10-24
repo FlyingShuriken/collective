@@ -15,7 +15,7 @@ from collective.api.errors import DomainError
 from collective.domain.approvals import ApprovalBinding, bound_terms, evaluate_approval
 from collective.domain.clock import Clock
 from collective.domain.pools import MemberSnapshot, PoolEvaluation, evaluate_pool
-from collective.repositories import pools
+from collective.repositories import pools, rules
 from collective.repositories.db import set_context
 from collective.repositories.events import Event, append_event
 from collective.repositories.ledger import historical_basis
@@ -175,6 +175,7 @@ async def recalculate(
                 quote=quote,
                 solo_quotes=tuple(r.quote for r in records if r.quote),
                 history=await historical_basis(connection, needs.snapshot(row)),
+                fee_rules=await rules.fee_rules(connection, row["business_id"]),
             )
         )
     evaluation = None if missing else evaluate_pool(inputs, as_of, identity)

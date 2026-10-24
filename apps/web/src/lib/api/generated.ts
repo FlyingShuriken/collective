@@ -535,6 +535,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Private Listing */
+        get: operations["private_listing_v1_businesses__business_id__rules_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/rules/evaluate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Private Evaluate */
+        post: operations["private_evaluate_v1_businesses__business_id__rules_evaluate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/rules/{rule_id}/{action}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Private Change */
+        post: operations["private_change_v1_businesses__business_id__rules__rule_id___action__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/businesses/{business_id}/sources": {
         parameters: {
             query?: never;
@@ -740,6 +791,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/networks/{network_id}/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Network Listing */
+        get: operations["network_listing_v1_networks__network_id__rules_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/networks/{network_id}/rules/evaluate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Network Evaluate */
+        post: operations["network_evaluate_v1_networks__network_id__rules_evaluate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/networks/{network_id}/rules/{rule_id}/{action}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Network Change */
+        post: operations["network_change_v1_networks__network_id__rules__rule_id___action__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/ready": {
         parameters: {
             query?: never;
@@ -761,6 +863,58 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AccuracyContext */
+        AccuracyContext: {
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+        };
+        /** AccuracyValue */
+        AccuracyValue: {
+            /**
+             * Basis
+             * @default complete_issued_order_checks
+             * @constant
+             */
+            basis: "complete_issued_order_checks";
+            /** Checked Count */
+            checked_count: number;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "quote_accuracy";
+            /** Mismatch Count */
+            mismatch_count: number;
+        };
+        /** AccuracyWarning */
+        AccuracyWarning: {
+            /** Checked Count */
+            checked_count: number;
+            /** Mismatch Count */
+            mismatch_count: number;
+            /**
+             * Period End
+             * Format: date-time
+             */
+            period_end: string;
+            /**
+             * Period Start
+             * Format: date-time
+             */
+            period_start: string;
+            /**
+             * Rule Id
+             * Format: uuid
+             */
+            rule_id: string;
+            /** Rule Revision */
+            rule_revision: number;
+            /** Uncertainty */
+            uncertainty: string[];
+        };
         /** ActivityEvent */
         ActivityEvent: {
             /**
@@ -803,6 +957,64 @@ export interface components {
             amount?: string | null;
             /** Label */
             label?: string | null;
+        };
+        /** AggregateRule */
+        AggregateRule: {
+            /** Context */
+            context: components["schemas"]["UsageContext"] | components["schemas"]["FeeContext"] | components["schemas"]["AccuracyContext"];
+            /** Distinct Businesses */
+            distinct_businesses: number;
+            /** Eligible */
+            eligible: boolean;
+            /** Excluded Count */
+            excluded_count: number;
+            /** History */
+            history: components["schemas"]["RuleTransition"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "usage" | "observed_fee" | "quote_accuracy";
+            /**
+             * Period End
+             * Format: date-time
+             */
+            period_end: string;
+            /**
+             * Period Start
+             * Format: date-time
+             */
+            period_start: string;
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /** Revision */
+            revision: number;
+            /** Sample Count */
+            sample_count: number;
+            /**
+             * Scope
+             * @default network
+             * @constant
+             */
+            scope: "network";
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "proposed" | "accepted" | "rejected" | "revoked" | "superseded";
+            /** Uncertainty */
+            uncertainty: string[];
+            /** Value */
+            value: components["schemas"]["UsageValue"] | components["schemas"]["FeeValue"] | components["schemas"]["AccuracyValue"];
         };
         /** Anchor */
         Anchor: {
@@ -1206,6 +1418,72 @@ export interface components {
                 number
             ] | null;
         };
+        /** EvidenceReference */
+        EvidenceReference: {
+            /**
+             * Business Id
+             * Format: uuid
+             */
+            business_id: string;
+            /**
+             * Record Id
+             * Format: uuid
+             */
+            record_id: string;
+            /**
+             * Revision
+             * @default 1
+             */
+            revision: number;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+        };
+        /** FeeContext */
+        FeeContext: {
+            /**
+             * Currency
+             * @default MYR
+             * @constant
+             */
+            currency: "MYR";
+            /** Delivery Location */
+            delivery_location?: string | null;
+            /**
+             * Delivery Mode
+             * @enum {string}
+             */
+            delivery_mode: "per_business" | "collection_point";
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Zone */
+            zone: string;
+        };
+        /** FeeValue */
+        FeeValue: {
+            /** Amount */
+            amount: string;
+            /**
+             * Basis
+             * @default mean_confirmed_invoice_delivery
+             * @constant
+             */
+            basis: "mean_confirmed_invoice_delivery";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "observed_fee";
+            /** Maximum */
+            maximum: string;
+            /** Minimum */
+            minimum: string;
+        };
         /** FieldIssue */
         FieldIssue: {
             /** Field Path */
@@ -1528,6 +1806,59 @@ export interface components {
             price_visibility: "hidden";
             /** Quantity */
             quantity: string;
+        };
+        /** HiddenRule */
+        HiddenRule: {
+            /** Distinct Businesses */
+            distinct_businesses: number;
+            /** Eligible */
+            eligible: boolean;
+            /** Excluded Count */
+            excluded_count: number;
+            /** History */
+            history: components["schemas"]["RuleTransition"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "usage" | "observed_fee" | "quote_accuracy";
+            /**
+             * Period End
+             * Format: date-time
+             */
+            period_end: string;
+            /**
+             * Period Start
+             * Format: date-time
+             */
+            period_start: string;
+            /**
+             * Price Visibility
+             * @default hidden
+             * @constant
+             */
+            price_visibility: "hidden";
+            /** Revision */
+            revision: number;
+            /** Sample Count */
+            sample_count: number;
+            /**
+             * Scope
+             * @enum {string}
+             */
+            scope: "private" | "network";
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "proposed" | "accepted" | "rejected" | "revoked" | "superseded";
+            /** Uncertainty */
+            uncertainty: string[];
         };
         /** HiddenSource */
         HiddenSource: {
@@ -2139,6 +2470,11 @@ export interface components {
         };
         /** OfferComparison */
         OfferComparison: {
+            /**
+             * Accuracy Warnings
+             * @default []
+             */
+            accuracy_warnings: components["schemas"]["AccuracyWarning"][];
             /** Conditions */
             conditions: string | null;
             cost: components["schemas"]["CostBreakdown"];
@@ -2319,6 +2655,66 @@ export interface components {
             sensitive_text: string[];
             /** Source Sha256 */
             source_sha256: string;
+        };
+        /** PrivateRule */
+        PrivateRule: {
+            /** Context */
+            context: components["schemas"]["UsageContext"] | components["schemas"]["FeeContext"] | components["schemas"]["AccuracyContext"];
+            /** Distinct Businesses */
+            distinct_businesses: number;
+            /** Eligible */
+            eligible: boolean;
+            /** Evidence */
+            evidence: components["schemas"]["EvidenceReference"][];
+            /** Excluded Count */
+            excluded_count: number;
+            /** History */
+            history: components["schemas"]["RuleTransition"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "usage" | "observed_fee" | "quote_accuracy";
+            /**
+             * Period End
+             * Format: date-time
+             */
+            period_end: string;
+            /**
+             * Period Start
+             * Format: date-time
+             */
+            period_start: string;
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /** Revision */
+            revision: number;
+            /** Sample Count */
+            sample_count: number;
+            /**
+             * Scope
+             * @default private
+             * @constant
+             */
+            scope: "private";
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "proposed" | "accepted" | "rejected" | "revoked" | "superseded";
+            /** Uncertainty */
+            uncertainty: string[];
+            /** Value */
+            value: components["schemas"]["UsageValue"] | components["schemas"]["FeeValue"] | components["schemas"]["AccuracyValue"];
         };
         /** ProposalPage */
         ProposalPage: {
@@ -2561,6 +2957,8 @@ export interface components {
             stock_at_arrival?: string | null;
             /** Stock At Now */
             stock_at_now?: string | null;
+            /** Usage Rule Id */
+            usage_rule_id?: string | null;
             /** Usage Rule Revision */
             usage_rule_revision?: number | null;
         };
@@ -2627,6 +3025,40 @@ export interface components {
             expected_revision: number;
             /** Quote Id */
             quote_id?: string | null;
+        };
+        /** RulePage */
+        RulePage: {
+            /** Items */
+            items: (components["schemas"]["PrivateRule"] | components["schemas"]["AggregateRule"] | components["schemas"]["HiddenRule"])[];
+            latest_job?: components["schemas"]["JobStatus"] | null;
+            /**
+             * Minimum Network Businesses
+             * @default 5
+             * @constant
+             */
+            minimum_network_businesses: 5;
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** RuleTransition */
+        RuleTransition: {
+            /**
+             * Reviewed At
+             * Format: date-time
+             */
+            reviewed_at: string;
+            /**
+             * Reviewed By
+             * Format: uuid
+             */
+            reviewed_by: string;
+            /** Revision */
+            revision: number;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "accepted" | "rejected" | "revoked" | "superseded";
         };
         /** SelectNeed */
         SelectNeed: {
@@ -2771,6 +3203,39 @@ export interface components {
              * @enum {string}
              */
             release_state: "waiting_for_approvals" | "ready" | "released" | "ineligible";
+        };
+        /** UsageContext */
+        UsageContext: {
+            /**
+             * Base Unit
+             * @enum {string}
+             */
+            base_unit: "piece" | "ml" | "g";
+            /**
+             * Spec Id
+             * Format: uuid
+             */
+            spec_id: string;
+            /** Spec Revision */
+            spec_revision: number;
+        };
+        /** UsageValue */
+        UsageValue: {
+            /**
+             * Basis
+             * @default measured_stock_intervals
+             * @constant
+             */
+            basis: "measured_stock_intervals";
+            /** Daily Rate */
+            daily_rate: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "usage";
+            /** Slowest Daily Rate */
+            slowest_daily_rate: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -4266,6 +4731,110 @@ export interface operations {
             };
         };
     };
+    private_listing_v1_businesses__business_id__rules_get: {
+        parameters: {
+            query?: {
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RulePage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    private_evaluate_v1_businesses__business_id__rules_evaluate_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    private_change_v1_businesses__business_id__rules__rule_id___action__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                rule_id: string;
+                action: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Mutation"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivateRule"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     listing_v1_businesses__business_id__sources_get: {
         parameters: {
             query?: {
@@ -4643,6 +5212,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Identity"];
+                };
+            };
+        };
+    };
+    network_listing_v1_networks__network_id__rules_get: {
+        parameters: {
+            query?: {
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                network_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RulePage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    network_evaluate_v1_networks__network_id__rules_evaluate_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                network_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    network_change_v1_networks__network_id__rules__rule_id___action__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                network_id: string;
+                rule_id: string;
+                action: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Mutation"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AggregateRule"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -6,7 +6,7 @@ from collective.api.dto import ApprovalCommandResult
 from collective.api.errors import DomainError
 from collective.domain.approvals import ApprovalError, bind_approval, evaluate_approval
 from collective.domain.pools import MemberSnapshot, evaluate_solo
-from collective.repositories import pools
+from collective.repositories import pools, rules
 from collective.repositories.approvals import insert_binding
 from collective.repositories.db import set_context
 from collective.repositories.events import Event, append_event
@@ -53,6 +53,7 @@ async def evaluate(connection, row, quote_id, as_of):
             quote=quote,
             solo_quotes=tuple(r.quote for r in records if r.quote),
             history=await historical_basis(connection, needs.snapshot(row)),
+            fee_rules=await rules.fee_rules(connection, row["business_id"]),
         ),
         as_of,
     )
