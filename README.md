@@ -6,6 +6,8 @@ Built with Next.js, TypeScript, FastAPI, and Supabase. Supports English, Bahasa 
 
 For a step-by-step café-owner walkthrough, see the [user guide](USAGE.md).
 
+For hosted setup, environment variables and verification, follow the [deployment guide](DEPLOYMENT.md).
+
 ## Getting started
 
 ### Prerequisites

@@ -1,4 +1,4 @@
-"""Seed the declared synthetic scenario through local Auth, Storage and PostgreSQL."""
+"""Seed synthetic cafés locally, or into an explicitly selected hosted demo project."""
 
 import argparse
 import hashlib
@@ -15,6 +15,7 @@ import psycopg
 from collective.repositories.db import require_local_database
 from dotenv import dotenv_values
 from psycopg import sql
+from psycopg.conninfo import conninfo_to_dict
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
@@ -36,14 +37,47 @@ def insert(connection, table, values):
     return connection.execute(query, list(values.values())).rowcount == 1
 
 
-def seed(run: str = "demo", anchor: str = "now") -> dict:
+def seed_target(env, project_ref=None):
+    api_url = env["SUPABASE_URL"].rstrip("/")
+    if project_ref is None:
+        operator_url = require_local_database(env["MIGRATION_DATABASE_URL"])
+        if urlparse(api_url).hostname not in {"localhost", "127.0.0.1", "::1"}:
+            raise ValueError("Synthetic seed refuses a non-local Auth/Storage target")
+        return operator_url, api_url
+    if not re.fullmatch(r"[a-z]{20}", project_ref):
+        raise ValueError("Hosted demo requires the exact 20-letter Supabase project reference")
+    if env.get("DEMO_MODE", "").lower() != "true":
+        raise ValueError("Hosted seeding requires DEMO_MODE=true in the explicit env file")
+    if api_url != f"https://{project_ref}.supabase.co":
+        raise ValueError("Hosted Auth/Storage URL does not match the selected project")
+    operator_url = env["MIGRATION_DATABASE_URL"]
+    db = conninfo_to_dict(operator_url)
+    direct = db.get("host") == f"db.{project_ref}.supabase.co" and db.get("user") == "postgres"
+    pooled = (
+        db.get("host", "").endswith(".pooler.supabase.com")
+        and db.get("user") == f"postgres.{project_ref}"
+    )
+    if (
+        not (direct or pooled)
+        or db.get("port") != "5432"
+        or db.get("dbname") != "postgres"
+        or db.get("sslmode") not in {"require", "verify-ca", "verify-full"}
+        or db.get("hostaddr") is not None
+        or db.get("service") is not None
+    ):
+        raise ValueError("Hosted seed requires a matching TLS direct/session operator connection")
+    return operator_url, api_url
+
+
+def seed(
+    run: str = "demo", anchor: str = "now", *, project_ref=None, env_file: Path | None = None
+) -> dict:
     if not re.fullmatch(r"[a-z0-9-]{1,40}", run):
         raise ValueError("Run names use 1–40 lowercase letters, numbers or hyphens")
-    env = dotenv_values(ROOT / ".env")
-    operator_url = require_local_database(env["MIGRATION_DATABASE_URL"])
-    api_url = env["SUPABASE_URL"].rstrip("/")
-    if urlparse(api_url).hostname not in {"localhost", "127.0.0.1", "::1"}:
-        raise ValueError("Synthetic seed refuses a non-local Auth/Storage target")
+    if (project_ref is None) != (env_file is None):
+        raise ValueError("Hosted seeding requires both --project-ref and --env-file")
+    env = dotenv_values(env_file if env_file is not None else ROOT / ".env")
+    operator_url, api_url = seed_target(env, project_ref)
     data = json.loads((ROOT / "fixtures/scenarios/three-cafes.json").read_text())
 
     def uid(value):
@@ -54,7 +88,8 @@ def seed(run: str = "demo", anchor: str = "now") -> dict:
             else uuid5(NAMESPACE_URL, f"orbyte-run:{run}:{value}")
         )
 
-    credentials_path = ROOT / f".cache/demo-{run}.json"
+    prefix = f"{project_ref}-" if project_ref else ""
+    credentials_path = ROOT / f".cache/demo-{prefix}{run}.json"
     credentials_path.parent.mkdir(exist_ok=True)
     saved = (
         json.loads(credentials_path.read_text()) if credentials_path.exists() else {}
@@ -470,12 +505,15 @@ def main() -> None:
     parser.add_argument("--scenario", choices=["three-cafes"], required=True)
     parser.add_argument("--anchor", default="now")
     parser.add_argument("--run", default="demo")
+    parser.add_argument("--project-ref", help="Explicit Supabase target; synthetic demo projects only")
+    parser.add_argument("--env-file", type=Path, help="Hosted demo credentials; requires --project-ref")
     args = parser.parse_args()
-    result = seed(args.run, args.anchor)
-    print(f"Seeded synthetic {args.scenario} run {args.run}; anchor {result['anchor']}")
-    print(
-        f"Local credentials: .cache/demo-{args.run}.json (ignored; contains passwords)"
+    result = seed(
+        args.run, args.anchor, project_ref=args.project_ref, env_file=args.env_file
     )
+    print(f"Seeded synthetic {args.scenario} run {args.run}; anchor {result['anchor']}")
+    prefix = f"{args.project_ref}-" if args.project_ref else ""
+    print(f"Credentials: .cache/demo-{prefix}{args.run}.json (ignored; contains passwords)")
 
 
 if __name__ == "__main__":

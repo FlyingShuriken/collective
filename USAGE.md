@@ -14,6 +14,8 @@ In the default replay mode, the app reads only prepared examples with matching c
 
 For organisers: local demo credentials are generated in `.cache/demo-demo.json` after seeding. Keep that file private. The seeded cafés already have purchasing needs and quotes, so users can start at **step 4** for the shortest buying walkthrough. The upload and learning sections are additional journeys; do not expect every optional action to have a replay in every demo session.
 
+The seeded ordering window lasts **24 hours from the seed anchor**. If it has expired, the organiser must seed a fresh run with a new run name and provide that run's credentials. Refreshing the page or giving fresh approval cannot reopen an expired ordering window. See the [local setup instructions](README.md) or [hosted deployment guide](DEPLOYMENT.md) for the appropriate seeding procedure.
+
 ## Find your way around
 
 | Screen | What you do here |
@@ -50,6 +52,8 @@ If no workspace is assigned, ask the organiser to assign one. Use **Account → 
 
 Supported uploads are PNG, JPEG or PDF up to **10 MB and 10 pages**, or UTF-8 text up to **16,000 characters**. The repository includes synthetic examples such as `fixtures/sources/single-business-invoice.txt`, `stock-ms.txt`, and `delivered-invoice.png`; the organiser should identify which examples match the current demo session.
 
+**For demos hosted on Vercel:** use small files, preferably **under 4 MB**. The current upload proxy has a lower hosting payload limit than the app's 10 MB allowance. Large rendered source previews can also exceed that limit. If an upload or preview fails, try a smaller document or ask the organiser for a supported example; see the [deployment guide](DEPLOYMENT.md) for details.
+
 **You should see:** a proposed reading, or an explicit message explaining why reading stopped. Uploading and preparing a source do not confirm a purchase or approve an order.
 
 ## 3. Turn the reading into a checked record
@@ -59,11 +63,17 @@ Supported uploads are PNG, JPEG or PDF up to **10 MB and 10 pages**, or UTF-8 te
 1. In **Record review**, inspect the supplier, date, quantities, units, prices, delivery charge and total. Open the source evidence for uncertain fields.
 2. Select **Edit record** to correct anything the source supports. Leave unknown values blank; do not enter zero just to make the form complete.
 3. Choose the supplier and purchase purpose: **Historical purchase** for an earlier purchase, or **Delivered invoice** for an invoice to check against an issued order.
-4. Select each item's **Confirmed item mapping**. This connects the supplier's product name and sale unit to the product you actually buy.
+4. Select each item's **Confirmed item mapping**. This connects the supplier's product name and sale unit to the product you actually buy. If no suitable mapping exists, follow the unmapped-product steps below before confirming the record.
 5. Select **Save corrections**, review the remaining flags, and tick the source-review acknowledgement.
 6. Select **Confirm record**. If the proposal should not be used, select **Reject proposal** instead.
 
-**If the product is unmapped:** the owner can use **Match a product specification → Request matching**. Check capacity, material, lid diameter, sale unit and pack factors. For example, enter `20 × 50` only when the source confirms 20 packs of 50 pieces. Tick the acknowledgement and select **Confirm product mapping**. Then edit the record and select that confirmed mapping before confirming the record. A similar name is not proof that two products are interchangeable.
+**If the product is unmapped:** keep the proposal unconfirmed and complete these steps as the owner:
+
+1. In **Edit record**, choose the supplier and select **Save corrections** to return to the review card. The matching panel is hidden while editing and until a supplier is saved.
+2. Open **Match a product specification**, check the product description and supplier item code, then select **Request matching**.
+3. Check the proposed specification's capacity, material, lid diameter, sale unit and pack factors. For example, enter `20 × 50` only when the source confirms 20 packs of 50 pieces. A similar name is not proof that two products are interchangeable.
+4. Tick the mapping acknowledgement and select **Confirm product mapping**.
+5. Select **Edit record** again, choose the newly confirmed mapping for the item, and select **Save corrections**. Then review the record acknowledgement and select **Confirm record**.
 
 For a stock note, check the observation type, actual count, unit and observation time. A stock count, received stock and waste describe different events. **Confirming an invoice does not confirm that stock arrived.** Record actual arrival separately when appropriate.
 
@@ -76,7 +86,7 @@ For a stock note, check the observation type, actual count, unit and observation
 1. Open **Your next order** and find the cup need.
 2. Review **Estimated run-out**, the daily usage basis, and **Quantity and cash**.
 3. Compare available quantity options, including coverage, **Extra cash now**, and any **Saving against repeat orders**. Read the stated comparison assumptions.
-4. Select **Select quantity** for the option you want, or **Keep stated quantity** when offered.
+4. If the status is **Suggested · choose a quantity**, select **Select quantity** for the option you want, or **Keep stated quantity** when offered. If it already says **Selected · quantity fixed**, review the selected quantity and continue to **step 5**; selection buttons are not shown. The seeded café needs start in this selected state.
 
 **You should see:** **Selected · quantity fixed**. Selection is preparation; it creates no order. A pooled order uses your selected need rather than increasing your quantity to help the group reach a tier.
 
@@ -179,7 +189,8 @@ In **Activity**, review recorded actions and **Background tasks**. A completed b
 | Unmapped item | Ask the owner to confirm the correct specification and pack size, then select that mapping on the record. |
 | No comparable baseline or unavailable quote | Review confirmed purchase history, mappings and quote completeness/validity. Do not infer savings from an incomplete comparison. |
 | No eligible pool | Continue with a compatible solo offer, or review the unmet requirements. |
-| Void, expired or stale approval | Refresh and review the current terms. Give fresh approval if you still agree; an old permission is not restored automatically. |
+| Void, expired or stale approval | Refresh and review the current terms. If the ordering window is still open, give fresh approval if you agree; an old permission is not restored automatically. |
+| Demo ordering window expired | Ask the organiser for a fresh seeded run and its credentials. Refreshing or approving again cannot reopen the old window. |
 | Staff action blocked or prices hidden | Ask the owner to perform the restricted review. Staff permissions depend on the business's configured limits. |
 | Processing queued or needs review | Check Activity for status. Use the relevant retry/refresh control after the cause is resolved; avoid creating repeated uploads. |
 | Connection unavailable | Reconnect to the service. Disconnected browser changes are not queued. |
