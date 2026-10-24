@@ -7,7 +7,7 @@ import { SourceViewer } from "@/components/source-viewer";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
-import { money } from "@/lib/format";
+import { date, money } from "@/lib/format";
 import { messages, type Locale } from "@/lib/i18n";
 
 export function Ledger({ business, locale }: { business: string; locale: Locale }) {
@@ -36,7 +36,7 @@ export function Ledger({ business, locale }: { business: string; locale: Locale 
       {page?.items.length === 0 && <p>{text.empty} <a className="underline" href={`/${locale}/inbox?business=${business}`}>{text.next}</a></p>}
       <ul className="space-y-3">{page?.items.map((item) => <li key={item.id} className="space-y-2 rounded-md border p-3 text-sm">
         <p className="font-medium">{text.kinds[item.kind]}</p>
-        <p>{new Date(item.recorded_at).toLocaleString(locale)} · {text.revision} {item.revision}</p>
+        <p>{date(item.recorded_at, locale, true)} · {text.revision} {item.revision}</p>
         {item.quantity !== null && <p>{text.quantity}: {item.quantity}</p>}
         {item.price_visibility === "visible" ? <>
           <p>{text.total}: {item.total === null ? text.unknown : money(item.total)}</p>

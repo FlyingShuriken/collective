@@ -601,5 +601,10 @@
     "sent": "Permintaan dihantar melalui saluran simulasi",
     "acknowledge": "Saya telah menyemak permintaan tepat dan penerima serta meluluskan Hantar simulasi ini.",
     "notOrder": "Menghantar mesej ini tidak meluluskan pesanan pembelian."
+  },
+  "language": "Bahasa",
+  "pwa": {
+    "install": "Pasang Orbyte",
+    "unavailable": "Pemasangan aplikasi tidak tersedia dalam sesi pelayar ini."
   }
 }

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
 import { messages, type Locale } from "@/lib/i18n";
+import { date } from "@/lib/format";
 
 export function ActivityList({ business, locale }: { business: string; locale: Locale }) {
   const text = messages[locale];
@@ -36,7 +37,7 @@ export function ActivityList({ business, locale }: { business: string; locale: L
         {page?.items.map((event) => <li key={event.id} className="space-y-1 rounded-lg border p-4">
           <p className="text-sm">{event.summary}</p>
           <time className="text-xs text-muted-foreground" dateTime={event.occurred_at}>
-            {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(event.occurred_at))}
+            {date(event.occurred_at, locale, true)}
           </time>
         </li>)}
       </ol>
@@ -50,7 +51,7 @@ export function ActivityList({ business, locale }: { business: string; locale: L
           <h4 className="font-medium">{job.kind === "reorder" ? text.reorderTask : job.kind === "expiry" ? text.expiryTask : text.backgroundTask}</h4>
           <p role="status">{job.lease_expired ? text.leaseExpired : job.status === "queued" && job.error_code ? text.retryScheduled : text[`job_${job.status}`]}</p>
           <p>{text.attempts}: {job.attempts}</p>
-          {job.status === "queued" && job.error_code && <p>{text.nextRetry}: {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(job.next_attempt_at))}</p>}
+          {job.status === "queued" && job.error_code && <p>{text.nextRetry}: {date(job.next_attempt_at, locale, true)}</p>}
           {job.status === "failed" && <p>{text.taskNeedsReview}</p>}
         </article>)}
         {jobs?.next_cursor && <Button variant="outline" onClick={() => { setJobCursor(jobs.next_cursor ?? null); setJobs(null); }}>{text.moreTasks}</Button>}

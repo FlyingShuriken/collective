@@ -15,6 +15,7 @@ export function SignIn({ locale }: { locale: Locale }) {
   const text = messages[locale];
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [pending, setPending] = useState(false);
+  const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export function SignIn({ locale }: { locale: Locale }) {
         if (!controller.signal.aborted && (!(error instanceof ApiError) || error.status !== 401)) {
           setError(text.unavailable);
         }
-      });
+      }).finally(() => { if (!controller.signal.aborted) setReady(true); });
     return () => controller.abort();
   }, [text.unavailable]);
 
@@ -95,16 +96,16 @@ export function SignIn({ locale }: { locale: Locale }) {
           </Button>
         </div>
       ) : (
-        <form onSubmit={signIn} className="mt-7 space-y-5" aria-busy={pending}>
+        <form method="post" onSubmit={signIn} className="mt-7 space-y-5" aria-busy={pending || !ready}>
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">{text.email}</label>
-            <Input id="email" name="email" type="email" autoComplete="username" required disabled={pending} />
+            <Input id="email" name="email" type="email" autoComplete="username" required disabled={pending || !ready} />
           </div>
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium">{text.password}</label>
-            <Input id="password" name="password" type="password" autoComplete="current-password" required disabled={pending} />
+            <Input id="password" name="password" type="password" autoComplete="current-password" required disabled={pending || !ready} />
           </div>
-          <Button type="submit" className="w-full" disabled={pending}>
+          <Button type="submit" className="w-full" disabled={pending || !ready}>
             {pending ? text.working : text.signIn}
           </Button>
         </form>

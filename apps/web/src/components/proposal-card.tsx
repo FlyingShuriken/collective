@@ -10,7 +10,7 @@ import { QuoteReview } from "@/components/quote-review";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
-import { money } from "@/lib/format";
+import { date, money } from "@/lib/format";
 import { messages, type Locale } from "@/lib/i18n";
 
 type Proposal = components["schemas"]["DocumentProposal"];
@@ -116,7 +116,7 @@ export function ProposalCard({ business, proposal, locale, owner, onChanged, onR
           <div><dt className="text-muted-foreground">{text.stockKind}</dt><dd>{({ stock: text.stockCount, receipt: text.receipt, inbound_adjustment: text.inbound, waste: text.waste })[proposal.context.stock_kind ?? "stock"]}</dd></div>
           <div><dt className="text-muted-foreground">{text.fields.stock_description}</dt><dd>{reading.stock_description ?? text.unknown}</dd></div>
           <div><dt className="text-muted-foreground">{text.fields.stock_quantity}</dt><dd>{reading.stock_quantity ?? "—"} {reading.stock_unit ?? text.unknown}</dd></div>
-          <div><dt className="text-muted-foreground">{text.fields.stock_observed_at}</dt><dd>{reading.stock_observed_at ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(reading.stock_observed_at)) : text.unknown}</dd></div>
+          <div><dt className="text-muted-foreground">{text.fields.stock_observed_at}</dt><dd>{reading.stock_observed_at ? date(reading.stock_observed_at, locale, true) : text.unknown}</dd></div>
         </>}
         <div><dt className="text-muted-foreground">{text.reviewValue}</dt><dd>{(!purchase || reading.currency === "MYR") && proposal.review_value != null ? money(proposal.review_value) : text.unknown}</dd></div>
       </dl>

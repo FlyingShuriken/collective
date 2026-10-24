@@ -601,5 +601,10 @@
     "sent": "询价已通过模拟渠道发送",
     "acknowledge": "我已核对询价全文及收件人，并批准此次模拟发送。",
     "notOrder": "发送此消息不代表批准采购订单。"
+  },
+  "language": "语言",
+  "pwa": {
+    "install": "安装Orbyte",
+    "unavailable": "当前浏览器会话无法安装应用。"
   }
 }

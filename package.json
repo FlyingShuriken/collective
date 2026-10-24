@@ -10,7 +10,7 @@
     "build": "pnpm --dir apps/web build",
     "lint": "pnpm --dir apps/web lint && uv run --project services/api ruff check services/api scripts",
     "typecheck": "pnpm --dir apps/web typecheck",
-    "test": "uv run --project services/api pytest services/api/tests/unit -q",
+    "test": "uv run --project services/api pytest services/api/tests/unit -q && pnpm --dir apps/web test:format",
     "auth:check": "node --env-file=apps/web/.env.local apps/web/scripts/check-auth.mjs",
     "contracts:generate": "uv run --project services/api python scripts/export_openapi.py && openapi-typescript contracts/openapi.json -o apps/web/src/lib/api/generated.ts",
     "contracts:check": "uv run --project services/api python scripts/export_openapi.py --check && openapi-typescript contracts/openapi.json -o apps/web/src/lib/api/generated.ts --check",

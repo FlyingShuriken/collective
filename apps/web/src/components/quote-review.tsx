@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
 import { messages, type Locale } from "@/lib/i18n";
+import { date } from "@/lib/format";
 
 type Quote = components["schemas"]["QuoteProposal"];
 type Reading = components["schemas"]["QuoteReading"];
@@ -158,7 +159,7 @@ export function QuoteReview({ business, source, locale, owner, onChanged }: {
         </form>
         {dirty && <p>{text.saveFirst}</p>}
         <label className="block text-sm">{text.replace}<select className={inputClass} value={replace} onChange={(event) => { setReplace(event.target.value); setAcknowledged(false); }}>
-          <option value="">{text.newQuote}</option>{quotes.filter((item) => item.supplier_id === proposal.context.supplier_id).map((item) => <option key={item.id} value={item.id}>{options?.suppliers.find((supplier) => supplier.id === item.supplier_id)?.name} · {text.revision} {item.revision} · {new Date(item.recorded_at).toLocaleDateString(locale)}</option>)}
+          <option value="">{text.newQuote}</option>{quotes.filter((item) => item.supplier_id === proposal.context.supplier_id).map((item) => <option key={item.id} value={item.id}>{options?.suppliers.find((supplier) => supplier.id === item.supplier_id)?.name} · {text.revision} {item.revision} · {date(item.recorded_at, locale)}</option>)}
         </select></label>
         <label className="flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1 size-5 shrink-0" checked={acknowledged} disabled={dirty || pending} onChange={(event) => setAcknowledged(event.target.checked)} />{text.acknowledge}</label>
         <div className="flex flex-wrap gap-3"><Button disabled={pending || dirty || !acknowledged} onClick={() => void mutate("confirm")}>{text.confirm}</Button><Button variant="outline" disabled={pending} onClick={() => void mutate("reject")}>{text.reject}</Button></div>

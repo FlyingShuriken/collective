@@ -17,17 +17,6 @@ export default async function SignInPage({ params }: PageProps<"/[locale]/sign-i
         <p className="mt-5 max-w-md font-serif text-4xl leading-tight sm:text-5xl">
           {messages[locale].intro}
         </p>
-        <nav aria-label="Language" className="mt-6 flex gap-4 text-sm">
-          <a href="/en/sign-in" lang="en" hrefLang="en" aria-current={locale === "en" ? "page" : undefined}>
-            English
-          </a>
-          <a href="/ms/sign-in" lang="ms" hrefLang="ms" aria-current={locale === "ms" ? "page" : undefined}>
-            Bahasa Melayu
-          </a>
-          <a href="/zh/sign-in" lang="zh" hrefLang="zh" aria-current={locale === "zh" ? "page" : undefined}>
-            中文
-          </a>
-        </nav>
       </div>
       <div className="w-full md:max-w-sm"><SignIn locale={locale} /></div>
     </main>

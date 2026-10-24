@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
-import { money } from "@/lib/format";
+import { date as formatDate, money } from "@/lib/format";
 import { messages, type Locale } from "@/lib/i18n";
 
 type Need = components["schemas"]["NeedView"];
@@ -61,9 +61,7 @@ export function SimulatedPO({ need, offer, owner, locale, onChanged }: {
 
   if (!canRelease && need.state !== "released" && !error) return null;
   if (offer && need.state === "released") return null;
-  const date = (value: string) => new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kuala_Lumpur",
-  }).format(new Date(value));
+  const date = (value: string) => formatDate(value, locale, true);
   return (
     <section className="space-y-3 rounded-lg border p-4" aria-label={text.simulatedPO}>
       <h3 className="font-semibold">{text.simulatedPO}</h3>

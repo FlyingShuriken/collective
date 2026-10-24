@@ -7,7 +7,7 @@ import { SimulatedPO } from "@/components/simulated-po";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
-import { money } from "@/lib/format";
+import { date as formatDate, money } from "@/lib/format";
 import { messages, type Locale } from "@/lib/i18n";
 
 type Need = components["schemas"]["NeedView"];
@@ -103,12 +103,7 @@ export function PoolOffer({
     (!owner || need.state !== "selected" || !need.pool_opt_in || need.approval_state === "valid")
   )
     return null;
-  const date = (value: string) =>
-    new Intl.DateTimeFormat(locale, {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: "Asia/Kuala_Lumpur",
-    }).format(new Date(value));
+  const date = (value: string) => formatDate(value, locale, true);
   return (
     <section
       className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4"

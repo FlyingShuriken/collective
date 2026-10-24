@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
-import { money } from "@/lib/format";
+import { date, money } from "@/lib/format";
 import { messages, type Locale } from "@/lib/i18n";
 
 type Audit = components["schemas"]["VisibleSelfAudit"] | components["schemas"]["HiddenSelfAudit"];
@@ -27,7 +27,7 @@ export function SelfAudit({ business, locale }: { business: string; locale: Loca
     {!value && !error && <p role="status">{messages[locale].loading}</p>}
     {value && <>
       <p className="text-sm">{value.period_start && value.period_end
-        ? `${text.period}: ${new Date(value.period_start).toLocaleDateString(locale)} – ${new Date(value.period_end).toLocaleDateString(locale)}` : text.empty}</p>
+        ? `${text.period}: ${date(value.period_start, locale)} – ${date(value.period_end, locale)}` : text.empty}</p>
       <dl className="grid gap-4 text-sm sm:grid-cols-2">
         <div><dt>{text.purchases}</dt><dd className="font-semibold">{value.purchase_records}</dd></div>
         <div><dt>{text.delivered}</dt><dd className="font-semibold">{value.delivered_records}</dd></div>

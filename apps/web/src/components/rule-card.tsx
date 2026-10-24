@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
-import { decimal, money } from "@/lib/format";
+import { date as formatDate, decimal, money } from "@/lib/format";
 import { messages, type Locale } from "@/lib/i18n";
 
 type Rule = components["schemas"]["RulePage"]["items"][number];
@@ -16,7 +16,7 @@ type Job = components["schemas"]["JobStatus"];
 type Action = "accept" | "reject" | "revoke";
 
 function date(value: string, locale: Locale) {
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(value));
+  return formatDate(value, locale);
 }
 
 export function AccuracyNotice({ warning, locale }: { warning: components["schemas"]["AccuracyWarning"]; locale: Locale }) {

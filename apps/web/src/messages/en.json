@@ -601,5 +601,10 @@
     "sent": "Request sent through simulated channel",
     "acknowledge": "I reviewed the exact request and recipient and approve this simulated Send.",
     "notOrder": "Sending this message does not approve a purchasing order."
+  },
+  "language": "Language",
+  "pwa": {
+    "install": "Install Orbyte",
+    "unavailable": "App installation is unavailable in this browser session."
   }
 }

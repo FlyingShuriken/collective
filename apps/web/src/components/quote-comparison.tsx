@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
 import { messages, type Locale } from "@/lib/i18n";
-import { decimal, money } from "@/lib/format";
+import { date, decimal, money } from "@/lib/format";
 
 type Need = components["schemas"]["NeedView"];
 type Comparison =
@@ -183,11 +183,7 @@ export function QuoteComparison({
             </div>
             <p className="text-xs text-muted-foreground">
               {text.evaluatedAt}:{" "}
-              {new Intl.DateTimeFormat(locale, {
-                dateStyle: "medium",
-                timeStyle: "short",
-                timeZone: "Asia/Kuala_Lumpur",
-              }).format(new Date(comparison.evaluated_at))}
+              {date(comparison.evaluated_at, locale, true)}
             </p>
           </>
         )}
@@ -199,10 +195,7 @@ export function QuoteComparison({
               {options.replenishment.run_out_at && (
                 <p className="text-sm">
                   {text.runout}:{" "}
-                  {new Intl.DateTimeFormat(locale, {
-                    dateStyle: "medium",
-                    timeZone: "Asia/Kuala_Lumpur",
-                  }).format(new Date(options.replenishment.run_out_at))}
+                  {date(options.replenishment.run_out_at, locale)}
                 </p>
               )}
               {options.failure_codes.length > 0 && (

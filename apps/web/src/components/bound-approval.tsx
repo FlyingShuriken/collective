@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
-import { money } from "@/lib/format";
+import { date as formatDate, money } from "@/lib/format";
 import { messages, type Locale } from "@/lib/i18n";
 
 type Offer = components["schemas"]["PoolOffer"] | components["schemas"]["UnavailablePoolOffer"];
@@ -42,9 +42,7 @@ export function BoundApproval({ need, offer, quote, locale, onChanged }: {
     return () => controller.abort();
   }, [approvalId, approvalState, offer?.evaluation_revision, text.unavailable]);
 
-  const date = (value: string) => new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kuala_Lumpur",
-  }).format(new Date(value));
+  const date = (value: string) => formatDate(value, locale, true);
   const canApprove = approvalState !== "valid" && (offer
     ? ["offered", "approved", "awaiting_reapproval"].includes(offer.member_state ?? "offered") &&
       offer.eligibility === "eligible" && offer.price_visibility === "visible"
