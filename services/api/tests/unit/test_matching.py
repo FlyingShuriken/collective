@@ -189,7 +189,9 @@ async def test_endpoint_cannot_substitute_revision_positions_or_invalid_vectors(
             embedding_mode="local",
             embedding_url="http://127.0.0.1:8086/v1/embeddings",
         ),
-        transport=httpx.MockTransport(lambda _: httpx.Response(200, json=payload)),
+        transport=httpx.MockTransport(
+            lambda _: httpx.Response(200, content=json.dumps(payload).encode())
+        ),
     )
     with pytest.raises(DomainError) as error:
         await gateway.encode(["cup"])
