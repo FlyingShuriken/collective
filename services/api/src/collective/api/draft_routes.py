@@ -8,15 +8,32 @@ from collective.api.dto import (
     DraftView,
     EditDraft,
     HiddenDraft,
+    JobStatus,
     MessageReceipt,
+    RequestDraft,
     SendDraft,
 )
 from collective.api.need_routes import CommandKey
 from collective.domain.clock import SystemClock
 from collective.services import drafts
+from collective.services.liaison_jobs import request_draft
 from collective.services.permissions import membership
 
 router = APIRouter(prefix="/v1/businesses/{business_id}", tags=["drafts"])
+
+
+@router.post("/drafts")
+async def create(
+    business_id: UUID,
+    body: RequestDraft,
+    key: CommandKey,
+    principal: SignedIn,
+    db: DatabaseDependency,
+) -> JobStatus:
+    async with db.transaction("tenant", principal.subject) as connection:
+        return await request_draft(
+            connection, principal.subject, business_id, body, key, SystemClock().now()
+        )
 
 
 @router.get("/drafts")

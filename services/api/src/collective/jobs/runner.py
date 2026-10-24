@@ -5,8 +5,9 @@ from uuid import uuid4
 
 from pydantic import ValidationError
 
+from collective.api.errors import DomainError
 from collective.domain.clock import SystemClock
-from collective.jobs.handlers import HANDLERS
+from collective.jobs.handlers import configured_handlers
 from collective.repositories import jobs
 from collective.repositories.db import Database
 from collective.settings import Settings
@@ -19,10 +20,12 @@ class RetryableFailure(Exception):
 
 
 class Runner:
-    def __init__(self, database, *, clock=None, handlers=None):
+    def __init__(self, database, *, clock=None, handlers=None, settings=None):
         self.database = database
         self.clock = clock or SystemClock()
-        self.handlers = HANDLERS if handlers is None else handlers
+        self.handlers = (
+            configured_handlers(settings or Settings()) if handlers is None else handlers
+        )
         self.worker = uuid4()
 
     async def run_once(self):
@@ -48,6 +51,8 @@ class Runner:
                     else "JOB_FAILED"
                 )
             )
+            if isinstance(exc, DomainError):
+                code = exc.code
             try:
                 async with self.database.transaction("coordinator", None) as connection:
                     await jobs.fail(
@@ -80,7 +85,7 @@ async def serve(once):
     database = Database(settings.database_url.get_secret_value())
     await database.open()
     try:
-        runner = Runner(database)
+        runner = Runner(database, settings=settings)
         if once:
             print("Processed a due job." if await runner.run_once() else "No supported due job.")
         else:

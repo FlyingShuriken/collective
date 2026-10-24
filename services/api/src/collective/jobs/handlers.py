@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Literal
 from uuid import UUID
 
@@ -127,3 +128,12 @@ async def handle_due(database, job, clock):
 
 
 HANDLERS = {"reorder": handle_due, "expiry": handle_due}
+
+
+def configured_handlers(settings):
+    from collective.services.liaison_jobs import handle_draft, handle_quote
+
+    return HANDLERS | {
+        "quote_parse": partial(handle_quote, settings=settings),
+        "draft": partial(handle_draft, settings=settings),
+    }

@@ -34,6 +34,7 @@ def view(row, access):
         recipient=row["recipient"],
         approved_hash=fingerprint(row),
         sent_at=row["sent_at"],
+        interpretation_mode=row["input_context"].get("interpretation_mode"),
     )
 
 

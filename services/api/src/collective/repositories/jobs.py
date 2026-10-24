@@ -1,12 +1,46 @@
 from datetime import timedelta
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from psycopg.types.json import Jsonb
 
+from collective.api.dto import JobStatus
 from collective.repositories.events import Event, append_event
 
 MAX_ATTEMPTS = 3
 LEASE = timedelta(minutes=5)
+
+
+def public_status(row, as_of):
+    reference = None
+    if row["kind"] in {"intake", "quote_parse", "draft"} and isinstance(row["result"], dict):
+        value = row["result"].get("proposal_id") or row["result"].get("draft_id")
+        if value:
+            reference = UUID(value)
+    return JobStatus(
+        **{
+            k: row[k]
+            for k in JobStatus.model_fields
+            if k in row and k not in {"lease_expired", "result_reference"}
+        },
+        lease_expired=bool(row["status"] == "running" and row["lease_until"] <= as_of),
+        result_reference=reference,
+    )
+
+
+async def record_attempts(connection, job, attempts, validated=None):
+    for index, attempt in enumerate(attempts):
+        await connection.execute(
+            """insert into collective_private.model_attempts
+            (id,business_id,job_id,attempt,validated)
+            values (%s,%s,%s,%s,%s) on conflict(id) do nothing""",
+            (
+                UUID(attempt["id"]),
+                job["business_id"],
+                job["id"],
+                Jsonb(attempt),
+                Jsonb(validated) if validated is not None and index == len(attempts) - 1 else None,
+            ),
+        )
 
 
 class LeaseLost(Exception):

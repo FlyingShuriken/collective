@@ -275,3 +275,40 @@ async def test_timeouts_are_bounded_and_keep_attempt_evidence(monkeypatch):
     assert failed.value.code == "MODEL_UNAVAILABLE"
     assert len(failed.value.attempts) == 3
     assert all(attempt["latency_ms"] >= 0 for attempt in failed.value.attempts)
+
+
+async def test_prepared_images_send_only_verified_png_bytes_and_page_number():
+    import base64
+    import hashlib
+    from pathlib import Path
+
+    from collective.adapters.replay import digest
+
+    data = (
+        Path(__file__).resolve().parents[4] / "fixtures/sources/delivered-invoice.png"
+    ).read_bytes()
+    page = {"page": 1, "sha256": hashlib.sha256(data).hexdigest(), "width": 1000, "height": 1400}
+    normalized = {"version": "1", "text": None, "pages": [page]}
+    document = normalized | {
+        "sha256": digest(normalized),
+        "source_id": "private-source",
+        "pages": [page | {"content": data, "object_key": "private-object"}],
+    }
+    captured = []
+
+    def provider(request):
+        captured.append(json.loads(request.content))
+        return response()
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(provider)) as client:
+        await ReaderGateway(config(), http_client=client).extract(TASK, document, Answer)
+    parts = captured[0]["contents"][0]["parts"]
+    inline = next(part["inlineData"] for part in parts if "inlineData" in part)
+    assert inline["mime_type"] == "image/png" and base64.urlsafe_b64decode(inline["data"]) == data
+    assert "private-source" not in json.dumps(captured) and "private-object" not in json.dumps(
+        captured
+    )
+    broken = document | {"pages": [page | {"content": b"changed"}]}
+    with pytest.raises(DomainError) as failed:
+        await ReaderGateway(config()).extract(TASK, broken, Answer)
+    assert failed.value.code == "SOURCE_INTEGRITY_FAILED"

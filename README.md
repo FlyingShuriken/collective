@@ -60,6 +60,9 @@ pnpm exec playwright test
 
 The [Playwright runner](https://playwright.dev/docs/test-cli) starts missing local API/web
 servers, or reuses running ones. Restart an API without reload after source changes.
+Stop other API/worker processes before Python integration tests: lease/recovery tests
+need exclusive control of their local jobs. Restart the API for `auth:check`; Playwright
+can start it with the normal worker when absent.
 Each browser test seeds a new isolated synthetic run; credentials stay under ignored
 `.cache/`. Login traces are disabled because they would record those credentials. Browser
 screenshots and failure output stay under ignored `test-results/`.
@@ -79,15 +82,27 @@ uv run --project services/api python -m collective.jobs.runner --once
 
 Jobs have five-minute leases and at most three processing attempts. Expired leases can
 be reclaimed; stale workers cannot commit outputs. Results, state and audit events commit
-together. Model/source handlers are added in their later roadmap stages.
+together. Reorder/expiry, supplier quote-reading and message-drafting handlers use this
+runner. General invoice/stock intake follows in T17.
 
 The Sources section accepts private PNG/JPEG/PDF files up to 10 MB and 10 pages,
 or UTF-8 text up to 16,000 characters. It saves normalized pages and provides actual
 source crops. Review sensitive values or draw image/PDF masks, then explicitly prepare
 the provider copy. Originals stay separate; restricted staff cannot fetch price-bearing
-sources. Preparation queues extraction but does not confirm a record. Model extraction
-is still pending T16–T17. The synthetic demo does not establish automatic masking or
+sources. Preparation queues extraction but does not confirm a record. The liaison API can
+read prepared supplier replies into editable quote proposals; confirmation creates a
+sealed quote with unresolved terms preserved. RFQ/query jobs create unsent drafts from
+authorized context. Owner Send binds the exact text, recipient and revision and returns
+one simulated receipt. General invoice/stock extraction remains T17.
+The synthetic demo does not establish automatic masking or
 retention suitability for arbitrary real invoices.
+
+`MODEL_MODE=replay` is the default. Two declared synthetic quote inputs have authored
+replays; these are workflow fixtures, not measured model output. Rebuild them for the
+configured model IDs with `uv run --project services/api python scripts/generate_replay_fixtures.py`.
+Changed inputs/versions stop with `REPLAY_MISS`. Live/record modes need a server-only
+`GEMINI_API_KEY`; recording also requires demo mode and a predeclared synthetic source.
+Live provider accuracy/availability and complete fresh-seed replay coverage remain T23–T24.
 
 The development roadmap is in `docs/plans/`. Actual task evidence and outstanding
 work are recorded in `docs/plans/development-progress.md`. The complete purchasing

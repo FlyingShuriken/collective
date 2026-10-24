@@ -91,6 +91,89 @@
         "title": "ActivityPage",
         "type": "object"
       },
+      "Anchor": {
+        "additionalProperties": false,
+        "properties": {
+          "bbox_normalized": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "maxItems": 4,
+                "minItems": 4,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bbox Normalized"
+          },
+          "extracted_value": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted Value"
+          },
+          "field_path": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Field Path",
+            "type": "string"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "region_quality": {
+            "enum": [
+              "approximate",
+              "full_page",
+              "text"
+            ],
+            "title": "Region Quality",
+            "type": "string"
+          },
+          "text_span": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Span"
+          }
+        },
+        "required": [
+          "field_path",
+          "region_quality"
+        ],
+        "title": "Anchor",
+        "type": "object"
+      },
       "ApprovalCommandResult": {
         "additionalProperties": false,
         "properties": {
@@ -641,6 +724,22 @@
             "title": "Id",
             "type": "string"
           },
+          "interpretation_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "live",
+                  "record",
+                  "replay"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interpretation Mode"
+          },
           "kind": {
             "enum": [
               "rfq",
@@ -730,6 +829,25 @@
           "recipient"
         ],
         "title": "EditDraft",
+        "type": "object"
+      },
+      "EditQuoteProposal": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "reading": {
+            "$ref": "#/components/schemas/QuoteReading"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "reading"
+        ],
+        "title": "EditQuoteProposal",
         "type": "object"
       },
       "ErrorResponse": {
@@ -1008,6 +1126,33 @@
           "extracted_value"
         ],
         "title": "Evidence",
+        "type": "object"
+      },
+      "FieldIssue": {
+        "additionalProperties": false,
+        "properties": {
+          "field_path": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Field Path",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "missing",
+              "ambiguous",
+              "unreadable",
+              "unsupported"
+            ],
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field_path",
+          "reason"
+        ],
+        "title": "FieldIssue",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -1384,6 +1529,61 @@
         "title": "HiddenPoolOffer",
         "type": "object"
       },
+      "HiddenProposal": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "current_revision": {
+            "minimum": 1.0,
+            "title": "Current Revision",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "quote",
+            "title": "Kind",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending_review",
+              "confirmed",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source_id",
+          "kind",
+          "current_revision",
+          "status",
+          "created_at"
+        ],
+        "title": "HiddenProposal",
+        "type": "object"
+      },
       "HiddenPurchaseOrder": {
         "additionalProperties": false,
         "properties": {
@@ -1739,6 +1939,18 @@
             "format": "date-time",
             "title": "Next Attempt At",
             "type": "string"
+          },
+          "result_reference": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Reference"
           },
           "status": {
             "enum": [
@@ -2366,6 +2578,45 @@
         "title": "OfferComparison",
         "type": "object"
       },
+      "ParseQuote": {
+        "additionalProperties": false,
+        "properties": {
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Source Sha256",
+            "type": "string"
+          },
+          "spec_id": {
+            "format": "uuid",
+            "title": "Spec Id",
+            "type": "string"
+          },
+          "spec_revision": {
+            "minimum": 1.0,
+            "title": "Spec Revision",
+            "type": "integer"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "supplier_id",
+          "spec_id",
+          "spec_revision",
+          "source_id",
+          "source_sha256"
+        ],
+        "title": "ParseQuote",
+        "type": "object"
+      },
       "PoolOffer": {
         "additionalProperties": false,
         "properties": {
@@ -2656,6 +2907,42 @@
         "title": "PrepareSource",
         "type": "object"
       },
+      "ProposalPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/QuoteProposal"
+                },
+                {
+                  "$ref": "#/components/schemas/HiddenProposal"
+                }
+              ]
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ProposalPage",
+        "type": "object"
+      },
       "QuantityOption": {
         "additionalProperties": false,
         "properties": {
@@ -2724,6 +3011,513 @@
           "assumptions"
         ],
         "title": "QuantityOption",
+        "type": "object"
+      },
+      "QuoteContext": {
+        "additionalProperties": false,
+        "properties": {
+          "spec_id": {
+            "format": "uuid",
+            "title": "Spec Id",
+            "type": "string"
+          },
+          "spec_revision": {
+            "minimum": 1.0,
+            "title": "Spec Revision",
+            "type": "integer"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "supplier_id",
+          "spec_id",
+          "spec_revision"
+        ],
+        "title": "QuoteContext",
+        "type": "object"
+      },
+      "QuoteProposal": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/QuoteContext"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "current_revision": {
+            "minimum": 1.0,
+            "title": "Current Revision",
+            "type": "integer"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "interpretation_mode": {
+            "enum": [
+              "live",
+              "record",
+              "replay"
+            ],
+            "title": "Interpretation Mode",
+            "type": "string"
+          },
+          "kind": {
+            "const": "quote",
+            "title": "Kind",
+            "type": "string"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "reading": {
+            "$ref": "#/components/schemas/QuoteReading"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Id"
+          },
+          "record_revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Revision"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending_review",
+              "confirmed",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source_id",
+          "kind",
+          "current_revision",
+          "status",
+          "created_at",
+          "reading",
+          "context",
+          "flags",
+          "evidence",
+          "interpretation_mode",
+          "model",
+          "prompt_version",
+          "schema_version"
+        ],
+        "title": "QuoteProposal",
+        "type": "object"
+      },
+      "QuoteReading": {
+        "additionalProperties": false,
+        "properties": {
+          "aggregate_moq": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aggregate Moq"
+          },
+          "arrival_end": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arrival End"
+          },
+          "arrival_start": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arrival Start"
+          },
+          "base_unit": {
+            "anyOf": [
+              {
+                "enum": [
+                  "piece",
+                  "ml",
+                  "g"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Unit"
+          },
+          "conditions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conditions"
+          },
+          "conditions_complete": {
+            "default": false,
+            "title": "Conditions Complete",
+            "type": "boolean"
+          },
+          "confidence_label": {
+            "default": "review",
+            "enum": [
+              "high",
+              "review",
+              "low"
+            ],
+            "title": "Confidence Label",
+            "type": "string"
+          },
+          "credit_days": {
+            "anyOf": [
+              {
+                "maximum": 3650.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit Days"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "maxLength": 10,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "delivery_fee": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Fee"
+          },
+          "delivery_location": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Location"
+          },
+          "delivery_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "per_business",
+                  "collection_point"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Mode"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "discount": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Anchor"
+            },
+            "maxItems": 100,
+            "title": "Evidence",
+            "type": "array"
+          },
+          "free_delivery_threshold": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Free Delivery Threshold"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/FieldIssue"
+            },
+            "maxItems": 100,
+            "title": "Issues",
+            "type": "array"
+          },
+          "pack_multiple": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pack Multiple"
+          },
+          "per_business_moq": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per Business Moq"
+          },
+          "pooled_buyers_permitted": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pooled Buyers Permitted"
+          },
+          "surcharge": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Surcharge"
+          },
+          "tax_rate": {
+            "anyOf": [
+              {
+                "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Rate"
+          },
+          "tier_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "all_unit",
+                  "incremental"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tier Kind"
+          },
+          "tiers": {
+            "items": {
+              "$ref": "#/components/schemas/QuotedTier"
+            },
+            "maxItems": 20,
+            "title": "Tiers",
+            "type": "array"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          },
+          "validity_text": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validity Text"
+          },
+          "waive_split_drop_fees": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Waive Split Drop Fees"
+          }
+        },
+        "title": "QuoteReading",
+        "type": "object"
+      },
+      "QuotedTier": {
+        "additionalProperties": false,
+        "properties": {
+          "min_quantity": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Min Quantity",
+            "type": "string"
+          },
+          "unit_price": {
+            "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+            "title": "Unit Price",
+            "type": "string"
+          }
+        },
+        "required": [
+          "min_quantity",
+          "unit_price"
+        ],
+        "title": "QuotedTier",
         "type": "object"
       },
       "ReleaseResult": {
@@ -2878,6 +3672,90 @@
           }
         },
         "title": "ReplenishmentResult",
+        "type": "object"
+      },
+      "RequestDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "rfq",
+              "invoice_query"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "reference_id": {
+            "format": "uuid",
+            "title": "Reference Id",
+            "type": "string"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "reference_id",
+          "expected_revision",
+          "supplier_id"
+        ],
+        "title": "RequestDraft",
+        "type": "object"
+      },
+      "ReviewProposal": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledged_flags": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Acknowledged Flags",
+            "type": "array"
+          },
+          "expected_quote_revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Quote Revision"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "quote_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Id"
+          }
+        },
+        "required": [
+          "expected_revision"
+        ],
+        "title": "ReviewProposal",
         "type": "object"
       },
       "SelectNeed": {
@@ -3817,6 +4695,73 @@
         "tags": [
           "drafts"
         ]
+      },
+      "post": {
+        "operationId": "create_v1_businesses__business_id__drafts_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create",
+        "tags": [
+          "drafts"
+        ]
       }
     },
     "/v1/businesses/{business_id}/drafts/{draft_id}": {
@@ -4190,6 +5135,64 @@
           }
         ],
         "summary": "Listing",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/jobs/{job_id}": {
+      "get": {
+        "operationId": "status_v1_businesses__business_id__jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Status",
         "tags": [
           "jobs"
         ]
@@ -5241,6 +6244,453 @@
         "summary": "Withdraw",
         "tags": [
           "pools"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/proposals": {
+      "get": {
+        "operationId": "listing_v1_businesses__business_id__proposals_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Listing",
+        "tags": [
+          "proposals"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/proposals/{proposal_id}": {
+      "get": {
+        "operationId": "proposal_v1_businesses__business_id__proposals__proposal_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/QuoteProposal"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HiddenProposal"
+                    }
+                  ],
+                  "title": "Response Proposal V1 Businesses  Business Id  Proposals  Proposal Id  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Proposal",
+        "tags": [
+          "proposals"
+        ]
+      },
+      "patch": {
+        "operationId": "edit_v1_businesses__business_id__proposals__proposal_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditQuoteProposal"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteProposal"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Edit",
+        "tags": [
+          "proposals"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/proposals/{proposal_id}/confirm": {
+      "post": {
+        "operationId": "confirm_v1_businesses__business_id__proposals__proposal_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewProposal"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteProposal"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Confirm",
+        "tags": [
+          "proposals"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/proposals/{proposal_id}/reject": {
+      "post": {
+        "operationId": "reject_v1_businesses__business_id__proposals__proposal_id__reject_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mutation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteProposal"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reject",
+        "tags": [
+          "proposals"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/quote-proposals": {
+      "post": {
+        "operationId": "create_v1_businesses__business_id__quote_proposals_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParseQuote"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create",
+        "tags": [
+          "proposals"
         ]
       }
     },

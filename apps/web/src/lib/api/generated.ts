@@ -31,7 +31,8 @@ export interface paths {
         /** Listing */
         get: operations["listing_v1_businesses__business_id__drafts_get"];
         put?: never;
-        post?: never;
+        /** Create */
+        post: operations["create_v1_businesses__business_id__drafts_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -99,6 +100,23 @@ export interface paths {
         };
         /** Listing */
         get: operations["listing_v1_businesses__business_id__jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Status */
+        get: operations["status_v1_businesses__business_id__jobs__job_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -339,6 +357,92 @@ export interface paths {
         put?: never;
         /** Withdraw */
         post: operations["withdraw_v1_businesses__business_id__pools__pool_id__withdraw_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/proposals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listing */
+        get: operations["listing_v1_businesses__business_id__proposals_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/proposals/{proposal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Proposal */
+        get: operations["proposal_v1_businesses__business_id__proposals__proposal_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit */
+        patch: operations["edit_v1_businesses__business_id__proposals__proposal_id__patch"];
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/proposals/{proposal_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm */
+        post: operations["confirm_v1_businesses__business_id__proposals__proposal_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/proposals/{proposal_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject */
+        post: operations["reject_v1_businesses__business_id__proposals__proposal_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/quote-proposals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create */
+        post: operations["create_v1_businesses__business_id__quote_proposals_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -590,6 +694,24 @@ export interface components {
             /** Next Cursor */
             next_cursor: string | null;
         };
+        /** Anchor */
+        Anchor: {
+            /** Bbox Normalized */
+            bbox_normalized?: number[] | null;
+            /** Extracted Value */
+            extracted_value?: string | null;
+            /** Field Path */
+            field_path: string;
+            /** Page */
+            page?: number | null;
+            /**
+             * Region Quality
+             * @enum {string}
+             */
+            region_quality: "approximate" | "full_page" | "text";
+            /** Text Span */
+            text_span?: number[] | null;
+        };
         /** ApprovalCommandResult */
         ApprovalCommandResult: {
             /** Approval Id */
@@ -769,6 +891,8 @@ export interface components {
              * Format: uuid
              */
             id: string;
+            /** Interpretation Mode */
+            interpretation_mode?: ("live" | "record" | "replay") | null;
             /**
              * Kind
              * @enum {string}
@@ -802,6 +926,12 @@ export interface components {
             recipient: string;
             /** Text Content */
             text_content: string;
+        };
+        /** EditQuoteProposal */
+        EditQuoteProposal: {
+            /** Expected Revision */
+            expected_revision: number;
+            reading: components["schemas"]["QuoteReading"];
         };
         /** ErrorResponse */
         ErrorResponse: {
@@ -896,6 +1026,16 @@ export interface components {
                 number,
                 number
             ] | null;
+        };
+        /** FieldIssue */
+        FieldIssue: {
+            /** Field Path */
+            field_path: string;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "missing" | "ambiguous" | "unreadable" | "unsupported";
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1087,6 +1227,42 @@ export interface components {
              */
             release_state: "waiting_for_approvals" | "ready" | "released" | "ineligible";
         };
+        /** HiddenProposal */
+        HiddenProposal: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Current Revision */
+            current_revision: number;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "quote";
+            /**
+             * Price Visibility
+             * @default hidden
+             * @constant
+             */
+            price_visibility: "hidden";
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending_review" | "confirmed" | "rejected";
+        };
         /** HiddenPurchaseOrder */
         HiddenPurchaseOrder: {
             /**
@@ -1256,6 +1432,8 @@ export interface components {
              * Format: date-time
              */
             next_attempt_at: string;
+            /** Result Reference */
+            result_reference?: string | null;
             /**
              * Status
              * @enum {string}
@@ -1487,6 +1665,28 @@ export interface components {
             /** Valid Until */
             valid_until: string | null;
         };
+        /** ParseQuote */
+        ParseQuote: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Source Sha256 */
+            source_sha256: string;
+            /**
+             * Spec Id
+             * Format: uuid
+             */
+            spec_id: string;
+            /** Spec Revision */
+            spec_revision: number;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+        };
         /** PoolOffer */
         PoolOffer: {
             /** Agreed Delivered Cost */
@@ -1620,6 +1820,13 @@ export interface components {
             /** Source Sha256 */
             source_sha256: string;
         };
+        /** ProposalPage */
+        ProposalPage: {
+            /** Items */
+            items: (components["schemas"]["QuoteProposal"] | components["schemas"]["HiddenProposal"])[];
+            /** Next Cursor */
+            next_cursor?: string | null;
+        };
         /** QuantityOption */
         QuantityOption: {
             /** Assumptions */
@@ -1643,6 +1850,151 @@ export interface components {
             repeat_order_count: number;
             /** Saving Vs Repeat Orders */
             saving_vs_repeat_orders: string;
+        };
+        /** QuoteContext */
+        QuoteContext: {
+            /**
+             * Spec Id
+             * Format: uuid
+             */
+            spec_id: string;
+            /** Spec Revision */
+            spec_revision: number;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+        };
+        /** QuoteProposal */
+        QuoteProposal: {
+            context: components["schemas"]["QuoteContext"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Current Revision */
+            current_revision: number;
+            /** Evidence */
+            evidence: components["schemas"]["Evidence"][];
+            /** Flags */
+            flags: string[];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Interpretation Mode
+             * @enum {string}
+             */
+            interpretation_mode: "live" | "record" | "replay";
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "quote";
+            /** Model */
+            model: string;
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /** Prompt Version */
+            prompt_version: string;
+            reading: components["schemas"]["QuoteReading"];
+            /** Record Id */
+            record_id?: string | null;
+            /** Record Revision */
+            record_revision?: number | null;
+            /** Schema Version */
+            schema_version: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending_review" | "confirmed" | "rejected";
+        };
+        /** QuoteReading */
+        QuoteReading: {
+            /** Aggregate Moq */
+            aggregate_moq?: string | null;
+            /** Arrival End */
+            arrival_end?: string | null;
+            /** Arrival Start */
+            arrival_start?: string | null;
+            /** Base Unit */
+            base_unit?: ("piece" | "ml" | "g") | null;
+            /** Conditions */
+            conditions?: string | null;
+            /**
+             * Conditions Complete
+             * @default false
+             */
+            conditions_complete: boolean;
+            /**
+             * Confidence Label
+             * @default review
+             * @enum {string}
+             */
+            confidence_label: "high" | "review" | "low";
+            /** Credit Days */
+            credit_days?: number | null;
+            /** Currency */
+            currency?: string | null;
+            /** Delivery Fee */
+            delivery_fee?: string | null;
+            /** Delivery Location */
+            delivery_location?: string | null;
+            /** Delivery Mode */
+            delivery_mode?: ("per_business" | "collection_point") | null;
+            /** Description */
+            description?: string | null;
+            /** Discount */
+            discount?: string | null;
+            /** Evidence */
+            evidence?: components["schemas"]["Anchor"][];
+            /** Free Delivery Threshold */
+            free_delivery_threshold?: string | null;
+            /** Issues */
+            issues?: components["schemas"]["FieldIssue"][];
+            /** Pack Multiple */
+            pack_multiple?: string | null;
+            /** Per Business Moq */
+            per_business_moq?: string | null;
+            /** Pooled Buyers Permitted */
+            pooled_buyers_permitted?: boolean | null;
+            /** Surcharge */
+            surcharge?: string | null;
+            /** Tax Rate */
+            tax_rate?: string | null;
+            /** Tier Kind */
+            tier_kind?: ("all_unit" | "incremental") | null;
+            /** Tiers */
+            tiers?: components["schemas"]["QuotedTier"][];
+            /** Valid From */
+            valid_from?: string | null;
+            /** Valid Until */
+            valid_until?: string | null;
+            /** Validity Text */
+            validity_text?: string | null;
+            /** Waive Split Drop Fees */
+            waive_split_drop_fees?: boolean | null;
+        };
+        /** QuotedTier */
+        QuotedTier: {
+            /** Min Quantity */
+            min_quantity: string;
+            /** Unit Price */
+            unit_price: string;
         };
         /** ReleaseResult */
         ReleaseResult: {
@@ -1682,6 +2034,40 @@ export interface components {
             stock_at_now?: string | null;
             /** Usage Rule Revision */
             usage_rule_revision?: number | null;
+        };
+        /** RequestDraft */
+        RequestDraft: {
+            /** Expected Revision */
+            expected_revision: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "rfq" | "invoice_query";
+            /**
+             * Reference Id
+             * Format: uuid
+             */
+            reference_id: string;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+        };
+        /** ReviewProposal */
+        ReviewProposal: {
+            /**
+             * Acknowledged Flags
+             * @default []
+             */
+            acknowledged_flags: string[];
+            /** Expected Quote Revision */
+            expected_quote_revision?: number | null;
+            /** Expected Revision */
+            expected_revision: number;
+            /** Quote Id */
+            quote_id?: string | null;
         };
         /** SelectNeed */
         SelectNeed: {
@@ -2086,6 +2472,43 @@ export interface operations {
             };
         };
     };
+    create_v1_businesses__business_id__drafts_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestDraft"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     draft_v1_businesses__business_id__drafts__draft_id__get: {
         parameters: {
             query?: never;
@@ -2249,6 +2672,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    status_v1_businesses__business_id__jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"];
                 };
             };
             /** @description Validation Error */
@@ -2748,6 +3203,223 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApprovalCommandResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listing_v1_businesses__business_id__proposals_get: {
+        parameters: {
+            query?: {
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    proposal_v1_businesses__business_id__proposals__proposal_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteProposal"] | components["schemas"]["HiddenProposal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_v1_businesses__business_id__proposals__proposal_id__patch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditQuoteProposal"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteProposal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_v1_businesses__business_id__proposals__proposal_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewProposal"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteProposal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_v1_businesses__business_id__proposals__proposal_id__reject_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Mutation"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteProposal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_v1_businesses__business_id__quote_proposals_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParseQuote"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"];
                 };
             };
             /** @description Validation Error */

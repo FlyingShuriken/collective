@@ -418,7 +418,7 @@ async def for_job(database, storage, job):
             saved is None
             or saved["business_id"] != job["business_id"]
             or saved["payload"] != job["payload"]
-            or saved["kind"] != "intake"
+            or saved["kind"] not in {"intake", "quote_parse"}
         ):
             raise DomainError("SOURCE_JOB_MISMATCH", "The source does not belong to this job.", 409)
         identity = UUID(saved["payload"]["source_id"])
@@ -431,7 +431,12 @@ async def for_job(database, storage, job):
             raise DomainError(
                 "SOURCE_NOT_PREPARED", "Review source masking before extraction.", 409
             )
-        if row["ingestion_job_id"] != saved["id"]:
+        expected = (
+            saved["id"]
+            if saved["kind"] == "intake"
+            else UUID(saved["payload"]["preparation_job_id"])
+        )
+        if row["ingestion_job_id"] != expected:
             raise DomainError("SOURCE_JOB_MISMATCH", "The source does not belong to this job.", 409)
         pages = await sources.pages(connection, row)
     encoded = await storage.read(row["provider_object_key"])

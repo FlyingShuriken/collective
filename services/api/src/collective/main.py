@@ -17,6 +17,7 @@ from collective.api.ledger_routes import router as ledger_router
 from collective.api.need_routes import router as need_router
 from collective.api.order_routes import router as order_router
 from collective.api.pool_routes import router as pool_router
+from collective.api.proposal_routes import router as proposal_router
 from collective.api.source_routes import router as source_router
 from collective.jobs.runner import Runner
 from collective.repositories.db import Database
@@ -35,7 +36,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if db is not None:
                 await db.open()
                 if settings.enable_worker:
-                    worker = asyncio.create_task(Runner(db).run())
+                    worker = asyncio.create_task(Runner(db, settings=settings).run())
             yield
         finally:
             if worker is not None:
@@ -61,6 +62,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(job_router)
     app.include_router(source_router)
     app.include_router(draft_router)
+    app.include_router(proposal_router)
 
     @app.middleware("http")
     async def private_responses(request: Request, call_next):

@@ -1,5 +1,6 @@
-from collective.api.dto import HiddenSource, JobStatus, SourceResult, SourceSummary, VisibleSource
+from collective.api.dto import HiddenSource, SourceResult, SourceSummary, VisibleSource
 from collective.api.errors import DomainError
+from collective.repositories.jobs import public_status
 
 
 async def load(connection, business, source, *, lock=False):
@@ -47,10 +48,7 @@ async def result(connection, row, access, as_of):
                 (row["business_id"], row["ingestion_job_id"]),
             )
         ).fetchone()
-        job = JobStatus(
-            **{k: record[k] for k in JobStatus.model_fields if k != "lease_expired"},
-            lease_expired=bool(record["status"] == "running" and record["lease_until"] <= as_of),
-        )
+        job = public_status(record, as_of)
     return SourceResult(source=source, job=job)
 
 

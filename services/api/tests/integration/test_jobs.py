@@ -203,8 +203,9 @@ async def test_lifespan_starts_and_stops_the_configured_worker(runtime_url, monk
     started, stopped = asyncio.Event(), asyncio.Event()
 
     class Worker:
-        def __init__(self, database):
+        def __init__(self, database, *, settings):
             self.database = database
+            assert settings.enable_worker is True
 
         async def run(self):
             started.set()

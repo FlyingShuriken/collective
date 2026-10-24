@@ -12,13 +12,17 @@ from collective.repositories.events import Event, append_event
 from collective.repositories.locks import lock_cohorts
 
 
-async def lock_inputs(connection: AsyncConnection, spec: UUID) -> None:
+async def lock_inputs(connection: AsyncConnection, spec: UUID, *, extra_suppliers=()) -> None:
     suppliers = await (
         await connection.execute(
             "select distinct supplier_id from collective.quote_revisions where spec_id=%s", (spec,)
         )
     ).fetchall()
-    await lock_cohorts(connection, {(r["supplier_id"], spec) for r in suppliers})
+    await lock_cohorts(
+        connection,
+        {(r["supplier_id"], spec) for r in suppliers}
+        | {(supplier, spec) for supplier in extra_suppliers},
+    )
     await connection.execute(
         """select id from collective.pools
         where spec_id=%s and state<>'released' order by id for update""",

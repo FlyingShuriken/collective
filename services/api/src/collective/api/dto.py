@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import Field, model_validator
 
+from collective.agents.schemas import QuoteReading
 from collective.domain.approvals import BoundTerms
 from collective.domain.costs import CostBreakdown
 from collective.domain.quantities import QuantityOption
@@ -368,6 +369,7 @@ class JobStatus(Snapshot):
     completed_at: Instant | None
     error_code: str | None
     lease_expired: bool
+    result_reference: UUID | None = None
 
 
 class JobPage(Snapshot):
@@ -453,6 +455,74 @@ class DraftSummary(Snapshot):
     created_at: Instant
 
 
+class QuoteContext(Snapshot):
+    supplier_id: UUID
+    spec_id: UUID
+    spec_revision: Revision
+
+
+class ParseQuote(QuoteContext):
+    source_id: UUID
+    source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class RequestDraft(Snapshot):
+    kind: Literal["rfq", "invoice_query"]
+    reference_id: UUID
+    expected_revision: Revision
+    supplier_id: UUID
+
+
+class ProposalSummary(Snapshot):
+    id: UUID
+    source_id: UUID
+    kind: Literal["quote"]
+    current_revision: Revision
+    status: Literal["pending_review", "confirmed", "rejected"]
+    created_at: Instant
+
+
+class HiddenProposal(ProposalSummary):
+    price_visibility: Literal["hidden"] = "hidden"
+
+
+class QuoteProposal(ProposalSummary):
+    price_visibility: Literal["visible"] = "visible"
+    reading: QuoteReading
+    context: QuoteContext
+    flags: tuple[str, ...]
+    evidence: tuple[Evidence, ...]
+    interpretation_mode: Literal["live", "record", "replay"]
+    model: str
+    prompt_version: str
+    schema_version: str
+    record_id: UUID | None = None
+    record_revision: Revision | None = None
+
+
+class ProposalPage(Snapshot):
+    items: tuple[QuoteProposal | HiddenProposal, ...]
+    next_cursor: UUID | None = None
+
+
+class EditQuoteProposal(Snapshot):
+    expected_revision: Revision
+    reading: QuoteReading
+
+
+class ReviewProposal(Snapshot):
+    expected_revision: Revision
+    acknowledged_flags: tuple[str, ...] = Field(default=(), max_length=100)
+    quote_id: UUID | None = None
+    expected_quote_revision: Revision | None = None
+
+    @model_validator(mode="after")
+    def revision_pair(self) -> Self:
+        if (self.quote_id is None) != (self.expected_quote_revision is None):
+            raise ValueError("Quote identity and expected revision must be supplied together")
+        return self
+
+
 class HiddenDraft(DraftSummary):
     price_visibility: Literal["hidden"] = "hidden"
 
@@ -463,6 +533,7 @@ class DraftView(DraftSummary):
     recipient: str
     approved_hash: str
     sent_at: Instant | None
+    interpretation_mode: Literal["live", "record", "replay"] | None = None
 
 
 class DraftPage(Snapshot):
