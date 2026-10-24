@@ -76,7 +76,8 @@ def evidence(reading, document):
     for anchor in reading.evidence:
         value = anchor.model_dump() | {
             "source_id": document["source_id"],
-            "confidence_label": reading.confidence_label,
+            "confidence_label": getattr(anchor, "confidence_label", None)
+            or reading.confidence_label,
         }
         try:
             if anchor.region_quality == "text":

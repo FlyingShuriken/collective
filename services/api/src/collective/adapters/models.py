@@ -2,6 +2,7 @@
 
 import asyncio
 import hashlib
+import json
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -171,16 +172,26 @@ class ReaderGateway:
                         if response.usage_metadata
                         else {}
                     )
-                    if any(
-                        part.function_call is not None or part.executable_code is not None
+                    attempt["usage"] = usage
+                    unsupported = [
+                        part.model_dump(
+                            mode="json",
+                            exclude_none=True,
+                            include={"function_call", "executable_code"},
+                        )
                         for candidate in response.candidates or []
                         for part in (candidate.content.parts or [] if candidate.content else [])
-                    ):
+                        if part.function_call is not None or part.executable_code is not None
+                    ]
+                    if unsupported:
+                        attempt["raw_output"] = json.dumps(unsupported, ensure_ascii=False)
                         raise ModelFailure(
                             "MODEL_TOOL_OUTPUT",
                             "The model returned an unsupported action.",
                             attempts,
                         )
+                    raw = response.text or ""
+                    attempt["raw_output"] = raw
                     if not response.candidates or any(
                         candidate.finish_reason != types.FinishReason.STOP
                         for candidate in response.candidates
@@ -188,7 +199,6 @@ class ReaderGateway:
                         raise ModelFailure(
                             "MODEL_INCOMPLETE", "The model reading did not complete.", attempts
                         )
-                    raw = response.text or ""
                 attempt["raw_output"], attempt["usage"] = raw, usage
                 if len(raw) > 131072:
                     raise ModelFailure(

@@ -4,13 +4,104 @@ import json
 from pathlib import Path
 
 from collective.adapters.models import ReaderGateway, prepared_text
-from collective.adapters.replay import ReplayStore
+from collective.adapters.replay import ReplayStore, digest
+from collective.agents.intake import INTAKE
 from collective.agents.liaison import QUOTE
-from collective.agents.schemas import QuoteReading
+from collective.agents.schemas import IntakeReading, QuoteReading
 from collective.services.source_preparation import redact_text
+from collective.services.source_rendering import inspect_source
 from collective.settings import Settings
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def prepared_fixture(filename):
+    mime = "application/pdf" if filename.endswith(".pdf") else "image/png"
+    content = (ROOT / "fixtures/sources" / filename).read_bytes()
+    prepared = inspect_source(content, mime)
+    normalized = {
+        "version": "1",
+        "text": prepared["text"],
+        "pages": [
+            {key: page[key] for key in ("page", "sha256", "width", "height")}
+            for page in prepared["pages"]
+        ],
+    }
+    return normalized | {"sha256": digest(normalized), "pages": prepared["pages"]}
+
+
+def intake_cases():
+    fields = json.loads((ROOT / "fixtures/gold/source-fields.json").read_text())[
+        "delivered-invoice"
+    ]
+    invoice = IntakeReading.model_validate(
+        {
+            "kind": "purchase",
+            "supplier_name": "Supplier B",
+            "document_number": fields["document_number"],
+            "date_text": fields["invoice_date"],
+            "document_date": fields["invoice_date"],
+            "currency": fields["currency"],
+            "goods_total": fields["line_total"],
+            "delivery_fee": fields["delivery_fee"],
+            "tax_amount": fields["tax"],
+            "total": fields["total"],
+            "credit_days": 30,
+            "confidence_label": "high",
+            "lines": [
+                {
+                    "description": "250ml paper cups, 80mm lid, paper",
+                    "quantity": fields["quantity"],
+                    "unit": "piece",
+                    "unit_price": fields["unit_price"],
+                    "line_total": fields["line_total"],
+                }
+            ],
+            "evidence": [
+                {
+                    "field_path": "lines.0.unit_price",
+                    "page": 1,
+                    "bbox_normalized": fields["bbox_normalized"]["lines.0.unit_price"],
+                    "region_quality": "approximate",
+                    "extracted_value": fields["unit_price"],
+                    "confidence_label": "high",
+                }
+            ],
+        }
+    )
+    # Authored fixtures exercise rereading; they are not measured model observations.
+    uncertain = invoice.model_dump(mode="json")
+    uncertain["lines"][0]["unit_price"] = "0.270"
+    uncertain["confidence_label"] = "review"
+    text = (ROOT / "fixtures/sources/stock-ms.txt").read_text()
+    start = text.index("750")
+    stock = IntakeReading(
+        kind="stock",
+        stock_description="cawan kertas 250ml",
+        stock_quantity="750",
+        stock_unit="keping",
+        stock_date_text="23 Oktober 2026",
+        reported_usage_per_day="125",
+        confidence_label="high",
+        evidence=[
+            {
+                "field_path": "stock_quantity",
+                "region_quality": "text",
+                "text_span": [start, start + 3],
+                "extracted_value": "750",
+                "confidence_label": "high",
+            }
+        ],
+    )
+    return [
+        (
+            prepared_fixture("delivered-invoice.png"),
+            IntakeReading.model_validate(uncertain),
+            invoice,
+        ),
+        (prepared_fixture("delivered-invoice.pdf"), invoice, invoice),
+        (prepared_text(redact_text(text, [])[0]), stock, stock),
+    ]
 
 
 def main():
@@ -63,11 +154,13 @@ def main():
                 "extracted_value": literal,
             }
         ]
+    readings = intake_cases()
     store = ReplayStore(ROOT / "fixtures/replay")
     manifest = json.loads((store.root / "manifest.json").read_text())
     manifest["synthetic_sources"] = sorted(
         set(manifest["synthetic_sources"])
         | {doc["sha256"] for doc in documents.values()}
+        | {doc["sha256"] for doc, _, _ in readings}
     )
     (store.root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     gateway = ReaderGateway(Settings(_env_file=ROOT / ".env"), replay=store)
@@ -79,8 +172,16 @@ def main():
             {},
             provenance="authored_synthetic_replay",
         )
+    for document, fast, strong in readings:
+        for tier, value in (("fast", fast), ("strong", strong)):
+            store.record(
+                gateway.key(INTAKE, document["sha256"], tier),
+                value.model_dump_json(),
+                {},
+                provenance="authored_synthetic_replay",
+            )
     print(
-        f"Verified {len(cases)} authored synthetic quote replays; no live model calls."
+        f"Verified {len(cases)} quote and {2 * len(readings)} intake authored replays; no live model calls."
     )
 
 

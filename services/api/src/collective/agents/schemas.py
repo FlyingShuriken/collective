@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Literal, Self
 
 from pydantic import Field, model_validator
@@ -85,3 +86,50 @@ class DraftReading(Snapshot):
         if not self.text_content.strip() or "\x00" in self.text_content:
             raise ValueError("Use readable draft text")
         return self
+
+
+class IntakeAnchor(Anchor):
+    confidence_label: Literal["high", "review", "low"] = "review"
+
+
+class InvoiceLineReading(Snapshot):
+    description: str | None = Field(default=None, max_length=2000)
+    supplier_sku: str | None = Field(default=None, max_length=200)
+    quantity: Positive | None = None
+    unit: str | None = Field(default=None, max_length=100)
+    unit_price: NonNegative | None = None
+    line_total: Money | None = None
+
+
+class AdditionalFee(Snapshot):
+    label: str | None = Field(default=None, max_length=300)
+    amount: Money | None = None
+
+
+class IntakeReading(Snapshot):
+    kind: Literal["purchase", "stock", "supplier_reply", "unreadable"]
+    supplier_name: str | None = Field(default=None, max_length=300)
+    document_number: str | None = Field(default=None, max_length=200)
+    date_text: str | None = Field(default=None, max_length=200)
+    document_date: date | None = None
+    currency: str | None = Field(default=None, max_length=10)
+    lines: list[InvoiceLineReading] = Field(default_factory=list, max_length=100)
+    goods_total: Money | None = None
+    delivery_fee: Money | None = None
+    tax_amount: Money | None = None
+    tax_rate: Rate | None = None
+    discount: Money | None = None
+    surcharge: Money | None = None
+    additional_fees: list[AdditionalFee] = Field(default_factory=list, max_length=30)
+    total: Money | None = None
+    credit_days: int | None = Field(default=None, strict=True, ge=0, le=3650)
+    delivery_mode: Literal["per_business", "collection_point"] | None = None
+    stock_description: str | None = Field(default=None, max_length=2000)
+    stock_quantity: NonNegative | None = None
+    stock_unit: str | None = Field(default=None, max_length=100)
+    stock_date_text: str | None = Field(default=None, max_length=200)
+    stock_observed_at: Instant | None = None
+    reported_usage_per_day: NonNegative | None = None
+    issues: list[FieldIssue] = Field(default_factory=list, max_length=100)
+    evidence: list[IntakeAnchor] = Field(default_factory=list, max_length=100)
+    confidence_label: Literal["high", "review", "low"] = "review"

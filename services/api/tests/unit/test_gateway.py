@@ -193,6 +193,8 @@ async def test_cached_output_is_validated_and_cannot_request_a_tool(store):
         with pytest.raises(DomainError) as invalid:
             await ReaderGateway(config(), http_client=client).extract(TASK, source, Answer)
     assert invalid.value.code == "MODEL_TOOL_OUTPUT"
+    assert invalid.value.attempts[0]["usage"]["prompt_token_count"] == 12
+    assert "send_message" in invalid.value.attempts[0]["raw_output"]
 
 
 async def test_tampered_prepared_source_stops_before_provider():
@@ -215,6 +217,7 @@ async def test_incomplete_response_is_not_a_success_even_with_valid_json(finish)
                 TASK, prepared_text("Synthetic quote"), Answer
             )
     assert failed.value.code == "MODEL_INCOMPLETE" and len(failed.value.attempts) == 1
+    assert failed.value.attempts[0]["raw_output"] and failed.value.attempts[0]["usage"]
 
 
 async def test_rejected_request_is_not_retried_and_provider_message_is_private():
