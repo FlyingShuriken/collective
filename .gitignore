@@ -19,3 +19,4 @@ playwright-report/
 .playwright-cli/
 output/
 fixtures/replay/
+docs/
