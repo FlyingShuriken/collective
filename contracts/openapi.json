@@ -936,6 +936,18 @@
             "title": "Recipient",
             "type": "string"
           },
+          "reference_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Id"
+          },
           "revision": {
             "minimum": 1.0,
             "title": "Revision",
@@ -2589,6 +2601,16 @@
             },
             "title": "Items",
             "type": "array"
+          },
+          "latest_job": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "next_cursor": {
             "anyOf": [
@@ -6279,6 +6301,23 @@
                 }
               ],
               "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "reference_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reference Id"
             }
           },
           {

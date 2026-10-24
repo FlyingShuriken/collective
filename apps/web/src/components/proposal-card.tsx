@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ProposalEditor } from "@/components/proposal-editor";
+import { InvoiceCheck } from "@/components/invoice-check";
 import { SourceViewer } from "@/components/source-viewer";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
@@ -27,10 +28,11 @@ function fieldLabel(path: string, locale: Locale) {
   return fields[parts[0]] ?? text.reading;
 }
 
-export function ProposalCard({ business, proposal, locale, onChanged, onRefresh }: {
+export function ProposalCard({ business, proposal, locale, owner, onChanged, onRefresh }: {
   business: string;
   proposal: Proposal;
   locale: Locale;
+  owner: boolean;
   onChanged: (proposal: Proposal) => void;
   onRefresh: () => void;
 }) {
@@ -152,14 +154,16 @@ export function ProposalCard({ business, proposal, locale, onChanged, onRefresh 
       </> : <p className="text-sm">{proposal.status === "confirmed" ? text.confirmedScope : text.rejectedScope}</p>}
     </>}
     {proposal.record_id && <p className="break-all text-xs text-muted-foreground">{text.recordReference}: {proposal.record_id}</p>}
+    {proposal.status === "confirmed" && proposal.kind === "purchase" && proposal.context.purpose === "delivered" && proposal.record_id && proposal.record_revision && <InvoiceCheck business={business} purchaseId={proposal.record_id} purchaseRevision={proposal.record_revision} locale={locale} owner={owner} onChanged={() => onChanged(proposal)} />}
     <Button type="button" variant="outline" disabled={pending} onClick={onRefresh}>{text.refresh}</Button>
   </section>;
 }
 
-export function SourceIntake({ business, sourceId, locale, onChanged }: {
+export function SourceIntake({ business, sourceId, locale, owner, onChanged }: {
   business: string;
   sourceId: string;
   locale: Locale;
+  owner: boolean;
   onChanged: () => void;
 }) {
   const text = messages[locale].records;
@@ -208,7 +212,7 @@ export function SourceIntake({ business, sourceId, locale, onChanged }: {
   if (!result) return error ? <p role="alert" className="text-destructive">{error}</p> : null;
   if (result.source.price_visibility === "hidden") return null;
   if (result?.source.preparation_status !== "ready") return null;
-  if (proposal?.price_visibility === "visible" && proposal.kind !== "quote") return <ProposalCard key={`${proposal.id}:${proposal.current_revision}`} business={business} proposal={proposal} locale={locale} onRefresh={reload} onChanged={(value) => { setProposal(value); onChanged(); }} />;
+  if (proposal?.price_visibility === "visible" && proposal.kind !== "quote") return <ProposalCard key={`${proposal.id}:${proposal.current_revision}`} business={business} proposal={proposal} locale={locale} owner={owner} onRefresh={reload} onChanged={(value) => { setProposal(value); onChanged(); }} />;
   return <section className="space-y-3 rounded-lg border p-4" aria-label={text.reading}>
     <h3 className="font-semibold">{text.reading}</h3>
     {error && <p role="alert" className="text-destructive">{error}</p>}

@@ -13,9 +13,10 @@ import { messages, type Locale } from "@/lib/i18n";
 type Result = components["schemas"]["SourceResult"];
 type Page = components["schemas"]["SourcePageList"];
 
-export function SourceUpload({ business, locale, onChanged }: {
+export function SourceUpload({ business, locale, owner, onChanged }: {
   business: string;
   locale: Locale;
+  owner: boolean;
   onChanged: () => void;
 }) {
   const text = messages[locale];
@@ -80,7 +81,7 @@ export function SourceUpload({ business, locale, onChanged }: {
       {page?.next_cursor && <Button variant="outline" onClick={() => setCursor(page.next_cursor ?? null)}>{text.nextPage}</Button>}
       {selected && <>
         <SourceViewer key={selected} business={business} sourceId={selected} locale={locale} onPrepared={() => { onChanged(); setRefresh((value) => value + 1); }} />
-        <SourceIntake key={`${selected}:${refresh}`} business={business} sourceId={selected} locale={locale} onChanged={onChanged} />
+        <SourceIntake key={`${selected}:${refresh}`} business={business} sourceId={selected} locale={locale} owner={owner} onChanged={onChanged} />
       </>}
     </section>
   );

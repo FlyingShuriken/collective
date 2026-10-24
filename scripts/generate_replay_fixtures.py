@@ -93,6 +93,46 @@ def intake_cases():
             }
         ],
     )
+    single_text = (ROOT / "fixtures/sources/single-business-invoice.txt").read_text()
+    price_start = single_text.index("0.305")
+    single = IntakeReading.model_validate(
+        {
+            "kind": "purchase",
+            "supplier_name": "Supplier B",
+            "document_number": "SINGLE-B-002",
+            "date_text": "2026-10-24",
+            "document_date": "2026-10-24",
+            "currency": "MYR",
+            "lines": [
+                {
+                    "description": "250ml paper cups, 80mm lid, paper",
+                    "quantity": "1000",
+                    "unit": "piece",
+                    "unit_price": "0.305",
+                    "line_total": "305.00",
+                }
+            ],
+            "goods_total": "305.00",
+            "delivery_fee": "15.00",
+            "tax_amount": "0.00",
+            "tax_rate": "0",
+            "discount": "0.00",
+            "surcharge": "0.00",
+            "total": "320.00",
+            "credit_days": 30,
+            "delivery_mode": "per_business",
+            "confidence_label": "high",
+            "evidence": [
+                {
+                    "field_path": "lines.0.unit_price",
+                    "region_quality": "text",
+                    "text_span": [price_start, price_start + 5],
+                    "extracted_value": "0.305",
+                    "confidence_label": "high",
+                }
+            ],
+        }
+    )
     return [
         (
             prepared_fixture("delivered-invoice.png"),
@@ -101,6 +141,7 @@ def intake_cases():
         ),
         (prepared_fixture("delivered-invoice.pdf"), invoice, invoice),
         (prepared_text(redact_text(text, [])[0]), stock, stock),
+        (prepared_text(redact_text(single_text, [])[0]), single, single),
     ]
 
 
@@ -174,7 +215,9 @@ def main():
         )
         store.record(
             gateway.key(INTAKE, document["sha256"], "fast"),
-            IntakeReading(kind="supplier_reply", confidence_label="high").model_dump_json(),
+            IntakeReading(
+                kind="supplier_reply", confidence_label="high"
+            ).model_dump_json(),
             {},
             provenance="authored_synthetic_replay",
         )

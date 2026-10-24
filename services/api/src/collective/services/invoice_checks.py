@@ -312,7 +312,7 @@ async def review(connection, subject, business, identity, body, key):
                 "RESOLUTION_CLOSED", "A documented resolution is already recorded.", 409
             )
         proof = body.resolution
-        source = await sources.load(connection, business, proof.source_id)
+        source = await sources.load(connection, business, proof.source_id, lock=True)
         if (
             source["status"] != "available"
             or source["preparation_status"] != "ready"
@@ -325,6 +325,17 @@ async def review(connection, subject, business, identity, body, key):
         if proof.amount > confirmed:
             raise DomainError(
                 "INVALID_RECOVERY_AMOUNT", "Recovery cannot exceed the confirmed discrepancy."
+            )
+        used = await (
+            await connection.execute(
+                """select id from collective.invoice_checks
+            where business_id=%s and recovery_source_id=%s""",
+                (business, proof.source_id),
+            )
+        ).fetchone()
+        if used:
+            raise DomainError(
+                "RECOVERY_SOURCE_USED", "This evidence already supports a recorded recovery.", 409
             )
         amount, source_id, resolution = proof.amount, proof.source_id, proof.model_dump(mode="json")
     await connection.execute(

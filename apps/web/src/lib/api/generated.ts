@@ -1076,6 +1076,8 @@ export interface components {
             price_visibility: "visible";
             /** Recipient */
             recipient: string;
+            /** Reference Id */
+            reference_id?: string | null;
             /** Revision */
             revision: number;
             /** Sent At */
@@ -1712,6 +1714,7 @@ export interface components {
         InvoiceCheckPage: {
             /** Items */
             items: (components["schemas"]["VisibleInvoiceCheck"] | components["schemas"]["HiddenInvoiceCheck"])[];
+            latest_job?: components["schemas"]["JobStatus"] | null;
             /** Next Cursor */
             next_cursor?: string | null;
         };
@@ -3063,6 +3066,7 @@ export interface operations {
         parameters: {
             query?: {
                 cursor?: string | null;
+                reference_id?: string | null;
                 limit?: number;
             };
             header?: never;

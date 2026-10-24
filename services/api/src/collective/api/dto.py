@@ -668,6 +668,7 @@ class VisibleInvoiceCheck(HiddenInvoiceCheck):
 class InvoiceCheckPage(Snapshot):
     items: tuple[VisibleInvoiceCheck | HiddenInvoiceCheck, ...]
     next_cursor: UUID | None = None
+    latest_job: JobStatus | None = None
 
 
 class InvoiceOrderOption(Snapshot):
@@ -690,6 +691,7 @@ class DraftView(DraftSummary):
     approved_hash: str
     sent_at: Instant | None
     interpretation_mode: Literal["live", "record", "replay"] | None = None
+    reference_id: UUID | None = None
 
 
 class DraftPage(Snapshot):

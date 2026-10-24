@@ -35,6 +35,7 @@ def view(row, access):
         approved_hash=fingerprint(row),
         sent_at=row["sent_at"],
         interpretation_mode=row["input_context"].get("interpretation_mode"),
+        reference_id=row["input_context"].get("request", {}).get("reference_id"),
     )
 
 

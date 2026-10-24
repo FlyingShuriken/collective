@@ -112,7 +112,26 @@ confirmed purchase revision to an own issued PO; it compares the final issued ti
 agreed fees, preserves every difference and records ringgit materiality. Owners can confirm
 or reject a discrepancy, then separately record a documented correction/credit from a
 different reviewed source. A query draft or simulated Send never counts as recovered money.
-The invoice-check interface and complete single-business browser walkthrough remain T18 work.
+The confirmed delivered record opens its invoice-check screen. Select an issued PO, inspect
+the recorded differences and confirm/reject the discrepancy. A supplier-query draft must be
+saved and explicitly reviewed before simulated Send. For recovery, upload/prepare a separate
+credit or correction in Sources, return to the invoice and select that evidence. One evidence
+source can support one recorded recovery in this initial flow.
+
+The synthetic single-business browser flow uses the seed's confirmed quote (RM315 PO) and
+`single-business-invoice.txt` (RM320 invoice), producing a RM5 difference. Exact query replays
+include run-specific issued terms. For a declared local synthetic run, preload its flagged
+check before requesting the query:
+
+```sh
+DEMO_MODE=true MODEL_MODE=replay uv run --project services/api python scripts/preload_query_replay.py --run demo --check-id "$COLLECTIVE_CHECK_ID"
+# Add --clean to remove that authored query replay after the rehearsal.
+```
+
+The helper refuses foreign runs, undeclared source assets and nonlocal databases; it calls
+no model and changes no ledger/review/message rows. The browser test preloads and cleans its
+own context, then exercises the normal configured worker. This does not establish complete
+offline recovery for arbitrary inputs; the wider replay rehearsal remains T24.
 
 `MODEL_MODE=replay` is the default. Declared synthetic quote text, invoice PNG/PDF and
 BM stock text have authored replays; these are workflow fixtures, not measured model output.

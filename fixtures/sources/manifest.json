@@ -33,5 +33,12 @@
     "sha256": "15f082df5c2a04d74ce6a72cb3b9074add9053605ff91e8f29e137ad4f1f8fee",
     "provenance": "synthetic",
     "page_count": null
+  },
+  {
+    "id": "c7329063-5ba8-57ec-b2a2-1626d4a32163",
+    "path": "fixtures/sources/single-business-invoice.txt",
+    "sha256": "67c5615e9bcc911533ba2d515b143a3ca60de09d1877539d15d8be03c345fc63",
+    "provenance": "synthetic",
+    "page_count": null
   }
 ]

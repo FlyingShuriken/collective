@@ -1,0 +1,8 @@
+SYNTHETIC DEMO ONLY
+Supplier B
+Invoice SINGLE-B-002
+Date: 2026-10-24
+1000 piece 250ml paper cups, 80mm lid, paper at RM0.305 each = RM305.00
+Goods RM305.00; delivery RM15.00; tax RM0.00 (rate 0).
+Discount RM0.00; surcharge RM0.00; total MYR320.00.
+Credit 30 days. Separate delivery to this business.

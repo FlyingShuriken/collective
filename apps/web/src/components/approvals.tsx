@@ -126,7 +126,7 @@ export function Approvals({ locale }: { locale: Locale }) {
       )}
       {!identity && !error && <p role="status">{text.loading}</p>}
       {identity && !identity.memberships.length && <p>{text.noMembership}</p>}
-      {business && membership && <SourceUpload key={business} business={business} locale={locale} onChanged={() => setActivityRevision((value) => value + 1)} />}
+      {business && membership && <SourceUpload key={business} business={business} locale={locale} owner={membership.role === "owner"} onChanged={() => setActivityRevision((value) => value + 1)} />}
       {business && !page && !error && <p role="status">{text.loading}</p>}
       {page?.items.length === 0 && <p>{text.noNeeds}</p>}
       {page?.items.map((need) => (

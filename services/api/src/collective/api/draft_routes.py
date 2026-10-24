@@ -42,12 +42,16 @@ async def listing(
     principal: SignedIn,
     db: DatabaseDependency,
     cursor: UUID | None = None,
+    reference_id: UUID | None = None,
     limit: int = Query(default=25, ge=1, le=100),
 ) -> DraftPage:
     async with db.transaction("tenant", principal.subject) as connection:
         access = await membership(connection, principal.subject, business_id)
         parameters = [business_id]
         query = "select * from collective.message_drafts where business_id=%s"
+        if reference_id:
+            query += " and input_context->'request'->>'reference_id'=%s"
+            parameters.append(str(reference_id))
         if cursor:
             row = await drafts.load(connection, business_id, cursor)
             query += " and (created_at,id)<(%s,%s)"

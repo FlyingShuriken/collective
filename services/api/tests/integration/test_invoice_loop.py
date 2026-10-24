@@ -138,6 +138,7 @@ async def test_final_issued_tier_is_checked_after_confirmation_and_unmatched_sta
         headers=ctx["auth"]("owner-a"),
     )
     assert {item["status"] for item in page.json()["items"]} == {"unmatched", "flagged"}
+    assert page.json()["latest_job"]["result_reference"] == matched["id"]
     options = await ctx["client"].get(
         ctx["root"]
         + f"/invoice-checks/order-options?purchase_id={current['record_id']}&purchase_revision=1",
@@ -165,6 +166,15 @@ async def test_final_issued_tier_is_checked_after_confirmation_and_unmatched_sta
         )
     ).json()
     assert draft["status"] == "draft"
+    filtered = await ctx["client"].get(
+        ctx["root"] + f"/drafts?reference_id={matched['id']}", headers=ctx["auth"]("owner-a")
+    )
+    assert [item["id"] for item in filtered.json()["items"]] == [draft["id"]]
+    assert filtered.json()["items"][0]["reference_id"] == matched["id"]
+    other = await ctx["client"].get(
+        ctx["root"] + f"/drafts?reference_id={uuid4()}", headers=ctx["auth"]("owner-a")
+    )
+    assert other.json()["items"] == []
     async with ctx["database"].transaction("coordinator", None) as conn:
         assert not (
             await conn.execute(
@@ -277,6 +287,23 @@ async def test_recovery_requires_separate_document_and_never_follows_a_query_or_
         ).fetchone()
         assert row["history"]["1"]["review_status"] == "pending"
         assert row["history"]["2"]["recovery_amount"] is None
+    _, _, proposed = await purchase_proposal(ctx, "delivered-invoice.pdf")
+    proposed = await edited(ctx, proposed)
+    accepted_other = await confirm(ctx, proposed)
+    assert accepted_other.status_code == 200
+    second, _ = await check(ctx, accepted_other.json())
+    second_path = f"/invoice-checks/{second['id']}/review"
+    assert (
+        await command(
+            ctx,
+            second_path,
+            {"expected_revision": 1, "action": "confirm", "confirmed_amount": "5.00"},
+        )
+    ).status_code == 200
+    reused = await command(
+        ctx, second_path, {"expected_revision": 2, "action": "recover", "resolution": resolution}
+    )
+    assert reused.status_code == 409 and reused.json()["code"] == "RECOVERY_SOURCE_USED"
 
 
 async def test_unmapped_invoice_cannot_pass_or_be_reviewed_as_recovered(context):

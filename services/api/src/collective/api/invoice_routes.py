@@ -14,6 +14,7 @@ from collective.api.dto import (
 )
 from collective.api.need_routes import CommandKey
 from collective.domain.clock import SystemClock
+from collective.repositories.jobs import public_status
 from collective.services import invoice_checks
 from collective.services.permissions import membership
 
@@ -69,8 +70,24 @@ async def listing(
                     await invoice_checks.load(connection, business_id, row["id"]), access
                 )
             )
+        job = None
+        if purchase_id:
+            job_query = """select * from collective.jobs where business_id=%s
+                and kind='invoice_check' and payload->>'purchase_id'=%s"""
+            job_parameters = [business_id, str(purchase_id)]
+            if purchase_revision:
+                job_query += " and input_revision=%s"
+                job_parameters.append(purchase_revision)
+            job = await (
+                await connection.execute(
+                    job_query + " order by created_at desc,id desc limit 1",
+                    job_parameters,
+                )
+            ).fetchone()
         return InvoiceCheckPage(
-            items=items, next_cursor=rows[limit - 1]["id"] if len(rows) > limit else None
+            items=items,
+            next_cursor=rows[limit - 1]["id"] if len(rows) > limit else None,
+            latest_job=public_status(job, SystemClock().now()) if job else None,
         )
 
 
