@@ -6,6 +6,7 @@ import { PoolOffer } from "@/components/pool-offer";
 import { BoundApproval } from "@/components/bound-approval";
 import { SimulatedPO } from "@/components/simulated-po";
 import { AccuracyNotice } from "@/components/rule-card";
+import { SupplierMessages } from "@/components/supplier-messages";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiRequest } from "@/lib/api/client";
@@ -265,6 +266,7 @@ export function QuoteComparison({
           owner={owner}
           onReserved={onSelected}
         />
+        <SupplierMessages business={need.business_id} need={need} locale={locale} owner={owner} />
       </CardContent>
     </Card>
   );

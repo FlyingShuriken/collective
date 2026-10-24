@@ -18,7 +18,7 @@ async function prepare(page: Page, file: string) {
 const review = (page: Page) => page.getByRole("region", { name: "Record review", exact: true });
 
 test("owner confirms a new mapping while staff cannot bypass the mapping gate", async ({ page, demo }) => {
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   const source = await prepare(page, "fixtures/sources/delivered-invoice.png");
   const card = review(page);
   await expect(card.getByText("Proposed · needs human confirmation", { exact: true })).toBeVisible();
@@ -46,7 +46,7 @@ test("owner confirms a new mapping while staff cannot bypass the mapping gate", 
   expect(mapping.pack_factors).toEqual(["100"]);
   const options = await (await page.request.get(`${root}/record-options`)).json();
   expect(options.mappings.some((item: { id: string }) => item.id === mapping.id)).toBe(true);
-  await signIn(page, demo, "staff");
+  await signIn(page, demo, "staff", "inbox");
   const denied = await page.request.post(`${root}/mappings/${mapping.id}/confirm`, {
     headers: { Origin: new URL(page.url()).origin, "Idempotency-Key": crypto.randomUUID() },
     data: { expected_revision: mapping.revision, spec_id: mapping.spec_id, spec_revision: mapping.spec_revision,
@@ -57,7 +57,7 @@ test("owner confirms a new mapping while staff cannot bypass the mapping gate", 
 
 for (const purpose of ["Historical purchase", "Delivered invoice"]) {
   test(`${purpose} source becomes one accepted record only after human review`, async ({ page, demo }, testInfo) => {
-    await signIn(page, demo, "owner-a");
+    await signIn(page, demo, "owner-a", "inbox");
     const source = await prepare(page, purpose === "Historical purchase" ? "fixtures/sources/delivered-invoice.png" : "fixtures/sources/delivered-invoice.pdf");
     const card = review(page);
     await expect(card.getByText("Proposed · needs human confirmation", { exact: true })).toBeVisible();
@@ -110,7 +110,7 @@ for (const purpose of ["Historical purchase", "Delivered invoice"]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     if (purpose === "Historical purchase") for (const locale of ["ms", "zh"]) {
       const translated = JSON.parse(readFileSync(`apps/web/src/messages/${locale}.json`, "utf8"));
-      await page.goto(`/${locale}/approvals`);
+      await page.goto(`/${locale}/inbox`);
       await page.getByRole("button", { name: translated.viewSource, exact: true }).first().click();
       const localizedCard = page.getByRole("region", { name: translated.records.review, exact: true });
       await expect(localizedCard.getByRole("status").filter({ hasText: translated.records.status.confirmed })).toBeVisible();
@@ -121,7 +121,7 @@ for (const purpose of ["Historical purchase", "Delivered invoice"]) {
 }
 
 test("stock time and mapping need human input and restricted staff see no record values", async ({ page, demo }, testInfo) => {
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   await prepare(page, "fixtures/sources/stock-ms.txt");
   const card = review(page);
   await expect(card.getByRole("heading", { name: "Stock record", exact: true })).toBeVisible();
@@ -138,7 +138,7 @@ test("stock time and mapping need human input and restricted staff see no record
   await card.getByRole("button", { name: "Confirm record", exact: true }).click();
   await expect(card.getByRole("status").filter({ hasText: /^Record confirmed$/ })).toBeVisible();
   await card.screenshot({ path: testInfo.outputPath("stock-confirmed.png") });
-  await signIn(page, demo, "staff");
+  await signIn(page, demo, "staff", "inbox");
   await page.getByRole("button", { name: "View source", exact: true }).first().click();
   await expect(page.getByText("This account cannot view price-bearing sources.", { exact: true })).toBeVisible();
   await expect(review(page)).toHaveCount(0);
@@ -146,7 +146,7 @@ test("stock time and mapping need human input and restricted staff see no record
 });
 
 test("an edited mismatch keeps original evidence and rejection survives reload", async ({ page, demo }) => {
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   await prepare(page, "fixtures/sources/delivered-invoice.png");
   const card = review(page);
   await card.getByRole("button", { name: "Edit record", exact: true }).click();
@@ -165,7 +165,7 @@ test("an edited mismatch keeps original evidence and rejection survives reload",
 });
 
 test("staff over the configured limit must leave the saved proposal for its owner", async ({ page, demo }) => {
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   await prepare(page, "fixtures/sources/delivered-invoice.pdf");
   await expect(review(page)).toBeVisible();
   const { business } = await ownNeed(page);
@@ -180,7 +180,7 @@ async def configure():
         await conn.execute('update collective.businesses set staff_can_view_prices=true,staff_limit=289.99 where id=%s',(UUID(sys.argv[1]),))
 asyncio.run(configure())
 `, business], { stdio: "pipe" });
-  await signIn(page, demo, "staff");
+  await signIn(page, demo, "staff", "inbox");
   await page.getByRole("button", { name: "View source", exact: true }).first().click();
   const card = review(page);
   await card.getByRole("button", { name: "Edit record", exact: true }).click();
@@ -196,7 +196,7 @@ asyncio.run(configure())
   await card.getByRole("checkbox").check();
   await card.getByRole("button", { name: "Confirm record", exact: true }).click();
   await expect(card.getByRole("alert")).toHaveText("Owner review is required: the value is unknown, inconsistent or above the staff limit.");
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   await page.getByRole("button", { name: "View source", exact: true }).first().click();
   await expect(review(page).getByText("Revision 2", { exact: true })).toBeVisible();
   await review(page).getByRole("checkbox").check();
@@ -205,7 +205,7 @@ asyncio.run(configure())
 });
 
 test("a replay miss stops visibly and retry keeps the original failure", async ({ page, demo }) => {
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   await page.getByLabel("Or paste invoice, stock or supplier text", { exact: true }).fill("SYNTHETIC unlisted text for the intake recovery check.");
   const uploaded = page.waitForResponse((response) => response.url().endsWith("/sources") && response.request().method() === "POST");
   await page.getByRole("button", { name: "Upload source", exact: true }).click();

@@ -1,4 +1,4 @@
-import { test, expect, approve, ownOrder, readyPool, signIn } from "./fixtures";
+import { test, expect, approve, ownOrder, readyPool, signIn, openScreen } from "./fixtures";
 
 test("three approvals, withdrawal and fresh consent issue two final RM285 POs", async ({ page, demo }, testInfo) => {
   await readyPool(page, demo);
@@ -15,9 +15,11 @@ test("three approvals, withdrawal and fresh consent issue two final RM285 POs", 
   const a = await (await ownOrder(page)).json();
   expect(a.amount).toBe("285.00");
   expect(a.cost.unit_price).toBe("0.270000");
+  await openScreen(page, "activity");
   await expect(page.getByRole("region", { name: "Activity", exact: true }).getByText(
     "A simulated purchase order was created from your current bound approval.", { exact: true },
   )).toBeVisible();
+  await openScreen(page, "approvals");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await po.screenshot({ path: testInfo.outputPath("issued-pool-po.png") });
   await page.reload();

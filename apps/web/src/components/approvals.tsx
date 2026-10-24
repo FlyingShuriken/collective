@@ -6,6 +6,9 @@ import { QuoteComparison } from "@/components/quote-comparison";
 import { ActivityList } from "@/components/activity-list";
 import { RuleList } from "@/components/rule-card";
 import { SourceUpload } from "@/components/source-upload";
+import { BusinessSwitcher } from "@/components/business-switcher";
+import { Ledger } from "@/components/ledger";
+import { SupplierMessages } from "@/components/supplier-messages";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
@@ -15,7 +18,9 @@ import { createClient } from "@/lib/supabase/client";
 type Identity = components["schemas"]["Identity"];
 type NeedPage = components["schemas"]["NeedPage"];
 
-export function Approvals({ locale }: { locale: Locale }) {
+export type ProductScreen = "inbox" | "approvals" | "ledger" | "rules" | "activity";
+
+export function Approvals({ locale, screen = "approvals" }: { locale: Locale; screen?: ProductScreen }) {
   const text = messages[locale];
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [business, setBusiness] = useState("");
@@ -31,7 +36,8 @@ export function Approvals({ locale }: { locale: Locale }) {
       .then((value) => {
         if (controller.signal.aborted) return;
         setIdentity(value);
-        setBusiness(value.memberships[0]?.business_id ?? "");
+        const selected = new URLSearchParams(window.location.search).get("business");
+        setBusiness(value.memberships.find((item) => item.business_id === selected)?.business_id ?? value.memberships[0]?.business_id ?? "");
         setNetwork(value.networks?.[0]?.network_id ?? "");
       })
       .catch((error) => {
@@ -55,6 +61,8 @@ export function Approvals({ locale }: { locale: Locale }) {
       ) {
         setIdentity(null);
         setPage(null);
+        setBusiness("");
+        setNetwork("");
         window.location.replace(`/${locale}/sign-in`);
       }
     });
@@ -62,7 +70,7 @@ export function Approvals({ locale }: { locale: Locale }) {
   }, [identity, locale]);
 
   useEffect(() => {
-    if (!business) return;
+    if (!business || screen !== "approvals") return;
     const controller = new AbortController();
     apiRequest<NeedPage>(
       `/v1/businesses/${business}/needs${cursor ? `?cursor=${cursor}` : ""}`,
@@ -77,11 +85,13 @@ export function Approvals({ locale }: { locale: Locale }) {
         if (!controller.signal.aborted) setError(text.unavailable);
       });
     return () => controller.abort();
-  }, [business, cursor, activityRevision, text.unavailable]);
+  }, [business, screen, cursor, activityRevision, text.unavailable]);
 
   const membership = identity?.memberships.find(
     (item) => item.business_id === business,
   );
+  const admin = !!identity && !identity.memberships.length && !!identity.networks?.length;
+  const active = admin ? "rules" : screen;
   return (
     <main
       lang={locale}
@@ -92,7 +102,7 @@ export function Approvals({ locale }: { locale: Locale }) {
           <p className="text-xs font-semibold uppercase tracking-[0.18em]">
             Orbyte Collective
           </p>
-          <h1 className="mt-3 font-serif text-4xl">{identity && !identity.memberships.length && identity.networks?.length ? text.rules.heading : text.approvals}</h1>
+          <h1 className="mt-3 font-serif text-4xl">{admin ? text.rules.heading : text.screens[active]}</h1>
         </div>
         <a
           href={`/${locale}/sign-in`}
@@ -101,26 +111,21 @@ export function Approvals({ locale }: { locale: Locale }) {
           {text.account}
         </a>
       </header>
+      {identity && <nav aria-label={text.screens.navigation} className="flex flex-wrap gap-2 border-b pb-3">
+        {(["inbox", "approvals", "ledger", "rules", "activity"] as const).filter((item) => !admin || item === "rules").map((item) => <a key={item}
+          href={`/${locale}/${item}${business ? `?business=${business}` : ""}`}
+          aria-current={item === active ? "page" : undefined}
+          className={`inline-flex min-h-11 items-center rounded-md px-3 text-sm ${item === active ? "bg-foreground text-background" : "border"}`}>{text.screens[item]}</a>)}
+      </nav>}
       {identity && identity.memberships.length > 0 && (
-        <label className="block max-w-sm text-sm">
-          {text.workspace}
-          <select
-            value={business}
-            className="mt-2 min-h-11 w-full rounded-md border bg-card px-3"
-            onChange={(event) => {
+        <BusinessSwitcher memberships={identity.memberships} value={business} locale={locale}
+            onChange={(value) => {
               setPage(null);
               setCursor(null);
               setError("");
-              setBusiness(event.target.value);
+              setBusiness(value);
             }}
-          >
-            {identity.memberships.map((item) => (
-              <option key={item.business_id} value={item.business_id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        />
       )}
       {error && (
         <p role="alert" className="text-destructive">
@@ -129,10 +134,11 @@ export function Approvals({ locale }: { locale: Locale }) {
       )}
       {!identity && !error && <p role="status">{text.loading}</p>}
       {identity && !identity.memberships.length && !identity.networks?.length && <p>{text.noMembership}</p>}
-      {business && membership && <SourceUpload key={business} business={business} locale={locale} owner={membership.role === "owner"} onChanged={() => setActivityRevision((value) => value + 1)} />}
-      {business && !page && !error && <p role="status">{text.loading}</p>}
-      {page?.items.length === 0 && <p>{text.noNeeds}</p>}
-      {page?.items.map((need) => (
+      {business && membership && active === "inbox" && <SourceUpload key={`${identity?.subject}:${business}`} business={business} locale={locale} owner={membership.role === "owner"} onChanged={() => setActivityRevision((value) => value + 1)} />}
+      {business && membership && active === "inbox" && <SupplierMessages key={`${identity?.subject}:${business}:messages`} business={business} locale={locale} owner={membership.role === "owner"} />}
+      {active === "approvals" && business && !page && !error && <p role="status">{text.loading}</p>}
+      {active === "approvals" && page?.items.length === 0 && <p>{text.noNeeds} <a className="underline" href={`/${locale}/inbox?business=${business}`}>{text.ledger.next}</a></p>}
+      {active === "approvals" && page?.items.map((need) => (
         <QuoteComparison
           key={`${business}:${need.id}:${need.revision}:${activityRevision}`}
           need={need}
@@ -153,7 +159,7 @@ export function Approvals({ locale }: { locale: Locale }) {
           }}
         />
       ))}
-      {page?.next_cursor && (
+      {active === "approvals" && page?.next_cursor && (
         <Button
           variant="outline"
           onClick={() => {
@@ -164,12 +170,13 @@ export function Approvals({ locale }: { locale: Locale }) {
           {text.nextPage}
         </Button>
       )}
-      {business && membership && <RuleList key={`${identity?.subject}:${business}:${membership.role}:${membership.can_view_prices}`} scope="private" scopeId={business} locale={locale} canReview={membership.role === "owner"} refresh={activityRevision} onChanged={() => setActivityRevision((value) => value + 1)} />}
-      {!!identity?.networks?.length && <>
+      {active === "ledger" && business && membership && <Ledger key={`${identity?.subject}:${business}`} business={business} locale={locale} />}
+      {active === "rules" && business && membership && <RuleList key={`${identity?.subject}:${business}:${membership.role}:${membership.can_view_prices}`} scope="private" scopeId={business} locale={locale} canReview={membership.role === "owner"} refresh={activityRevision} onChanged={() => setActivityRevision((value) => value + 1)} />}
+      {active === "rules" && !!identity?.networks?.length && <>
         <label className="block max-w-sm text-sm">{text.rules.networkWorkspace}<select className="mt-2 min-h-11 w-full rounded-md border bg-card px-3" value={network} onChange={(event) => setNetwork(event.target.value)}>{identity.networks.map((item) => <option key={item.network_id} value={item.network_id}>{item.name}</option>)}</select></label>
         {network && <RuleList key={`${identity.subject}:${network}`} scope="network" scopeId={network} locale={locale} canReview refresh={activityRevision} onChanged={() => setActivityRevision((value) => value + 1)} />}
       </>}
-      {business && <ActivityList key={`${business}:${activityRevision}`} business={business} locale={locale} />}
+      {active === "activity" && business && membership && <ActivityList key={`${identity?.subject}:${business}:${activityRevision}`} business={business} locale={locale} />}
     </main>
   );
 }

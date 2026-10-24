@@ -29,14 +29,14 @@ async def seed():
         await db.close()
 asyncio.run(seed())
 `, demo.run], { stdio: "pipe" });
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "activity");
   const jobs = page.getByRole("region", { name: "Background tasks", exact: true });
   await expect(jobs.getByText("Retry scheduled", { exact: true })).toBeVisible();
   await expect(jobs.getByText("Needs review", { exact: true })).toBeVisible();
   await expect(jobs.getByText("Completing a task does not approve a record, rule or order.", { exact: true })).toBeVisible();
   await expect(page.locator("body")).not.toContainText("PRIVATE_VALUE_MUST_NOT_APPEAR");
   await jobs.screenshot({ path: testInfo.outputPath("background-task-status.png") });
-  await signIn(page, demo, "staff");
+  await signIn(page, demo, "staff", "activity");
   await expect(jobs.getByText("Retry scheduled", { exact: true })).toBeVisible();
   await expect(page.locator("body")).not.toContainText(/RM\s*[0-9]/);
 });

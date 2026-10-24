@@ -2501,6 +2501,95 @@
         "title": "HiddenRule",
         "type": "object"
       },
+      "HiddenSelfAudit": {
+        "additionalProperties": false,
+        "properties": {
+          "checked_records": {
+            "minimum": 0.0,
+            "title": "Checked Records",
+            "type": "integer"
+          },
+          "confirmed_variances": {
+            "minimum": 0.0,
+            "title": "Confirmed Variances",
+            "type": "integer"
+          },
+          "delivered_records": {
+            "minimum": 0.0,
+            "title": "Delivered Records",
+            "type": "integer"
+          },
+          "documented_recoveries": {
+            "minimum": 0.0,
+            "title": "Documented Recoveries",
+            "type": "integer"
+          },
+          "incomplete_checks": {
+            "minimum": 0.0,
+            "title": "Incomplete Checks",
+            "type": "integer"
+          },
+          "mismatched_records": {
+            "minimum": 0.0,
+            "title": "Mismatched Records",
+            "type": "integer"
+          },
+          "period_end": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period End"
+          },
+          "period_start": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period Start"
+          },
+          "price_visibility": {
+            "const": "hidden",
+            "default": "hidden",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "purchase_records": {
+            "minimum": 0.0,
+            "title": "Purchase Records",
+            "type": "integer"
+          },
+          "unmatched_records": {
+            "minimum": 0.0,
+            "title": "Unmatched Records",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "period_start",
+          "period_end",
+          "purchase_records",
+          "delivered_records",
+          "checked_records",
+          "mismatched_records",
+          "unmatched_records",
+          "incomplete_checks",
+          "confirmed_variances",
+          "documented_recoveries"
+        ],
+        "title": "HiddenSelfAudit",
+        "type": "object"
+      },
       "HiddenSource": {
         "additionalProperties": false,
         "properties": {
@@ -7125,6 +7214,107 @@
         "title": "VisiblePurchaseOrder",
         "type": "object"
       },
+      "VisibleSelfAudit": {
+        "additionalProperties": false,
+        "properties": {
+          "checked_records": {
+            "minimum": 0.0,
+            "title": "Checked Records",
+            "type": "integer"
+          },
+          "confirmed_variance_amount": {
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
+            "title": "Confirmed Variance Amount",
+            "type": "string"
+          },
+          "confirmed_variances": {
+            "minimum": 0.0,
+            "title": "Confirmed Variances",
+            "type": "integer"
+          },
+          "delivered_records": {
+            "minimum": 0.0,
+            "title": "Delivered Records",
+            "type": "integer"
+          },
+          "documented_recoveries": {
+            "minimum": 0.0,
+            "title": "Documented Recoveries",
+            "type": "integer"
+          },
+          "documented_recovery_amount": {
+            "pattern": "^\\d+(\\.\\d{1,2})?$",
+            "title": "Documented Recovery Amount",
+            "type": "string"
+          },
+          "incomplete_checks": {
+            "minimum": 0.0,
+            "title": "Incomplete Checks",
+            "type": "integer"
+          },
+          "mismatched_records": {
+            "minimum": 0.0,
+            "title": "Mismatched Records",
+            "type": "integer"
+          },
+          "period_end": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period End"
+          },
+          "period_start": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period Start"
+          },
+          "price_visibility": {
+            "const": "visible",
+            "default": "visible",
+            "title": "Price Visibility",
+            "type": "string"
+          },
+          "purchase_records": {
+            "minimum": 0.0,
+            "title": "Purchase Records",
+            "type": "integer"
+          },
+          "unmatched_records": {
+            "minimum": 0.0,
+            "title": "Unmatched Records",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "period_start",
+          "period_end",
+          "purchase_records",
+          "delivered_records",
+          "checked_records",
+          "mismatched_records",
+          "unmatched_records",
+          "incomplete_checks",
+          "confirmed_variances",
+          "documented_recoveries",
+          "confirmed_variance_amount",
+          "documented_recovery_amount"
+        ],
+        "title": "VisibleSelfAudit",
+        "type": "object"
+      },
       "VisibleSource": {
         "additionalProperties": false,
         "properties": {
@@ -9589,6 +9779,23 @@
           },
           {
             "in": "query",
+            "name": "source_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Id"
+            }
+          },
+          {
+            "in": "query",
             "name": "limit",
             "required": false,
             "schema": {
@@ -10296,6 +10503,62 @@
         "summary": "Private Change",
         "tags": [
           "rules"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/self-audit": {
+      "get": {
+        "operationId": "self_audit_v1_businesses__business_id__self_audit_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/VisibleSelfAudit"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HiddenSelfAudit"
+                    }
+                  ],
+                  "title": "Response Self Audit V1 Businesses  Business Id  Self Audit Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Self Audit",
+        "tags": [
+          "ledger"
         ]
       }
     },

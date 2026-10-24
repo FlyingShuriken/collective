@@ -621,6 +621,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/self-audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Self Audit */
+        get: operations["self_audit_v1_businesses__business_id__self_audit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/businesses/{business_id}/sources": {
         parameters: {
             query?: never;
@@ -1919,6 +1936,35 @@ export interface components {
             state: "proposed" | "accepted" | "rejected" | "revoked" | "superseded";
             /** Uncertainty */
             uncertainty: string[];
+        };
+        /** HiddenSelfAudit */
+        HiddenSelfAudit: {
+            /** Checked Records */
+            checked_records: number;
+            /** Confirmed Variances */
+            confirmed_variances: number;
+            /** Delivered Records */
+            delivered_records: number;
+            /** Documented Recoveries */
+            documented_recoveries: number;
+            /** Incomplete Checks */
+            incomplete_checks: number;
+            /** Mismatched Records */
+            mismatched_records: number;
+            /** Period End */
+            period_end: string | null;
+            /** Period Start */
+            period_start: string | null;
+            /**
+             * Price Visibility
+             * @default hidden
+             * @constant
+             */
+            price_visibility: "hidden";
+            /** Purchase Records */
+            purchase_records: number;
+            /** Unmatched Records */
+            unmatched_records: number;
         };
         /** HiddenSource */
         HiddenSource: {
@@ -3561,6 +3607,39 @@ export interface components {
             supplier_name: string;
             terms: components["schemas"]["BoundTerms"];
         };
+        /** VisibleSelfAudit */
+        VisibleSelfAudit: {
+            /** Checked Records */
+            checked_records: number;
+            /** Confirmed Variance Amount */
+            confirmed_variance_amount: string;
+            /** Confirmed Variances */
+            confirmed_variances: number;
+            /** Delivered Records */
+            delivered_records: number;
+            /** Documented Recoveries */
+            documented_recoveries: number;
+            /** Documented Recovery Amount */
+            documented_recovery_amount: string;
+            /** Incomplete Checks */
+            incomplete_checks: number;
+            /** Mismatched Records */
+            mismatched_records: number;
+            /** Period End */
+            period_end: string | null;
+            /** Period Start */
+            period_start: string | null;
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /** Purchase Records */
+            purchase_records: number;
+            /** Unmatched Records */
+            unmatched_records: number;
+        };
         /** VisibleSource */
         VisibleSource: {
             /**
@@ -4714,6 +4793,7 @@ export interface operations {
         parameters: {
             query?: {
                 cursor?: string | null;
+                source_id?: string | null;
                 limit?: number;
             };
             header?: never;
@@ -5049,6 +5129,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PrivateRule"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    self_audit_v1_businesses__business_id__self_audit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VisibleSelfAudit"] | components["schemas"]["HiddenSelfAudit"];
                 };
             };
             /** @description Validation Error */

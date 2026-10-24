@@ -19,7 +19,13 @@ export const test = base.extend<{ demo: Demo }>({
 });
 export { expect };
 
-export async function signIn(page: Page, demo: Demo, account: string) {
+export async function openScreen(page: Page, screen: "inbox" | "approvals" | "ledger" | "rules" | "activity") {
+  const names = { inbox: "Inbox", approvals: "Your next order", ledger: "Ledger", rules: "Learned rules", activity: "Activity" };
+  await page.getByRole("navigation", { name: "Workspace navigation", exact: true }).getByRole("link", { name: names[screen], exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/en/${screen}(?:\\?|$)`));
+}
+
+export async function signIn(page: Page, demo: Demo, account: string, screen?: "inbox" | "approvals" | "ledger" | "rules" | "activity") {
   await page.context().clearCookies();
   await page.goto("/en/sign-in");
   await page.getByLabel("Email", { exact: true }).fill(demo.accounts[account].email);
@@ -27,6 +33,7 @@ export async function signIn(page: Page, demo: Demo, account: string) {
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.getByRole("link", { name: "Open workspace", exact: true }).click();
   await expect(page.getByRole("heading", { name: account === "admin" ? "Network learned rules" : "250ml paper cup", exact: true })).toBeVisible();
+  if (screen) await openScreen(page, screen);
 }
 
 export async function approve(page: Page, cap: string) {

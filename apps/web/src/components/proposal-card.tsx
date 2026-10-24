@@ -6,6 +6,7 @@ import { ProposalEditor } from "@/components/proposal-editor";
 import { InvoiceCheck } from "@/components/invoice-check";
 import { SourceViewer } from "@/components/source-viewer";
 import { SpecMatchCard } from "@/components/spec-match-card";
+import { QuoteReview } from "@/components/quote-review";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
@@ -223,11 +224,11 @@ export function SourceIntake({ business, sourceId, locale, owner, onChanged }: {
   if (result.source.price_visibility === "hidden") return null;
   if (result?.source.preparation_status !== "ready") return null;
   if (proposal?.price_visibility === "visible" && proposal.kind !== "quote") return <ProposalCard key={`${proposal.id}:${proposal.current_revision}`} business={business} proposal={proposal} locale={locale} owner={owner} onRefresh={reload} onChanged={(value) => { setProposal(value); onChanged(); }} />;
+  if (result.job?.review_state === "needs_quote_context" || proposal?.kind === "quote") return <QuoteReview key={`${business}:${sourceId}`} business={business} source={result.source} locale={locale} owner={owner} onChanged={onChanged} />;
   return <section className="space-y-3 rounded-lg border p-4" aria-label={text.reading}>
     <h3 className="font-semibold">{text.reading}</h3>
     {error && <p role="alert" className="text-destructive">{error}</p>}
     <p role="status" className="text-sm">{result.job?.status === "failed" ? result.job.error_code === "REPLAY_MISS" ? text.replayMiss : text.readingFailed
-      : result.job?.review_state === "needs_quote_context" || proposal?.kind === "quote" ? text.quoteContext
       : result.job?.status === "succeeded" ? text.manualReview : text.readingPending}</p>
     <div className="flex flex-wrap gap-3">
       {result.job?.status === "failed" && <Button type="button" disabled={pending} onClick={() => void retry()}>{text.retryReading}</Button>}

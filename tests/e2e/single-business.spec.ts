@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { test, expect, signIn, ownNeed, ownOrder, approve } from "./fixtures";
+import { test, expect, signIn, ownNeed, ownOrder, approve, openScreen } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 async function upload(page: Page, file?: string, content?: string) {
@@ -30,10 +30,11 @@ async function confirm(page: Page, purpose: "historical" | "delivered") {
 }
 
 test("one business confirms sources, orders, checks the later invoice and reviews a supplier query", async ({ page, demo }, testInfo) => {
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   await upload(page, "fixtures/sources/delivered-invoice.png");
   await confirm(page, "historical");
   expect((await ownOrder(page)).status()).toBe(404);
+  await openScreen(page, "approvals");
   const supplier = page.getByRole("heading", { name: "Supplier B", exact: true }).locator("..");
   await supplier.getByRole("button", { name: "Review solo order", exact: true }).click();
   await approve(page, "315.00");
@@ -42,6 +43,7 @@ test("one business confirms sources, orders, checks the later invoice and review
   await expect(page.getByRole("region", { name: "Simulated purchase order", exact: true }).getByRole("status").filter({ hasText: /^Order issued$/ })).toBeVisible();
   const order = await (await ownOrder(page)).json();
   expect(order.amount).toBe("315.00");
+  await openScreen(page, "inbox");
   const invoiceSource = await upload(page, "fixtures/sources/single-business-invoice.txt");
   const card = await confirm(page, "delivered");
   const invoice = card.getByRole("region", { name: "Invoice check", exact: true });
@@ -103,12 +105,14 @@ test("one business confirms sources, orders, checks the later invoice and review
     expect(saved.recovery_amount).toBe("5.00");
     expect(saved.resolution.source_id).toBe(credit.id);
     expect((await (await ownOrder(page)).json()).amount).toBe("315.00");
+    await openScreen(page, "rules");
     const learning = page.getByRole("region", { name: "Learned rules", exact: true });
     await learning.getByRole("button", { name: "Generate rule proposals", exact: true }).click();
     const accuracy = learning.getByRole("article", { name: "Quote accuracy", exact: true }).filter({ has: page.getByRole("status").filter({ hasText: /^Proposed · not active$/ }) });
     await expect(accuracy.getByText("Material discrepancies: 1 / 1", { exact: true })).toBeVisible();
     await accuracy.getByRole("checkbox").check();
     await accuracy.getByRole("button", { name: "Accept rule", exact: true }).click();
+    await openScreen(page, "approvals");
     const warning = page.getByRole("heading", { name: "Supplier B", exact: true }).locator("..").getByRole("complementary", { name: "Accepted invoice-check history", exact: true });
     await expect(warning.getByText(/Material discrepancies: 1 \/ 1/)).toBeVisible();
     const afterRule = await (await page.request.get(`${root}/invoice-checks/${check.id}`)).json();
@@ -118,14 +122,14 @@ test("one business confirms sources, orders, checks the later invoice and review
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     for (const locale of ["ms", "zh"]) {
       const copy = JSON.parse(readFileSync(`apps/web/src/messages/${locale}.json`, "utf8"));
-      await page.goto(`/${locale}/approvals`);
+      await page.goto(`/${locale}/inbox`);
       await page.getByRole("listitem").filter({ hasText: invoiceSource.id }).getByRole("button", { name: copy.viewSource, exact: true }).click();
       const localized = page.getByRole("region", { name: copy.invoices.heading, exact: true });
       await expect(localized.getByRole("status").filter({ hasText: copy.invoices.recovered })).toBeVisible();
       await expect(localized.getByRole("region", { name: copy.invoices.query, exact: true }).getByRole("status").filter({ hasText: copy.invoices.sent })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     }
-    await signIn(page, demo, "staff");
+    await signIn(page, demo, "staff", "inbox");
     await page.getByRole("listitem").filter({ hasText: invoiceSource.id }).getByRole("button", { name: "View source", exact: true }).click();
     await expect(page.getByRole("region", { name: "Invoice check", exact: true })).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText(/RM\s*[0-9]/);

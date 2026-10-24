@@ -1,7 +1,7 @@
 import { test, expect, signIn, ownNeed } from "./fixtures";
 
 test("reviewed supplier text becomes a quote only through Gate 1", async ({ page, demo }) => {
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   await page.getByLabel("Source file", { exact: true }).setInputFiles("fixtures/sources/quote-missing-delivery.txt");
   const uploaded = page.waitForResponse((response) => response.url().endsWith("/sources") && response.request().method() === "POST");
   await page.getByRole("button", { name: "Upload source", exact: true }).click();
@@ -16,11 +16,12 @@ test("reviewed supplier text becomes a quote only through Gate 1", async ({ page
   const root = `/api/v1/businesses/${business}`;
   const comparison = await (await page.request.get(`${root}/needs/${need}/comparisons`)).json();
   const offer = comparison.offers[0];
-  const headers = { Origin: new URL(page.url()).origin, "Idempotency-Key": crypto.randomUUID() };
-  const requested = await page.request.post(`${root}/quote-proposals`, { headers, data: {
-    source_id: source.id, source_sha256: source.sha256, supplier_id: offer.supplier_id,
-    spec_id: comparison.need.spec_id, spec_revision: comparison.need.spec_revision,
-  } });
+  const quote = page.getByRole("region", { name: "Supplier quote review", exact: true });
+  await quote.getByRole("combobox", { name: "Supplier for this quote", exact: true }).selectOption(offer.supplier_id);
+  await quote.getByRole("combobox", { name: "Product need", exact: true }).selectOption(need);
+  const reading = page.waitForResponse((response) => response.url().endsWith("/quote-proposals") && response.request().method() === "POST");
+  await quote.getByRole("button", { name: "Read supplier quote", exact: true }).click();
+  const requested = await reading;
   expect(requested.status()).toBe(200);
   const job = await requested.json();
   await expect.poll(async () => (await (await page.request.get(`${root}/jobs/${job.id}`)).json()).status).toBe("succeeded");
@@ -32,17 +33,22 @@ test("reviewed supplier text becomes a quote only through Gate 1", async ({ page
   expect(proposal.interpretation_mode).toBe("replay");
   expect(proposal.reading.delivery_fee).toBeNull();
   expect(proposal.reading.tax_rate).toBeNull();
-  const edited = await page.request.patch(path, { headers: { ...headers, "Idempotency-Key": crypto.randomUUID() }, data: {
-    expected_revision: 1, reading: { ...proposal.reading, pack_multiple: "1" },
-  } });
+  await quote.getByLabel("Pack multiple", { exact: true }).fill("1");
+  const saving = page.waitForResponse((response) => response.url().endsWith(`/proposals/${completed.result_reference}`) && response.request().method() === "PATCH");
+  await quote.getByRole("button", { name: "Save quote corrections", exact: true }).click();
+  const edited = await saving;
   expect(edited.status()).toBe(200);
   const revision = await edited.json();
-  const confirmed = await page.request.post(`${path}/confirm`, { headers: { ...headers, "Idempotency-Key": crypto.randomUUID() }, data: {
-    expected_revision: 2, acknowledged_flags: revision.flags,
-    quote_id: offer.quote_id, expected_quote_revision: offer.quote_revision,
-  } });
+  expect(revision.current_revision).toBe(2);
+  await quote.getByRole("combobox", { name: "Quote to supersede", exact: true }).selectOption(offer.quote_id);
+  await expect(quote.getByRole("button", { name: "Confirm quote", exact: true })).toBeDisabled();
+  await quote.getByRole("checkbox", { name: /I reviewed the source, corrections and unresolved terms/ }).check();
+  const confirming = page.waitForResponse((response) => response.url().endsWith(`/proposals/${completed.result_reference}/confirm`));
+  await quote.getByRole("button", { name: "Confirm quote", exact: true }).click();
+  const confirmed = await confirming;
   expect(confirmed.status()).toBe(200);
   expect((await confirmed.json()).status).toBe("confirmed");
+  await expect(quote.getByRole("status").filter({ hasText: /^Quote confirmed$/ })).toBeVisible();
   const current = await (await page.request.get(`${root}/needs/${need}/comparisons`)).json();
   const updated = current.offers.find((value: { quote_id: string }) => value.quote_id === offer.quote_id);
   expect(updated.quote_revision).toBe(2);

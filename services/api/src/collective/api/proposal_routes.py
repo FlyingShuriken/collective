@@ -46,6 +46,7 @@ async def listing(
     principal: SignedIn,
     db: DatabaseDependency,
     cursor: UUID | None = None,
+    source_id: UUID | None = None,
     limit: int = Query(default=25, ge=1, le=100),
 ) -> ProposalPage:
     async with db.transaction("tenant", principal.subject) as connection:
@@ -53,6 +54,9 @@ async def listing(
         parameters = [business_id]
         query = """select * from collective.proposals where business_id=%s
             and kind in ('quote','purchase','stock')"""
+        if source_id:
+            query += " and source_id=%s"
+            parameters.append(source_id)
         if cursor:
             row, _ = await proposals.load(connection, business_id, cursor)
             query += " and (created_at,id)<(%s,%s)"

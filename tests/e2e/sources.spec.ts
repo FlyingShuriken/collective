@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { test, expect, signIn } from "./fixtures";
 
 test("owner reviews a real invoice crop and masks a private provider copy", async ({ page, demo }, testInfo) => {
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   await page.getByLabel("Source file", { exact: true }).setInputFiles("fixtures/sources/delivered-invoice.png");
   await page.getByRole("button", { name: "Upload source", exact: true }).click();
   const viewer = page.getByRole("region", { name: "Source viewer", exact: true });
@@ -41,7 +41,7 @@ test("owner reviews a real invoice crop and masks a private provider copy", asyn
   await expect(viewer.getByText("Source prepared. Extraction is queued; no record has been confirmed.", { exact: true })).toBeVisible();
   await image.evaluate((element) => (element as HTMLImageElement).decode());
   await image.screenshot({ path: testInfo.outputPath("prepared-invoice-page.png") });
-  await signIn(page, demo, "staff");
+  await signIn(page, demo, "staff", "inbox");
   await page.getByRole("button", { name: "View source", exact: true }).first().click();
   await expect(viewer.getByText("This account cannot view price-bearing sources.", { exact: true })).toBeVisible();
   await expect(viewer.getByRole("img")).toHaveCount(0);
@@ -57,7 +57,7 @@ ImageDraw.Draw(image).rectangle((0,0,239,79),fill='red')
 exif=Image.Exif();exif[274]=6
 image.save(sys.argv[1],format='JPEG',exif=exif)
 `, rotated], { stdio: "pipe" });
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "inbox");
   for (const file of ["fixtures/sources/delivered-invoice.pdf", rotated]) {
     await page.getByLabel("Source file", { exact: true }).setInputFiles(file);
     const uploaded = page.waitForResponse((response) => response.url().endsWith("/sources") && response.request().method() === "POST");

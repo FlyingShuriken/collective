@@ -4,11 +4,22 @@ from uuid import UUID
 from fastapi import APIRouter, Query
 
 from collective.api.auth import DatabaseDependency, SignedIn
-from collective.api.dto import LedgerPage
+from collective.api.dto import HiddenSelfAudit, LedgerPage, VisibleSelfAudit
+from collective.domain.clock import SystemClock
 from collective.repositories.ledger import ledger_page
 from collective.services.permissions import membership
+from collective.services.self_audit import project
 
 router = APIRouter(prefix="/v1/businesses/{business_id}", tags=["ledger"])
+
+
+@router.get("/self-audit")
+async def self_audit(
+    business_id: UUID, principal: SignedIn, db: DatabaseDependency
+) -> VisibleSelfAudit | HiddenSelfAudit:
+    async with db.transaction("tenant", principal.subject) as connection:
+        access = await membership(connection, principal.subject, business_id)
+        return await project(connection, business_id, access, SystemClock().now())
 
 
 @router.get("/ledger")

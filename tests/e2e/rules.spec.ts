@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
-import { test, expect, signIn, ownNeed, ownOrder, approve } from "./fixtures";
+import { test, expect, signIn, ownNeed, ownOrder, approve, openScreen } from "./fixtures";
 
 function prepare(run: string, mode: "private" | "private-more" | "network") {
   return JSON.parse(execFileSync("uv", ["run", "--project", "services/api", "python", "tests/e2e/prepare_learning.py", "--run", run, "--mode", mode], { stdio: "pipe" }).toString()) as { business_id: string; private_ids: string[] };
@@ -11,13 +11,14 @@ function rule(page: Page, kind: string, state: string) {
 }
 
 async function decision(page: Page, amount: string) {
+  await openScreen(page, "approvals");
   const offer = page.getByRole("heading", { name: "Supplier B", exact: true }).locator("..");
   await expect(offer.getByText("Decision total", { exact: true }).locator("..").getByText(amount, { exact: true })).toBeVisible();
 }
 
 test("owner reviews real evidence, rejects usage, accepts and replaces a fee rule, then revokes it", async ({ page, demo }, testInfo) => {
   prepare(demo.run, "private");
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "rules");
   const learned = page.getByRole("region", { name: "Learned rules", exact: true });
   await learned.getByRole("button", { name: "Generate rule proposals", exact: true }).click();
   const fee = rule(page, "Observed delivery fee", "Proposed · not active");
@@ -31,12 +32,14 @@ test("owner reviews real evidence, rejects usage, accepts and replaces a fee rul
   await page.getByRole("heading", { name: "Supplier B", exact: true }).locator("..").getByRole("button", { name: "Review solo order", exact: true }).click();
   await approve(page, "300.00");
   expect((await ownOrder(page)).status()).toBe(404);
+  await openScreen(page, "rules");
   await fee.getByRole("checkbox").check();
   await fee.getByRole("button", { name: "Accept rule", exact: true }).click();
   await expect(rule(page, "Observed delivery fee", "Accepted · active")).toBeVisible();
   await decision(page, "RM 315.00");
   await expect(page.getByText("Your previous approval is void. Fresh consent is required.", { exact: true })).toBeVisible();
   expect((await ownOrder(page)).status()).toBe(404);
+  await openScreen(page, "rules");
   await learned.screenshot({ path: testInfo.outputPath("owner-accepted-fee.png") });
   prepare(demo.run, "private-more");
   await learned.getByRole("button", { name: "Generate rule proposals", exact: true }).click();
@@ -50,16 +53,17 @@ test("owner reviews real evidence, rejects usage, accepts and replaces a fee rul
   await expect(rule(page, "Observed delivery fee", "Revoked · not active")).toBeVisible();
   await decision(page, "RM 300.00");
   await page.reload();
-  await expect(rule(page, "Observed delivery fee", "Revoked · not active")).toBeVisible();
   await expect(page.getByText("Your previous approval is void. Fresh consent is required.", { exact: true })).toBeVisible();
-  await page.goto("/ms/approvals");
-  await expect(page.getByRole("heading", { name: "Peraturan dipelajari", exact: true })).toBeVisible();
+  await openScreen(page, "rules");
+  await expect(rule(page, "Observed delivery fee", "Revoked · not active")).toBeVisible();
+  await page.goto("/ms/rules");
+  await expect(page.getByRole("heading", { name: "Peraturan dipelajari", exact: true, level: 1 })).toBeVisible();
   await expect(page.getByRole("status").filter({ hasText: /^Dibatalkan · tidak aktif$/ })).toBeVisible();
-  await page.goto("/zh/approvals");
-  await expect(page.getByRole("heading", { name: "学习规则", exact: true })).toBeVisible();
+  await page.goto("/zh/rules");
+  await expect(page.getByRole("heading", { name: "学习规则", exact: true, level: 1 })).toBeVisible();
   await expect(page.getByRole("status").filter({ hasText: /^已撤销 · 未生效$/ })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await signIn(page, demo, "staff");
+  await signIn(page, demo, "staff", "rules");
   const hidden = page.getByRole("region", { name: "Learned rules", exact: true });
   await expect(hidden.getByRole("article").first()).toBeVisible();
   expect(await hidden.innerText()).not.toContain("RM");
@@ -73,7 +77,7 @@ test("owner reviews real evidence, rejects usage, accepts and replaces a fee rul
 
 test("accepted measured usage replaces the stated rate only until explicit revocation", async ({ page, demo }) => {
   prepare(demo.run, "private");
-  await signIn(page, demo, "owner-a");
+  await signIn(page, demo, "owner-a", "rules");
   const learned = page.getByRole("region", { name: "Learned rules", exact: true });
   await learned.getByRole("button", { name: "Generate rule proposals", exact: true }).click();
   const usage = rule(page, "Usage rule", "Proposed · not active");
@@ -81,8 +85,11 @@ test("accepted measured usage replaces the stated rate only until explicit revoc
   await usage.getByRole("checkbox").check();
   await usage.getByRole("button", { name: "Accept rule", exact: true }).click();
   await expect(rule(page, "Usage rule", "Accepted · active")).toBeVisible();
+  await openScreen(page, "approvals");
   await expect(page.getByText(/50 pieces\/day · Accepted learned usage/)).toBeVisible();
+  await openScreen(page, "rules");
   await rule(page, "Usage rule", "Accepted · active").getByRole("button", { name: "Revoke accepted rule", exact: true }).click();
+  await openScreen(page, "approvals");
   await expect(page.getByText(/125 pieces\/day · Owner-stated usage/)).toBeVisible();
   expect((await ownOrder(page)).status()).toBe(404);
 });

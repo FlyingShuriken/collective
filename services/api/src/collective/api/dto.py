@@ -798,6 +798,26 @@ class RulePage(Snapshot):
     latest_job: JobStatus | None = None
 
 
+class HiddenSelfAudit(Snapshot):
+    price_visibility: Literal["hidden"] = "hidden"
+    period_start: Instant | None
+    period_end: Instant | None
+    purchase_records: int = Field(ge=0)
+    delivered_records: int = Field(ge=0)
+    checked_records: int = Field(ge=0)
+    mismatched_records: int = Field(ge=0)
+    unmatched_records: int = Field(ge=0)
+    incomplete_checks: int = Field(ge=0)
+    confirmed_variances: int = Field(ge=0)
+    documented_recoveries: int = Field(ge=0)
+
+
+class VisibleSelfAudit(HiddenSelfAudit):
+    price_visibility: Literal["visible"] = "visible"
+    confirmed_variance_amount: Money
+    documented_recovery_amount: Money
+
+
 class RequestMapping(Snapshot):
     source_id: UUID
     source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")

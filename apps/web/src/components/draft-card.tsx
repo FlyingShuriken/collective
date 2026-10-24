@@ -18,8 +18,13 @@ export function DraftCard({ business, draftId, locale, owner, onChanged }: {
   owner: boolean;
   onChanged: () => void;
 }) {
-  const text = messages[locale].invoices;
   const [draft, setDraft] = useState<Draft | Hidden | null>(null);
+  const copy = messages[locale].communication;
+  const text = draft?.kind === "rfq" ? { ...messages[locale].invoices,
+    query: copy.rfq, sent: copy.sent, queryText: copy.text, editQuery: copy.edit,
+    saveQuery: copy.save, sendQuery: copy.send, reviewedQuery: copy.acknowledge,
+    sendNotRecovery: copy.notOrder,
+  } : messages[locale].invoices;
   const [content, setContent] = useState("");
   const [recipient, setRecipient] = useState("");
   const [acknowledged, setAcknowledged] = useState(false);
