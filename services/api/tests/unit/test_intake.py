@@ -226,6 +226,18 @@ def test_overflow_and_unknown_additional_fees_are_review_conditions():
     assert "additional_fees.0.amount:missing" in checked.flags and checked.calculated_total is None
 
 
+def test_printed_tax_and_negative_totals_do_not_become_usable_baselines():
+    reading = invoice(tax_rate="0.06", tax_amount="0.00")
+    assert "tax_amount:mismatch" in check_reading(reading).flags
+    negative = check_reading(invoice(discount="300.00"))
+    assert "total:negative" in negative.flags and negative.calculated_total is None
+    extra = check_reading(
+        invoice(additional_fees=[{"label": "service", "amount": "5.00"}], total="295.00")
+    )
+    assert extra.calculated_total == Decimal("295.00")
+    assert "additional_fees:comparison_basis_unknown" in extra.flags
+
+
 @pytest.mark.parametrize(
     "kind,expected", [("supplier_reply", ["fast"]), ("unreadable", ["fast", "strong"])]
 )

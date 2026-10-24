@@ -3,6 +3,7 @@
 import re
 from decimal import Decimal, localcontext
 
+from collective.domain.costs import calculate_payable
 from collective.domain.money import round_money
 from collective.domain.types import Money, Snapshot
 
@@ -88,6 +89,8 @@ def check_reading(reading):
                     flags.append(f"additional_fees.{index}.label:missing")
                 if fee.amount is None:
                     flags.append(f"additional_fees.{index}.amount:missing")
+            if any(fee.amount for fee in reading.additional_fees):
+                flags.append("additional_fees:comparison_basis_unknown")
             components = (
                 reading.goods_total,
                 reading.delivery_fee,
@@ -108,6 +111,19 @@ def check_reading(reading):
                 )
                 if reading.total is not None and total != reading.total:
                     flags.append("total:mismatch")
+                if total < 0:
+                    flags.append("total:negative")
+                    total = None
+                if reading.tax_rate is not None and not reading.additional_fees:
+                    _, tax = calculate_payable(
+                        reading.goods_total,
+                        reading.delivery_fee,
+                        reading.discount,
+                        reading.surcharge,
+                        reading.tax_rate,
+                    )
+                    if tax != reading.tax_amount:
+                        flags.append("tax_amount:mismatch")
         except ValueError:
             flags.append("arithmetic:overflow")
     return IntakeChecks(

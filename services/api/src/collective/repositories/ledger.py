@@ -25,6 +25,7 @@ async def historical_basis(
           on (l.business_id,l.purchase_id,l.purchase_revision)=(p.business_id,p.id,p.revision)
         join collective.businesses b on b.id=p.business_id
         where l.spec_id=%s and l.spec_revision=%s
+          and coalesce(p.missing_fields->>'eligible_for_baseline','true')='true'
           and (select count(*) from collective.purchase_lines x where
                (x.business_id,x.purchase_id,x.purchase_revision)=(p.business_id,p.id,p.revision))=1
         order by p.document_date desc nulls last,p.created_at desc,p.id

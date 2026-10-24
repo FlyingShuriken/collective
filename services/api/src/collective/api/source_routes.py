@@ -10,12 +10,19 @@ from starlette.formparsers import MultiPartException, MultiPartParser
 
 from collective.adapters.storage import Storage
 from collective.api.auth import DatabaseDependency, SignedIn
-from collective.api.dto import MaskRegion, PrepareSource, SourcePageList, SourceResult
+from collective.api.dto import (
+    JobStatus,
+    MaskRegion,
+    PrepareSource,
+    RetryIntake,
+    SourcePageList,
+    SourceResult,
+)
 from collective.api.errors import DomainError
 from collective.api.need_routes import CommandKey
 from collective.domain.clock import SystemClock
 from collective.repositories import sources
-from collective.services import source_preparation
+from collective.services import intake_jobs, source_preparation
 from collective.services.permissions import membership
 from collective.services.source_rendering import MAX_BYTES, crop_page, inspect_source
 
@@ -255,3 +262,18 @@ async def view(
             raise DomainError("INVALID_REGION", "Use valid normalized source bounds.") from exc
         content = await run_in_threadpool(crop_page, content, region.bbox)
     return Response(content, media_type="image/png", headers=headers)
+
+
+@router.post("/sources/{source_id}/intake")
+async def intake(
+    business_id: UUID,
+    source_id: UUID,
+    body: RetryIntake,
+    key: CommandKey,
+    principal: SignedIn,
+    db: DatabaseDependency,
+) -> JobStatus:
+    async with db.transaction("tenant", principal.subject) as connection:
+        return await intake_jobs.request(
+            connection, principal.subject, business_id, source_id, body, key, SystemClock().now()
+        )

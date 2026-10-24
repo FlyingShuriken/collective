@@ -3,9 +3,10 @@ from uuid import UUID
 
 from pydantic import Field, model_validator
 
-from collective.agents.schemas import QuoteReading
+from collective.agents.schemas import IntakeReading, QuoteReading
 from collective.domain.approvals import BoundTerms
 from collective.domain.costs import CostBreakdown
+from collective.domain.intake_checks import IntakeChecks
 from collective.domain.quantities import QuantityOption
 from collective.domain.replenishment import ReplenishmentResult
 from collective.domain.types import (
@@ -370,6 +371,7 @@ class JobStatus(Snapshot):
     error_code: str | None
     lease_expired: bool
     result_reference: UUID | None = None
+    review_state: Literal["pending_review", "needs_quote_context", "unreadable"] | None = None
 
 
 class JobPage(Snapshot):
@@ -476,7 +478,7 @@ class RequestDraft(Snapshot):
 class ProposalSummary(Snapshot):
     id: UUID
     source_id: UUID
-    kind: Literal["quote"]
+    kind: Literal["quote", "purchase", "stock"]
     current_revision: Revision
     status: Literal["pending_review", "confirmed", "rejected"]
     created_at: Instant
@@ -487,6 +489,7 @@ class HiddenProposal(ProposalSummary):
 
 
 class QuoteProposal(ProposalSummary):
+    kind: Literal["quote"] = "quote"
     price_visibility: Literal["visible"] = "visible"
     reading: QuoteReading
     context: QuoteContext
@@ -500,8 +503,51 @@ class QuoteProposal(ProposalSummary):
     record_revision: Revision | None = None
 
 
+class MappingReference(Snapshot):
+    id: UUID
+    revision: Revision
+
+
+class LineMappingReference(MappingReference):
+    line: int = Field(strict=True, ge=0, le=99)
+
+
+class RecordContext(Snapshot):
+    supplier_id: UUID | None = None
+    purpose: Literal["historical", "delivered"] | None = None
+    line_mappings: tuple[LineMappingReference, ...] = Field(default=(), max_length=100)
+    stock_mapping: MappingReference | None = None
+    stock_kind: Literal["stock", "receipt", "inbound_adjustment", "waste"] = "stock"
+    po_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def distinct_lines(self) -> Self:
+        if len({item.line for item in self.line_mappings}) != len(self.line_mappings):
+            raise ValueError("Each invoice line needs at most one mapping")
+        if self.po_id is not None and self.stock_kind != "receipt":
+            raise ValueError("Only receipts may reference an issued order")
+        return self
+
+
+class DocumentProposal(ProposalSummary):
+    kind: Literal["purchase", "stock"]
+    price_visibility: Literal["visible"] = "visible"
+    reading: IntakeReading
+    context: RecordContext
+    checks: IntakeChecks
+    flags: tuple[str, ...]
+    evidence: tuple[Evidence, ...]
+    interpretation_mode: Literal["live", "record", "replay"]
+    model: str
+    prompt_version: str
+    schema_version: str
+    record_id: UUID | None = None
+    record_revision: Revision | None = None
+    review_value: Money | None = None
+
+
 class ProposalPage(Snapshot):
-    items: tuple[QuoteProposal | HiddenProposal, ...]
+    items: tuple[QuoteProposal | DocumentProposal | HiddenProposal, ...]
     next_cursor: UUID | None = None
 
 
@@ -510,9 +556,39 @@ class EditQuoteProposal(Snapshot):
     reading: QuoteReading
 
 
+class EditDocumentProposal(Snapshot):
+    expected_revision: Revision
+    reading: IntakeReading
+    context: RecordContext | None = None
+
+
+class RetryIntake(Snapshot):
+    source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class SupplierOption(Snapshot):
+    id: UUID
+    name: str
+
+
+class MappingOption(MappingReference):
+    supplier_id: UUID
+    supplier_sku: str
+    source_name: str
+    spec_id: UUID
+    spec_revision: Revision
+    spec_name: str
+    base_unit: BaseUnit
+
+
+class RecordOptions(Snapshot):
+    suppliers: tuple[SupplierOption, ...]
+    mappings: tuple[MappingOption, ...]
+
+
 class ReviewProposal(Snapshot):
     expected_revision: Revision
-    acknowledged_flags: tuple[str, ...] = Field(default=(), max_length=100)
+    acknowledged_flags: tuple[str, ...] = Field(default=(), max_length=1000)
     quote_id: UUID | None = None
     expected_quote_revision: Revision | None = None
 

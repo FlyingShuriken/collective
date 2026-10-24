@@ -30,6 +30,38 @@ class NormalizedLine(Snapshot):
     failure_codes: tuple[str, ...] = ()
 
 
+def canonical_unit(unit: str) -> str:
+    value = unit.strip().lower()
+    return {
+        "pcs": "piece",
+        "pc": "piece",
+        "pieces": "piece",
+        "keping": "piece",
+        "unit": "piece",
+        "units": "piece",
+        "个": "piece",
+        "件": "piece",
+        "boxes": "box",
+        "kotak": "box",
+        "盒": "box",
+        "箱": "carton",
+        "cartons": "carton",
+        "karton": "carton",
+        "packs": "pack",
+        "pek": "pack",
+        "litre": "l",
+        "liter": "l",
+        "litres": "l",
+        "liters": "l",
+        "升": "l",
+        "millilitre": "ml",
+        "milliliter": "ml",
+        "毫升": "ml",
+        "克": "g",
+        "公斤": "kg",
+    }.get(value, value)
+
+
 def normalize_line(source: SourceLine, mapping: PackMapping | None) -> NormalizedLine:
     original = dict(
         original_quantity=source.quantity,

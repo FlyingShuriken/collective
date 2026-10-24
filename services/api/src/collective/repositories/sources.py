@@ -5,7 +5,8 @@ from collective.repositories.jobs import public_status
 
 async def load(connection, business, source, *, lock=False):
     query = """select s.*,p.status as preparation_status,p.ingestion_job_id,p.review_hash,
-        p.provider_sha256,p.metadata as preparation_metadata
+        p.provider_sha256,p.metadata as preparation_metadata,
+        p.reviewed_by as preparation_reviewed_by
         from collective.sources s left join collective.source_preparations p
         on (p.business_id,p.source_id)=(s.business_id,s.id)
         where s.business_id=%s and s.id=%s"""
@@ -44,8 +45,9 @@ async def result(connection, row, access, as_of):
     if row["ingestion_job_id"]:
         record = await (
             await connection.execute(
-                "select * from collective.jobs where business_id=%s and id=%s",
-                (row["business_id"], row["ingestion_job_id"]),
+                """select * from collective.jobs where business_id=%s and kind='intake'
+                and payload->>'source_id'=%s order by created_at desc,id desc limit 1""",
+                (row["business_id"], str(row["id"])),
             )
         ).fetchone()
         job = public_status(record, as_of)

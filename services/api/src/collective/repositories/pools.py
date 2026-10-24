@@ -28,11 +28,42 @@ async def lock_inputs(connection: AsyncConnection, spec: UUID, *, extra_supplier
         where spec_id=%s and state<>'released' order by id for update""",
         (spec,),
     )
+
     await connection.execute(
         """select id from collective.reorder_needs
         where spec_id=%s order by id for update""",
         (spec,),
     )
+
+
+async def lock_record_inputs(connection, specs):
+    specs = sorted(set(specs), key=str)
+    contexts = await (
+        await connection.execute(
+            """select distinct supplier_id,spec_id from collective.quote_revisions
+            where spec_id=any(%s)""",
+            (specs,),
+        )
+    ).fetchall()
+    await lock_cohorts(connection, {(row["supplier_id"], row["spec_id"]) for row in contexts})
+    await connection.execute(
+        """select id from collective.pools
+        where spec_id=any(%s) and state<>'released' order by id for update""",
+        (specs,),
+    )
+    await connection.execute(
+        """select id from collective.reorder_needs
+        where spec_id=any(%s) order by id for update""",
+        (specs,),
+    )
+    return await (
+        await connection.execute(
+            """select a.* from collective.bound_approvals a
+        join collective.reorder_needs n on (n.business_id,n.id)=(a.business_id,a.need_id)
+        where n.spec_id=any(%s) order by a.id for update of a""",
+            (specs,),
+        )
+    ).fetchall()
 
 
 async def candidate_needs(connection: AsyncConnection, spec: UUID, revision: int) -> list[dict]:

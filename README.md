@@ -82,8 +82,8 @@ uv run --project services/api python -m collective.jobs.runner --once
 
 Jobs have five-minute leases and at most three processing attempts. Expired leases can
 be reclaimed; stale workers cannot commit outputs. Results, state and audit events commit
-together. Reorder/expiry, supplier quote-reading and message-drafting handlers use this
-runner. General invoice/stock intake follows in T17.
+together. Reorder/expiry, invoice/stock intake, supplier quote-reading and message-drafting
+handlers use this runner.
 
 The Sources section accepts private PNG/JPEG/PDF files up to 10 MB and 10 pages,
 or UTF-8 text up to 16,000 characters. It saves normalized pages and provides actual
@@ -93,12 +93,20 @@ sources. Preparation queues extraction but does not confirm a record. The liaiso
 read prepared supplier replies into editable quote proposals; confirmation creates a
 sealed quote with unresolved terms preserved. RFQ/query jobs create unsent drafts from
 authorized context. Owner Send binds the exact text, recipient and revision and returns
-one simulated receipt. General invoice/stock extraction remains T17.
+one simulated receipt. Prepared invoices and stock text now create pending record proposals
+through the same runner. The proposal API supports human corrections, confirmed mapping
+selection, flag acknowledgement and bounded staff confirmation. Accepted purchases preserve
+unknown fees and unmapped lines; incomplete records cannot supply comparable prices.
+Stock observations require a confirmed mapping and an explicit observation time. Invoice
+confirmation does not establish stock arrival. Failed intake can be retried at
+`POST /v1/businesses/{business_id}/sources/{source_id}/intake` using its saved source hash;
+the original failure and attempts remain available. The T17 review interface is still pending.
 The synthetic demo does not establish automatic masking or
 retention suitability for arbitrary real invoices.
 
-`MODEL_MODE=replay` is the default. Two declared synthetic quote inputs have authored
-replays; these are workflow fixtures, not measured model output. Rebuild them for the
+`MODEL_MODE=replay` is the default. Declared synthetic quote text, invoice PNG/PDF and
+BM stock text have authored replays; these are workflow fixtures, not measured model output.
+Rebuild them for the
 configured model IDs with `uv run --project services/api python scripts/generate_replay_fixtures.py`.
 Changed inputs/versions stop with `REPLAY_MISS`. Live/record modes need a server-only
 `GEMINI_API_KEY`; recording also requires demo mode and a predeclared synthetic source.

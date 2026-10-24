@@ -4,6 +4,8 @@ from fastapi import APIRouter, Query
 
 from collective.api.auth import DatabaseDependency, SignedIn
 from collective.api.dto import (
+    DocumentProposal,
+    EditDocumentProposal,
     EditQuoteProposal,
     HiddenProposal,
     JobStatus,
@@ -11,8 +13,10 @@ from collective.api.dto import (
     ParseQuote,
     ProposalPage,
     QuoteProposal,
+    RecordOptions,
     ReviewProposal,
 )
+from collective.api.errors import DomainError
 from collective.api.need_routes import CommandKey
 from collective.domain.clock import SystemClock
 from collective.services import proposals
@@ -47,7 +51,8 @@ async def listing(
     async with db.transaction("tenant", principal.subject) as connection:
         access = await membership(connection, principal.subject, business_id)
         parameters = [business_id]
-        query = "select * from collective.proposals where business_id=%s and kind='quote'"
+        query = """select * from collective.proposals where business_id=%s
+            and kind in ('quote','purchase','stock')"""
         if cursor:
             row, _ = await proposals.load(connection, business_id, cursor)
             query += " and (created_at,id)<(%s,%s)"
@@ -66,7 +71,7 @@ async def listing(
 @router.get("/proposals/{proposal_id}")
 async def proposal(
     business_id: UUID, proposal_id: UUID, principal: SignedIn, db: DatabaseDependency
-) -> QuoteProposal | HiddenProposal:
+) -> QuoteProposal | DocumentProposal | HiddenProposal:
     async with db.transaction("tenant", principal.subject) as connection:
         access = await membership(connection, principal.subject, business_id)
         return await proposals.view(
@@ -78,11 +83,11 @@ async def proposal(
 async def edit(
     business_id: UUID,
     proposal_id: UUID,
-    body: EditQuoteProposal,
+    body: EditQuoteProposal | EditDocumentProposal,
     key: CommandKey,
     principal: SignedIn,
     db: DatabaseDependency,
-) -> QuoteProposal:
+) -> QuoteProposal | DocumentProposal:
     async with db.transaction("tenant", principal.subject) as connection:
         return await proposals.edit(
             connection, principal.subject, business_id, proposal_id, body, key
@@ -97,7 +102,7 @@ async def confirm(
     key: CommandKey,
     principal: SignedIn,
     db: DatabaseDependency,
-) -> QuoteProposal:
+) -> QuoteProposal | DocumentProposal:
     async with db.transaction("tenant", principal.subject) as connection:
         return await proposals.confirm(
             connection, principal.subject, business_id, proposal_id, body, key, SystemClock()
@@ -112,8 +117,41 @@ async def reject(
     key: CommandKey,
     principal: SignedIn,
     db: DatabaseDependency,
-) -> QuoteProposal:
+) -> QuoteProposal | DocumentProposal:
     async with db.transaction("tenant", principal.subject) as connection:
         return await proposals.reject(
             connection, principal.subject, business_id, proposal_id, body, key
         )
+
+
+@router.get("/record-options")
+async def record_options(
+    business_id: UUID, principal: SignedIn, db: DatabaseDependency
+) -> RecordOptions:
+    async with db.transaction("tenant", principal.subject) as connection:
+        access = await membership(connection, principal.subject, business_id)
+        if not access.can_view_prices:
+            raise DomainError("SOURCE_RESTRICTED", "This account cannot review source prices.", 403)
+        suppliers = await (
+            await connection.execute(
+                """select s.id,s.name from collective.suppliers s
+            join collective.business_suppliers b on b.supplier_id=s.id
+            where b.business_id=%s order by s.name,s.id""",
+                (business_id,),
+            )
+        ).fetchall()
+        mappings = await (
+            await connection.execute(
+                """select m.id,m.revision,m.supplier_id,m.supplier_sku,m.source_name,
+            m.spec_id,m.spec_revision,c.name as spec_name,s.base_unit from collective.sku_mappings m
+            join collective.spec_revisions s on (s.spec_id,s.revision)=(m.spec_id,m.spec_revision)
+            join collective.canonical_specs c on c.id=m.spec_id
+            where m.business_id=%s and m.confirmed and not exists(
+                select 1 from collective.sku_mappings n where n.business_id=m.business_id
+                  and n.supplier_id=m.supplier_id and n.supplier_sku=m.supplier_sku
+                  and n.confirmed and n.revision>m.revision)
+            order by m.source_name,m.id""",
+                (business_id,),
+            )
+        ).fetchall()
+        return RecordOptions(suppliers=suppliers, mappings=mappings)

@@ -71,7 +71,7 @@ def review_flags(reading):
     return list(dict.fromkeys(flags))
 
 
-def evidence(reading, document):
+def evidence(reading, document, *, fallback_field="quote"):
     result, invalid = [], False
     for anchor in reading.evidence:
         value = anchor.model_dump() | {
@@ -98,7 +98,7 @@ def evidence(reading, document):
     if not result:
         text = document["text"]
         fallback = {
-            "field_path": "quote",
+            "field_path": fallback_field,
             "source_id": document["source_id"],
             "confidence_label": "review",
             "extracted_value": None,

@@ -432,9 +432,9 @@ async def for_job(database, storage, job):
                 "SOURCE_NOT_PREPARED", "Review source masking before extraction.", 409
             )
         expected = (
-            saved["id"]
-            if saved["kind"] == "intake"
-            else UUID(saved["payload"]["preparation_job_id"])
+            UUID(saved["payload"]["preparation_job_id"])
+            if "preparation_job_id" in saved["payload"]
+            else saved["id"]
         )
         if row["ingestion_job_id"] != expected:
             raise DomainError("SOURCE_JOB_MISMATCH", "The source does not belong to this job.", 409)

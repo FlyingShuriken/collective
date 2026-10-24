@@ -20,10 +20,15 @@ def public_status(row, as_of):
         **{
             k: row[k]
             for k in JobStatus.model_fields
-            if k in row and k not in {"lease_expired", "result_reference"}
+            if k in row and k not in {"lease_expired", "result_reference", "review_state"}
         },
         lease_expired=bool(row["status"] == "running" and row["lease_until"] <= as_of),
         result_reference=reference,
+        review_state=row["result"]["state"]
+        if row["kind"] == "intake"
+        and isinstance(row["result"], dict)
+        and row["result"].get("state") in {"pending_review", "needs_quote_context", "unreadable"}
+        else None,
     )
 
 

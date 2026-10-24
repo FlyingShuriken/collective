@@ -449,6 +449,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/record-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Record Options */
+        get: operations["record_options_v1_businesses__business_id__record_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/businesses/{business_id}/sources": {
         parameters: {
             query?: never;
@@ -478,6 +495,23 @@ export interface paths {
         get: operations["source_v1_businesses__business_id__sources__source_id__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/sources/{source_id}/intake": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Intake */
+        post: operations["intake_v1_businesses__business_id__sources__source_id__intake_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -694,6 +728,13 @@ export interface components {
             /** Next Cursor */
             next_cursor: string | null;
         };
+        /** AdditionalFee */
+        AdditionalFee: {
+            /** Amount */
+            amount?: string | null;
+            /** Label */
+            label?: string | null;
+        };
         /** Anchor */
         Anchor: {
             /** Bbox Normalized */
@@ -870,6 +911,66 @@ export interface components {
              */
             state: "found" | "unavailable";
         };
+        /** DocumentProposal */
+        DocumentProposal: {
+            checks: components["schemas"]["IntakeChecks"];
+            context: components["schemas"]["RecordContext"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Current Revision */
+            current_revision: number;
+            /** Evidence */
+            evidence: components["schemas"]["Evidence"][];
+            /** Flags */
+            flags: string[];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Interpretation Mode
+             * @enum {string}
+             */
+            interpretation_mode: "live" | "record" | "replay";
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "purchase" | "stock";
+            /** Model */
+            model: string;
+            /**
+             * Price Visibility
+             * @default visible
+             * @constant
+             */
+            price_visibility: "visible";
+            /** Prompt Version */
+            prompt_version: string;
+            reading: components["schemas"]["IntakeReading"];
+            /** Record Id */
+            record_id?: string | null;
+            /** Record Revision */
+            record_revision?: number | null;
+            /** Review Value */
+            review_value?: string | null;
+            /** Schema Version */
+            schema_version: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending_review" | "confirmed" | "rejected";
+        };
         /** DraftPage */
         DraftPage: {
             /** Items */
@@ -917,6 +1018,13 @@ export interface components {
             status: "draft" | "sent_simulated";
             /** Text Content */
             text_content: string;
+        };
+        /** EditDocumentProposal */
+        EditDocumentProposal: {
+            context?: components["schemas"]["RecordContext"] | null;
+            /** Expected Revision */
+            expected_revision: number;
+            reading: components["schemas"]["IntakeReading"];
         };
         /** EditDraft */
         EditDraft: {
@@ -1243,9 +1351,9 @@ export interface components {
             id: string;
             /**
              * Kind
-             * @constant
+             * @enum {string}
              */
-            kind: "quote";
+            kind: "quote" | "purchase" | "stock";
             /**
              * Price Visibility
              * @default hidden
@@ -1396,6 +1504,116 @@ export interface components {
              */
             subject: string;
         };
+        /** IntakeAnchor */
+        IntakeAnchor: {
+            /** Bbox Normalized */
+            bbox_normalized?: number[] | null;
+            /**
+             * Confidence Label
+             * @default review
+             * @enum {string}
+             */
+            confidence_label: "high" | "review" | "low";
+            /** Extracted Value */
+            extracted_value?: string | null;
+            /** Field Path */
+            field_path: string;
+            /** Page */
+            page?: number | null;
+            /**
+             * Region Quality
+             * @enum {string}
+             */
+            region_quality: "approximate" | "full_page" | "text";
+            /** Text Span */
+            text_span?: number[] | null;
+        };
+        /** IntakeChecks */
+        IntakeChecks: {
+            /** Calculated Goods */
+            calculated_goods?: string | null;
+            /** Calculated Total */
+            calculated_total?: string | null;
+            /** Flags */
+            flags: string[];
+        };
+        /** IntakeReading */
+        IntakeReading: {
+            /** Additional Fees */
+            additional_fees?: components["schemas"]["AdditionalFee"][];
+            /**
+             * Confidence Label
+             * @default review
+             * @enum {string}
+             */
+            confidence_label: "high" | "review" | "low";
+            /** Credit Days */
+            credit_days?: number | null;
+            /** Currency */
+            currency?: string | null;
+            /** Date Text */
+            date_text?: string | null;
+            /** Delivery Fee */
+            delivery_fee?: string | null;
+            /** Delivery Mode */
+            delivery_mode?: ("per_business" | "collection_point") | null;
+            /** Discount */
+            discount?: string | null;
+            /** Document Date */
+            document_date?: string | null;
+            /** Document Number */
+            document_number?: string | null;
+            /** Evidence */
+            evidence?: components["schemas"]["IntakeAnchor"][];
+            /** Goods Total */
+            goods_total?: string | null;
+            /** Issues */
+            issues?: components["schemas"]["FieldIssue"][];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "purchase" | "stock" | "supplier_reply" | "unreadable";
+            /** Lines */
+            lines?: components["schemas"]["InvoiceLineReading"][];
+            /** Reported Usage Per Day */
+            reported_usage_per_day?: string | null;
+            /** Stock Date Text */
+            stock_date_text?: string | null;
+            /** Stock Description */
+            stock_description?: string | null;
+            /** Stock Observed At */
+            stock_observed_at?: string | null;
+            /** Stock Quantity */
+            stock_quantity?: string | null;
+            /** Stock Unit */
+            stock_unit?: string | null;
+            /** Supplier Name */
+            supplier_name?: string | null;
+            /** Surcharge */
+            surcharge?: string | null;
+            /** Tax Amount */
+            tax_amount?: string | null;
+            /** Tax Rate */
+            tax_rate?: string | null;
+            /** Total */
+            total?: string | null;
+        };
+        /** InvoiceLineReading */
+        InvoiceLineReading: {
+            /** Description */
+            description?: string | null;
+            /** Line Total */
+            line_total?: string | null;
+            /** Quantity */
+            quantity?: string | null;
+            /** Supplier Sku */
+            supplier_sku?: string | null;
+            /** Unit */
+            unit?: string | null;
+            /** Unit Price */
+            unit_price?: string | null;
+        };
         /** JobPage */
         JobPage: {
             /** Items */
@@ -1434,6 +1652,8 @@ export interface components {
             next_attempt_at: string;
             /** Result Reference */
             result_reference?: string | null;
+            /** Review State */
+            review_state?: ("pending_review" | "needs_quote_context" | "unreadable") | null;
             /**
              * Status
              * @enum {string}
@@ -1446,6 +1666,61 @@ export interface components {
             items: (components["schemas"]["VisibleLedgerEntry"] | components["schemas"]["HiddenLedgerEntry"])[];
             /** Next Cursor */
             next_cursor: string | null;
+        };
+        /** LineMappingReference */
+        LineMappingReference: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Line */
+            line: number;
+            /** Revision */
+            revision: number;
+        };
+        /** MappingOption */
+        MappingOption: {
+            /**
+             * Base Unit
+             * @enum {string}
+             */
+            base_unit: "piece" | "ml" | "g";
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Revision */
+            revision: number;
+            /** Source Name */
+            source_name: string;
+            /**
+             * Spec Id
+             * Format: uuid
+             */
+            spec_id: string;
+            /** Spec Name */
+            spec_name: string;
+            /** Spec Revision */
+            spec_revision: number;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Supplier Sku */
+            supplier_sku: string;
+        };
+        /** MappingReference */
+        MappingReference: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Revision */
+            revision: number;
         };
         /** MaskRegion */
         MaskRegion: {
@@ -1823,7 +2098,7 @@ export interface components {
         /** ProposalPage */
         ProposalPage: {
             /** Items */
-            items: (components["schemas"]["QuoteProposal"] | components["schemas"]["HiddenProposal"])[];
+            items: (components["schemas"]["QuoteProposal"] | components["schemas"]["DocumentProposal"] | components["schemas"]["HiddenProposal"])[];
             /** Next Cursor */
             next_cursor?: string | null;
         };
@@ -1892,6 +2167,7 @@ export interface components {
             interpretation_mode: "live" | "record" | "replay";
             /**
              * Kind
+             * @default quote
              * @constant
              */
             kind: "quote";
@@ -1996,6 +2272,34 @@ export interface components {
             /** Unit Price */
             unit_price: string;
         };
+        /** RecordContext */
+        RecordContext: {
+            /**
+             * Line Mappings
+             * @default []
+             */
+            line_mappings: components["schemas"]["LineMappingReference"][];
+            /** Po Id */
+            po_id?: string | null;
+            /** Purpose */
+            purpose?: ("historical" | "delivered") | null;
+            /**
+             * Stock Kind
+             * @default stock
+             * @enum {string}
+             */
+            stock_kind: "stock" | "receipt" | "inbound_adjustment" | "waste";
+            stock_mapping?: components["schemas"]["MappingReference"] | null;
+            /** Supplier Id */
+            supplier_id?: string | null;
+        };
+        /** RecordOptions */
+        RecordOptions: {
+            /** Mappings */
+            mappings: components["schemas"]["MappingOption"][];
+            /** Suppliers */
+            suppliers: components["schemas"]["SupplierOption"][];
+        };
         /** ReleaseResult */
         ReleaseResult: {
             /**
@@ -2054,6 +2358,11 @@ export interface components {
              * Format: uuid
              */
             supplier_id: string;
+        };
+        /** RetryIntake */
+        RetryIntake: {
+            /** Source Sha256 */
+            source_sha256: string;
         };
         /** ReviewProposal */
         ReviewProposal: {
@@ -2120,6 +2429,16 @@ export interface components {
             job: components["schemas"]["JobStatus"] | null;
             /** Source */
             source: components["schemas"]["VisibleSource"] | components["schemas"]["HiddenSource"];
+        };
+        /** SupplierOption */
+        SupplierOption: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
         };
         /** TimeWindow */
         TimeWindow: {
@@ -3268,7 +3587,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["QuoteProposal"] | components["schemas"]["HiddenProposal"];
+                    "application/json": components["schemas"]["QuoteProposal"] | components["schemas"]["DocumentProposal"] | components["schemas"]["HiddenProposal"];
                 };
             };
             /** @description Validation Error */
@@ -3296,7 +3615,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EditQuoteProposal"];
+                "application/json": components["schemas"]["EditQuoteProposal"] | components["schemas"]["EditDocumentProposal"];
             };
         };
         responses: {
@@ -3306,7 +3625,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["QuoteProposal"];
+                    "application/json": components["schemas"]["QuoteProposal"] | components["schemas"]["DocumentProposal"];
                 };
             };
             /** @description Validation Error */
@@ -3344,7 +3663,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["QuoteProposal"];
+                    "application/json": components["schemas"]["QuoteProposal"] | components["schemas"]["DocumentProposal"];
                 };
             };
             /** @description Validation Error */
@@ -3382,7 +3701,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["QuoteProposal"];
+                    "application/json": components["schemas"]["QuoteProposal"] | components["schemas"]["DocumentProposal"];
                 };
             };
             /** @description Validation Error */
@@ -3420,6 +3739,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_options_v1_businesses__business_id__record_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecordOptions"];
                 };
             };
             /** @description Validation Error */
@@ -3527,6 +3877,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SourceResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    intake_v1_businesses__business_id__sources__source_id__intake_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RetryIntake"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"];
                 };
             };
             /** @description Validation Error */

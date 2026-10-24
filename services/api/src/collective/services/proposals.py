@@ -5,7 +5,13 @@ from psycopg.types.json import Jsonb
 
 from collective.agents import liaison
 from collective.agents.schemas import QuoteReading
-from collective.api.dto import HiddenProposal, ProposalSummary, QuoteProposal
+from collective.api.dto import (
+    DocumentProposal,
+    EditDocumentProposal,
+    HiddenProposal,
+    ProposalSummary,
+    QuoteProposal,
+)
 from collective.api.errors import DomainError
 from collective.repositories import pools
 from collective.repositories.db import set_context
@@ -18,7 +24,8 @@ from collective.services.pool_commands import recalculate
 
 
 async def load(connection, business, identity, *, lock=False):
-    query = "select * from collective.proposals where business_id=%s and id=%s and kind='quote'"
+    query = """select * from collective.proposals where business_id=%s and id=%s
+        and kind in ('quote','purchase','stock')"""
     row = await (
         await connection.execute(query + (" for update" if lock else ""), (business, identity))
     ).fetchone()
@@ -40,6 +47,10 @@ async def view(connection, row, revision, access):
     summary = {key: row[key] for key in ProposalSummary.model_fields}
     if not access.can_view_prices:
         return HiddenProposal(**summary)
+    if row["kind"] != "quote":
+        from collective.services import document_records
+
+        return await document_records.view(connection, row, revision, access)
     record = await (
         await connection.execute(
             """select id,revision from collective.quote_revisions
@@ -63,7 +74,7 @@ async def view(connection, row, revision, access):
 async def editable(connection, subject, business, identity):
     access = await membership(connection, subject, business)
     if not access.can_view_prices:
-        raise DomainError("SOURCE_RESTRICTED", "This account cannot review quote prices.", 403)
+        raise DomainError("SOURCE_RESTRICTED", "This account cannot review source prices.", 403)
     return access
 
 
@@ -80,7 +91,7 @@ async def event(connection, subject, access, row, kind):
             correlation_id=row["id"],
             summary={
                 "proposal_edited": "A reviewer edited a supplier quote proposal.",
-                "proposal_rejected": "A reviewer rejected a supplier quote proposal.",
+                "proposal_rejected": "A reviewer rejected a source proposal.",
                 "quote_confirmed": "A reviewer confirmed a supplier quote record.",
             }[kind],
         ),
@@ -96,6 +107,13 @@ def require_pending(row, expected):
 
 async def edit(connection, subject, business, identity, body, key):
     access = await editable(connection, subject, business, identity)
+    row, _ = await load(connection, business, identity)
+    if (row["kind"] != "quote") != isinstance(body, EditDocumentProposal):
+        raise DomainError("INVALID_RECORD_KIND", "Use the fields for this proposal's record type.")
+    if row["kind"] != "quote":
+        from collective.services import document_records
+
+        return await document_records.edit(connection, subject, business, identity, body, key)
     route, payload = f"proposals/{identity}/edit", body.model_dump(mode="json")
     prior = await previous_mutation(connection, subject, business, route, key, payload)
     if prior:
@@ -145,10 +163,11 @@ async def edit(connection, subject, business, identity, body, key):
 
 async def reject(connection, subject, business, identity, body, key):
     access = await editable(connection, subject, business, identity)
+    row, _ = await load(connection, business, identity)
     route, payload = f"proposals/{identity}/reject", body.model_dump(mode="json")
     prior = await previous_mutation(connection, subject, business, route, key, payload)
     if prior:
-        return QuoteProposal.model_validate(prior)
+        return (QuoteProposal if row["kind"] == "quote" else DocumentProposal).model_validate(prior)
     row, revision = await load(connection, business, identity, lock=True)
     if row["status"] != "rejected":
         require_pending(row, body.expected_revision)
@@ -168,6 +187,13 @@ async def reject(connection, subject, business, identity, body, key):
 
 async def confirm(connection, subject, business, identity, body, key, clock):
     access = await editable(connection, subject, business, identity)
+    row, revision = await load(connection, business, identity)
+    if row["kind"] != "quote":
+        from collective.services import document_records
+
+        return await document_records.confirm(
+            connection, subject, business, identity, body, key, clock
+        )
     if access.role != "owner":
         # A quote has no bounded transaction amount for the staff confirmation limit.
         raise DomainError("OWNER_REVIEW_REQUIRED", "An owner must confirm these quote terms.", 403)

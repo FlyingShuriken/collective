@@ -172,6 +172,12 @@ def main():
             {},
             provenance="authored_synthetic_replay",
         )
+        store.record(
+            gateway.key(INTAKE, document["sha256"], "fast"),
+            IntakeReading(kind="supplier_reply", confidence_label="high").model_dump_json(),
+            {},
+            provenance="authored_synthetic_replay",
+        )
     for document, fast, strong in readings:
         for tier, value in (("fast", fast), ("strong", strong)):
             store.record(
@@ -181,7 +187,7 @@ def main():
                 provenance="authored_synthetic_replay",
             )
     print(
-        f"Verified {len(cases)} quote and {2 * len(readings)} intake authored replays; no live model calls."
+        f"Verified {len(cases)} quote and {2 * len(readings) + len(cases)} intake replays; no live calls."
     )
 
 
