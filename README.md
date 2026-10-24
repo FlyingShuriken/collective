@@ -100,7 +100,9 @@ unknown fees and unmapped lines; incomplete records cannot supply comparable pri
 Stock observations require a confirmed mapping and an explicit observation time. Invoice
 confirmation does not establish stock arrival. Failed intake can be retried at
 `POST /v1/businesses/{business_id}/sources/{source_id}/intake` using its saved source hash;
-the original failure and attempts remain available. The T17 review interface is still pending.
+the original failure and attempts remain available. Open a source in the workspace to review
+its pending reading and original evidence, edit fields, select confirmed mappings, save a
+revision and explicitly confirm or reject. Confirmation refreshes current buying comparisons.
 The synthetic demo does not establish automatic masking or
 retention suitability for arbitrary real invoices.
 

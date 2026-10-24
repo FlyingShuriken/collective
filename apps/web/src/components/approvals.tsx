@@ -74,7 +74,7 @@ export function Approvals({ locale }: { locale: Locale }) {
         if (!controller.signal.aborted) setError(text.unavailable);
       });
     return () => controller.abort();
-  }, [business, cursor, text.unavailable]);
+  }, [business, cursor, activityRevision, text.unavailable]);
 
   const membership = identity?.memberships.find(
     (item) => item.business_id === business,
@@ -131,7 +131,7 @@ export function Approvals({ locale }: { locale: Locale }) {
       {page?.items.length === 0 && <p>{text.noNeeds}</p>}
       {page?.items.map((need) => (
         <QuoteComparison
-          key={`${business}:${need.id}:${need.revision}`}
+          key={`${business}:${need.id}:${need.revision}:${activityRevision}`}
           need={need}
           locale={locale}
           owner={membership?.role === "owner"}

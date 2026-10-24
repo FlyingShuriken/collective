@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { SourceViewer } from "@/components/source-viewer";
+import { SourceIntake } from "@/components/proposal-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiRequest } from "@/lib/api/client";
@@ -77,7 +78,10 @@ export function SourceUpload({ business, locale, onChanged }: {
         </li>)}
       </ul>
       {page?.next_cursor && <Button variant="outline" onClick={() => setCursor(page.next_cursor ?? null)}>{text.nextPage}</Button>}
-      {selected && <SourceViewer key={selected} business={business} sourceId={selected} locale={locale} onPrepared={onChanged} />}
+      {selected && <>
+        <SourceViewer key={selected} business={business} sourceId={selected} locale={locale} onPrepared={() => { onChanged(); setRefresh((value) => value + 1); }} />
+        <SourceIntake key={`${selected}:${refresh}`} business={business} sourceId={selected} locale={locale} onChanged={onChanged} />
+      </>}
     </section>
   );
 }
