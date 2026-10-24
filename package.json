@@ -14,7 +14,8 @@
     "auth:check": "node --env-file=apps/web/.env.local apps/web/scripts/check-auth.mjs",
     "contracts:generate": "uv run --project services/api python scripts/export_openapi.py && openapi-typescript contracts/openapi.json -o apps/web/src/lib/api/generated.ts",
     "contracts:check": "uv run --project services/api python scripts/export_openapi.py --check && openapi-typescript contracts/openapi.json -o apps/web/src/lib/api/generated.ts --check",
-    "fixtures:check": "uv run --project services/api python scripts/check_fixtures.py"
+    "fixtures:check": "uv run --project services/api python scripts/check_fixtures.py",
+    "demo:check": "uv run --project services/api python scripts/check_offline.py"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

@@ -29,7 +29,15 @@ def manifest_write(store, manifest):
     path.replace(store.root / "manifest.json")
 
 
-async def preload(run, identity, *, clean=False, source_hash=None):
+async def preload(
+    run,
+    identity,
+    *,
+    clean=False,
+    source_hash=None,
+    kind="invoice_query",
+    supplier_id=None,
+):
     if source_hash is not None and (
         not clean or not re.fullmatch(r"[0-9a-f]{64}", source_hash)
     ):
@@ -59,44 +67,76 @@ async def preload(run, identity, *, clean=False, source_hash=None):
     await database.open()
     try:
         async with database.transaction("coordinator", None) as connection:
-            row = await (
-                await connection.execute(
-                    """select c.business_id from collective.invoice_checks c
-                where c.id=%s and c.business_id=any(%s)""",
-                    (identity, businesses),
+            if kind == "rfq":
+                declared_needs = {
+                    UUID(b["need_id"])
+                    if run == "demo"
+                    else uuid5(NAMESPACE_URL, f"orbyte-run:{run}:{UUID(b['need_id'])}")
+                    for b in scenario["businesses"]
+                }
+                if identity not in declared_needs or supplier_id is None:
+                    raise ValueError("Use a declared synthetic need and supplier")
+                row = await (
+                    await connection.execute(
+                        "select business_id from collective.reorder_needs where id=%s and provenance='synthetic'",
+                        (identity,),
+                    )
+                ).fetchone()
+                if row is None or row["business_id"] not in businesses:
+                    raise ValueError(
+                        "The need does not belong to this declared synthetic run"
+                    )
+                request = RequestDraft(
+                    kind="rfq",
+                    reference_id=identity,
+                    expected_revision=1,
+                    supplier_id=supplier_id,
                 )
-            ).fetchone()
-            if row is None:
-                raise ValueError(
-                    "The check does not belong to this declared synthetic run"
+                facts, _ = await liaison_jobs.draft_context(
+                    connection, row["business_id"], request
                 )
-            checked = await invoice_checks.load(
-                connection, row["business_id"], identity
-            )
-            source = await (
-                await connection.execute(
-                    "select sha256 from collective.sources where business_id=%s and id=%s",
-                    (row["business_id"], checked["source_id"]),
-                )
-            ).fetchone()
-            if source is None or source["sha256"] not in declared:
-                raise ValueError(
-                    "Only declared synthetic source assets may be preloaded"
-                )
-            request = RequestDraft(
-                kind="invoice_query",
-                reference_id=identity,
-                expected_revision=checked["revision"],
-                supplier_id=checked["supplier_id"],
-            )
-            facts, _ = await liaison_jobs.draft_context(
-                connection, row["business_id"], request
-            )
+            else:
+                facts = await query_facts(connection, identity, businesses, declared)
     finally:
         await database.close()
-    total = next((d for d in facts["differences"] if d["field_path"] == "total"), None)
-    if total is None:
+    total = next(
+        (d for d in facts.get("differences", []) if d["field_path"] == "total"), None
+    )
+    if kind == "invoice_query" and total is None:
         raise ValueError("This declared query needs a known total difference")
+    return write_replay(settings, facts, total, clean=clean, source_hash=source_hash)
+
+
+async def query_facts(connection, identity, businesses, declared):
+    row = await (
+        await connection.execute(
+            """select c.business_id from collective.invoice_checks c
+                where c.id=%s and c.business_id=any(%s)""",
+            (identity, businesses),
+        )
+    ).fetchone()
+    if row is None:
+        raise ValueError("The check does not belong to this declared synthetic run")
+    checked = await invoice_checks.load(connection, row["business_id"], identity)
+    source = await (
+        await connection.execute(
+            "select sha256 from collective.sources where business_id=%s and id=%s",
+            (row["business_id"], checked["source_id"]),
+        )
+    ).fetchone()
+    if source is None or source["sha256"] not in declared:
+        raise ValueError("Only declared synthetic source assets may be preloaded")
+    request = RequestDraft(
+        kind="invoice_query",
+        reference_id=identity,
+        expected_revision=checked["revision"],
+        supplier_id=checked["supplier_id"],
+    )
+    facts, _ = await liaison_jobs.draft_context(connection, row["business_id"], request)
+    return facts
+
+
+def write_replay(settings, facts, total, *, clean=False, source_hash=None):
     document = prepared_text(
         json.dumps(facts, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     )
@@ -128,25 +168,37 @@ async def preload(run, identity, *, clean=False, source_hash=None):
             set(manifest["synthetic_sources"]) | {document["sha256"]}
         )
         manifest_write(store, manifest)
-        wording = {
-            "en": (
-                f"Please review invoice {facts['document_number']}. "
-                f"The recorded invoice total is RM {total['invoiced']}; our issued PO total is "
-                f"RM {total['agreed']}; the difference is RM {total['delta']}. "
-                "Please confirm whether a correction or credit is due."
-            ),
-            "ms": (
-                f"Sila semak invois {facts['document_number']}. "
-                f"Jumlah invois direkodkan RM {total['invoiced']}; jumlah PO dikeluarkan "
-                f"RM {total['agreed']}; perbezaan RM {total['delta']}. "
-                "Sila sahkan sama ada pembetulan atau kredit diperlukan."
-            ),
-            "zh": (
-                f"请核对发票 {facts['document_number']}。记录的发票总额为 RM {total['invoiced']}，"
-                f"已签发采购单总额为 RM {total['agreed']}，差额为 RM {total['delta']}。"
-                "请确认是否需要更正或贷项。"
-            ),
-        }
+        wording = (
+            {
+                "en": (
+                    f"Please review invoice {facts['document_number']}. "
+                    f"The recorded invoice total is RM {total['invoiced']}; our issued PO total is "
+                    f"RM {total['agreed']}; the difference is RM {total['delta']}. "
+                    "Please confirm whether a correction or credit is due."
+                ),
+                "ms": (
+                    f"Sila semak invois {facts['document_number']}. "
+                    f"Jumlah invois direkodkan RM {total['invoiced']}; jumlah PO dikeluarkan "
+                    f"RM {total['agreed']}; perbezaan RM {total['delta']}. "
+                    "Sila sahkan sama ada pembetulan atau kredit diperlukan."
+                ),
+                "zh": (
+                    f"请核对发票 {facts['document_number']}。记录的发票总额为 RM {total['invoiced']}，"
+                    f"已签发采购单总额为 RM {total['agreed']}，差额为 RM {total['delta']}。"
+                    "请确认是否需要更正或贷项。"
+                ),
+            }
+            if total
+            else {
+                "en": f"Please quote {facts['quantity']} {facts['base_unit']} of {facts['specification']}, "
+                f"for arrival {facts['arrival_start']} to {facts['arrival_end']}. "
+                "Please include minimum order, delivery, tax, credit and validity terms.",
+                "ms": f"Sila beri sebut harga {facts['quantity']} {facts['base_unit']} {facts['specification']}. "
+                "Sertakan minimum pesanan, penghantaran, cukai, kredit dan tempoh sah.",
+                "zh": f"请报价 {facts['quantity']} {facts['base_unit']} {facts['specification']}，"
+                "请注明最低订购量、运费、税费、账期及有效期。",
+            }
+        )
         value = DraftReading(text_content=wording[facts["language"]])
         store.record(
             key, value.model_dump_json(), {}, provenance="authored_synthetic_replay"
@@ -157,7 +209,10 @@ async def preload(run, identity, *, clean=False, source_hash=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", required=True)
-    parser.add_argument("--check-id", required=True, type=UUID)
+    target = parser.add_mutually_exclusive_group(required=True)
+    target.add_argument("--check-id", type=UUID)
+    target.add_argument("--need-id", type=UUID)
+    parser.add_argument("--supplier-id", type=UUID)
     parser.add_argument("--clean", action="store_true")
     parser.add_argument(
         "--source-hash", help="Original preload hash when current facts have changed"
@@ -168,9 +223,11 @@ def main():
             asyncio.run(
                 preload(
                     args.run,
-                    args.check_id,
+                    args.check_id or args.need_id,
                     clean=args.clean,
                     source_hash=args.source_hash,
+                    kind="invoice_query" if args.check_id else "rfq",
+                    supplier_id=args.supplier_id,
                 )
             )
         )
