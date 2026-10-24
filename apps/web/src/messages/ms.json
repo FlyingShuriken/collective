@@ -446,5 +446,30 @@
     },
     "usageApplied": "Penggunaan harian digunakan",
     "acceptedFee": "Anggaran fi penghantaran yang diterima digunakan. Perjanjian PO dalam sebut harga kekal tidak berubah."
+  },
+  "matching": {
+    "title": "Padankan spesifikasi produk",
+    "explanation": "AI mencadangkan padanan. Hanya pemilik boleh mengesahkan produk dan saiz pek.",
+    "description": "Keterangan produk daripada sumber",
+    "sku": "Kod barang pembekal",
+    "request": "Minta padanan",
+    "working": "Sedang membaca produk…",
+    "failed": "Tindakan tidak dapat diselesaikan. Muat semula dan semak sumber semasa.",
+    "manual": "Padanan AI tidak tersedia. Semak sumber dan sahkan spesifikasi secara manual.",
+    "review": "Semak kapasiti, bahan, diameter penutup dan bilangan keping bagi setiap unit jualan. Keserupaan bukan pengesahan.",
+    "spec": "Spesifikasi produk",
+    "select": "Pilih spesifikasi",
+    "unit": "Unit jualan",
+    "factors": "Faktor pek (contohnya 20 × 50; sekeping ialah 1)",
+    "acknowledge": "Saya telah menyemak sumber, ciri fizikal, unit jualan dan faktor pek. Saya mengesahkan padanan ini sebagai pemilik.",
+    "confirm": "Sahkan padanan produk",
+    "confirmed": "Disahkan pemilik. Edit rekod dan pilih padanan ini sebelum mengesahkan rekod.",
+    "stale": "Padanan berubah. Muat semula dan semak versi semasa.",
+    "units": {
+      "piece": "Keping",
+      "box": "Kotak",
+      "carton": "Karton",
+      "pack": "Pek"
+    }
   }
 }

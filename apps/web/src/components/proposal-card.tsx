@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ProposalEditor } from "@/components/proposal-editor";
 import { InvoiceCheck } from "@/components/invoice-check";
 import { SourceViewer } from "@/components/source-viewer";
+import { SpecMatchCard } from "@/components/spec-match-card";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
@@ -91,6 +92,15 @@ export function ProposalCard({ business, proposal, locale, owner, onChanged, onR
     <p className="text-sm text-muted-foreground">{proposal.interpretation_mode === "replay" ? text.replayReading : text.aiReading}</p>
     {error && <p role="alert" className="text-destructive">{error}</p>}
     {pending && <p role="status">{text.saving}</p>}
+    {owner && !editing && proposal.status === "pending_review" && proposal.context.supplier_id && <details>
+      <summary className="cursor-pointer font-medium">{messages[locale].matching.title}</summary>
+      <SpecMatchCard key={`${business}:${proposal.source_id}`} business={business} sourceId={proposal.source_id}
+        supplierId={proposal.context.supplier_id} description={reading.lines?.[0]?.description ?? ""}
+        sku={reading.lines?.[0]?.supplier_sku ?? ""} locale={locale} onConfirmed={() => {
+          void apiRequest<components["schemas"]["RecordOptions"]>(`/v1/businesses/${business}/record-options`).then(setOptions).catch(() => setError(text.reviewUnavailable));
+          void apiRequest<Proposal>(path).then(onChanged).catch(() => setError(text.reviewUnavailable));
+        }} />
+    </details>}
     {!editing && <>
       <dl className="grid gap-3 text-sm sm:grid-cols-2">
         {purchase ? <>

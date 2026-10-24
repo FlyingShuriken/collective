@@ -134,6 +134,7 @@ def configured_handlers(settings):
     from collective.services.intake_jobs import handle as handle_intake
     from collective.services.invoice_checks import handle as handle_invoice
     from collective.services.liaison_jobs import handle_draft, handle_quote
+    from collective.services.mappings import handle as handle_matching
     from collective.services.rules import handle as handle_rules
 
     return HANDLERS | {
@@ -142,4 +143,5 @@ def configured_handlers(settings):
         "intake": partial(handle_intake, settings=settings),
         "quote_parse": partial(handle_quote, settings=settings),
         "draft": partial(handle_draft, settings=settings),
+        "matching": partial(handle_matching, settings=settings),
     }

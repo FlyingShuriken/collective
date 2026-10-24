@@ -63,7 +63,10 @@ def normalized(line, selected, currency):
                 currency=currency,
             ),
             PackMapping(
-                base_unit=selected["base_unit"], factors=selected["pack_factors"], confirmed=True
+                base_unit=selected["base_unit"],
+                factors=selected["pack_factors"],
+                confirmed=True,
+                source_unit=selected.get("source_unit"),
             ),
         )
     except ValidationError:
@@ -83,7 +86,10 @@ def stock_quantity(reading, selected):
             currency="MYR",
         ),
         PackMapping(
-            base_unit=selected["base_unit"], factors=selected["pack_factors"], confirmed=True
+            base_unit=selected["base_unit"],
+            factors=selected["pack_factors"],
+            confirmed=True,
+            source_unit=selected.get("source_unit"),
         ),
     )
     if value.quantity is None:

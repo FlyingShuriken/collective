@@ -211,6 +211,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/businesses/{business_id}/mappings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listing */
+        get: operations["listing_v1_businesses__business_id__mappings_get"];
+        put?: never;
+        /** Request */
+        post: operations["request_v1_businesses__business_id__mappings_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/businesses/{business_id}/mappings/{mapping_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm */
+        post: operations["confirm_v1_businesses__business_id__mappings__mapping_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/businesses/{business_id}/needs": {
         parameters: {
             query?: never;
@@ -1119,6 +1154,27 @@ export interface components {
              * Format: uuid
              */
             supplier_id: string;
+        };
+        /** ConfirmMapping */
+        ConfirmMapping: {
+            /** Acknowledge Flags */
+            acknowledge_flags: boolean;
+            /** Expected Revision */
+            expected_revision: number;
+            /** Pack Factors */
+            pack_factors: string[];
+            /**
+             * Source Unit
+             * @enum {string}
+             */
+            source_unit: "piece" | "carton" | "box" | "pack";
+            /**
+             * Spec Id
+             * Format: uuid
+             */
+            spec_id: string;
+            /** Spec Revision */
+            spec_revision: number;
         };
         /** CostBreakdown */
         CostBreakdown: {
@@ -2272,6 +2328,11 @@ export interface components {
             /** Supplier Sku */
             supplier_sku: string;
         };
+        /** MappingPage */
+        MappingPage: {
+            /** Items */
+            items: components["schemas"]["MappingView"][];
+        };
         /** MappingReference */
         MappingReference: {
             /**
@@ -2281,6 +2342,41 @@ export interface components {
             id: string;
             /** Revision */
             revision: number;
+        };
+        /** MappingView */
+        MappingView: {
+            /** Confirmed */
+            confirmed: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Match Snapshot */
+            match_snapshot: {
+                [key: string]: unknown;
+            };
+            /** Pack Factors */
+            pack_factors: string[];
+            /** Revision */
+            revision: number;
+            /** Source Id */
+            source_id: string | null;
+            /** Source Name */
+            source_name: string;
+            /** Source Unit */
+            source_unit: string | null;
+            /** Spec Id */
+            spec_id: string | null;
+            /** Spec Revision */
+            spec_revision: number | null;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Supplier Sku */
+            supplier_sku: string;
         };
         /** MaskRegion */
         MaskRegion: {
@@ -2999,6 +3095,25 @@ export interface components {
             purchase_id: string;
             /** Purchase Revision */
             purchase_revision: number;
+        };
+        /** RequestMapping */
+        RequestMapping: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Source Name */
+            source_name: string;
+            /** Source Sha256 */
+            source_sha256: string;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Supplier Sku */
+            supplier_sku: string;
         };
         /** RetryIntake */
         RetryIntake: {
@@ -4012,6 +4127,112 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LedgerPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listing_v1_businesses__business_id__mappings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappingPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_v1_businesses__business_id__mappings_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestMapping"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_v1_businesses__business_id__mappings__mapping_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                business_id: string;
+                mapping_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmMapping"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappingView"];
                 };
             };
             /** @description Validation Error */

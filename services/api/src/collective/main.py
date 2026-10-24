@@ -15,6 +15,7 @@ from collective.api.hub_routes import router as hub_router
 from collective.api.invoice_routes import router as invoice_router
 from collective.api.job_routes import router as job_router
 from collective.api.ledger_routes import router as ledger_router
+from collective.api.mapping_routes import router as mapping_router
 from collective.api.need_routes import router as need_router
 from collective.api.order_routes import router as order_router
 from collective.api.pool_routes import router as pool_router
@@ -67,6 +68,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(proposal_router)
     app.include_router(invoice_router)
     app.include_router(rule_router)
+    app.include_router(mapping_router)
 
     @app.middleware("http")
     async def private_responses(request: Request, call_next):

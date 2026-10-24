@@ -17,6 +17,44 @@ async function prepare(page: Page, file: string) {
 
 const review = (page: Page) => page.getByRole("region", { name: "Record review", exact: true });
 
+test("owner confirms a new mapping while staff cannot bypass the mapping gate", async ({ page, demo }) => {
+  await signIn(page, demo, "owner-a");
+  const source = await prepare(page, "fixtures/sources/delivered-invoice.png");
+  const card = review(page);
+  await expect(card.getByText("Proposed · needs human confirmation", { exact: true })).toBeVisible();
+  await card.getByText("Match a product specification", { exact: true }).click();
+  const matching = card.getByRole("region", { name: "Match a product specification", exact: true });
+  await matching.getByLabel("Product description from source", { exact: true }).fill("250ml paper cup with 80mm lid");
+  await matching.getByLabel("Supplier item code", { exact: true }).fill("BROWSER-NEW-CUP");
+  const requested = page.waitForResponse((response) => response.url().endsWith("/mappings") && response.request().method() === "POST");
+  await matching.getByRole("button", { name: "Request matching", exact: true }).click();
+  expect((await requested).status()).toBe(200);
+  await expect(matching.getByRole("combobox", { name: "Product specification", exact: true })).toBeVisible();
+  await matching.getByRole("combobox", { name: "Product specification", exact: true }).selectOption({ index: 1 });
+  await matching.getByRole("combobox", { name: "Sale unit", exact: true }).selectOption("box");
+  await matching.getByLabel("Pack factors (for example 20 × 50; a piece is 1)", { exact: true }).fill("100");
+  await expect(matching.getByRole("button", { name: "Confirm product mapping", exact: true })).toBeDisabled();
+  await matching.getByRole("checkbox").check();
+  await matching.getByRole("button", { name: "Confirm product mapping", exact: true }).click();
+  await expect(matching.getByText("Owner-confirmed. Edit the record and select this mapping before confirming the record.", { exact: true })).toBeVisible();
+  const { business } = await ownNeed(page);
+  const root = `/api/v1/businesses/${business}`;
+  const rows = await (await page.request.get(`${root}/mappings`)).json();
+  const mapping = rows.items.find((item: { supplier_sku: string }) => item.supplier_sku === "BROWSER-NEW-CUP");
+  expect(mapping.confirmed).toBe(true);
+  expect(mapping.source_id).toBe(source.id);
+  expect(mapping.pack_factors).toEqual(["100"]);
+  const options = await (await page.request.get(`${root}/record-options`)).json();
+  expect(options.mappings.some((item: { id: string }) => item.id === mapping.id)).toBe(true);
+  await signIn(page, demo, "staff");
+  const denied = await page.request.post(`${root}/mappings/${mapping.id}/confirm`, {
+    headers: { Origin: new URL(page.url()).origin, "Idempotency-Key": crypto.randomUUID() },
+    data: { expected_revision: mapping.revision, spec_id: mapping.spec_id, spec_revision: mapping.spec_revision,
+      source_unit: "box", pack_factors: ["100"], acknowledge_flags: true },
+  });
+  expect(denied.status()).toBe(403);
+});
+
 for (const purpose of ["Historical purchase", "Delivered invoice"]) {
   test(`${purpose} source becomes one accepted record only after human review`, async ({ page, demo }, testInfo) => {
     await signIn(page, demo, "owner-a");

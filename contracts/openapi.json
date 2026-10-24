@@ -692,6 +692,60 @@
         "title": "BoundTerms",
         "type": "object"
       },
+      "ConfirmMapping": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledge_flags": {
+            "title": "Acknowledge Flags",
+            "type": "boolean"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "pack_factors": {
+            "items": {
+              "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+              "type": "string"
+            },
+            "maxItems": 4,
+            "minItems": 1,
+            "title": "Pack Factors",
+            "type": "array"
+          },
+          "source_unit": {
+            "enum": [
+              "piece",
+              "carton",
+              "box",
+              "pack"
+            ],
+            "title": "Source Unit",
+            "type": "string"
+          },
+          "spec_id": {
+            "format": "uuid",
+            "title": "Spec Id",
+            "type": "string"
+          },
+          "spec_revision": {
+            "minimum": 1.0,
+            "title": "Spec Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "spec_id",
+          "spec_revision",
+          "source_unit",
+          "pack_factors",
+          "acknowledge_flags"
+        ],
+        "title": "ConfirmMapping",
+        "type": "object"
+      },
       "CostBreakdown": {
         "additionalProperties": false,
         "properties": {
@@ -3766,6 +3820,23 @@
         "title": "MappingOption",
         "type": "object"
       },
+      "MappingPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MappingView"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "MappingPage",
+        "type": "object"
+      },
       "MappingReference": {
         "additionalProperties": false,
         "properties": {
@@ -3785,6 +3856,114 @@
           "revision"
         ],
         "title": "MappingReference",
+        "type": "object"
+      },
+      "MappingView": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmed": {
+            "title": "Confirmed",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "match_snapshot": {
+            "additionalProperties": true,
+            "title": "Match Snapshot",
+            "type": "object"
+          },
+          "pack_factors": {
+            "items": {
+              "pattern": "^-?\\d+(\\.\\d{1,6})?$",
+              "type": "string"
+            },
+            "title": "Pack Factors",
+            "type": "array"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "source_name": {
+            "title": "Source Name",
+            "type": "string"
+          },
+          "source_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Unit"
+          },
+          "spec_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spec Id"
+          },
+          "spec_revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spec Revision"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          },
+          "supplier_sku": {
+            "title": "Supplier Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "supplier_id",
+          "supplier_sku",
+          "source_name",
+          "source_id",
+          "source_unit",
+          "spec_id",
+          "spec_revision",
+          "pack_factors",
+          "confirmed",
+          "match_snapshot"
+        ],
+        "title": "MappingView",
         "type": "object"
       },
       "MaskRegion": {
@@ -5799,6 +5978,47 @@
           "purchase_revision"
         ],
         "title": "RequestInvoiceCheck",
+        "type": "object"
+      },
+      "RequestMapping": {
+        "additionalProperties": false,
+        "properties": {
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_name": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Source Name",
+            "type": "string"
+          },
+          "source_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Source Sha256",
+            "type": "string"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          },
+          "supplier_sku": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Supplier Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "source_sha256",
+          "supplier_id",
+          "supplier_sku",
+          "source_name"
+        ],
+        "title": "RequestMapping",
         "type": "object"
       },
       "RetryIntake": {
@@ -8183,6 +8403,200 @@
         "summary": "Ledger",
         "tags": [
           "ledger"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/mappings": {
+      "get": {
+        "operationId": "listing_v1_businesses__business_id__mappings_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Listing",
+        "tags": [
+          "mappings"
+        ]
+      },
+      "post": {
+        "operationId": "request_v1_businesses__business_id__mappings_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestMapping"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Request",
+        "tags": [
+          "mappings"
+        ]
+      }
+    },
+    "/v1/businesses/{business_id}/mappings/{mapping_id}/confirm": {
+      "post": {
+        "operationId": "confirm_v1_businesses__business_id__mappings__mapping_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "business_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Business Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "mapping_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Mapping Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmMapping"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Confirm",
+        "tags": [
+          "mappings"
         ]
       }
     },

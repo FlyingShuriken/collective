@@ -38,6 +38,8 @@ The workspace link opens persisted comparisons, solo/pool approval, withdrawal, 
 order creation and activity at `/en/approvals`. Each owner approves their own cap and expiry;
 ready pools create no order until an approved owner explicitly executes the release.
 Orders are simulated outputs and are never sent to suppliers.
+The working [submission report](docs/submission-report.md) describes the problem,
+architecture, demonstration and current evidence limits.
 Repeated seeding preserves the existing run; use a new `--run` after its order window expires.
 
 Run `scripts/setup_local.py` again after a local database reset, before starting the API:
@@ -105,6 +107,15 @@ its pending reading and original evidence, edit fields, select confirmed mapping
 revision and explicitly confirm or reject. Confirmation refreshes current buying comparisons.
 The synthetic demo does not establish automatic masking or
 retention suitability for arbitrary real invoices.
+
+Owners can open **Match a product specification** in record review to request the
+Matching Agent. Every proposal remains unconfirmed until the owner checks the source,
+physical attributes, sale unit and pack factors. If replay has no matching response,
+the pending mapping remains available for explicit manual review. Confirmed mappings
+appear in the record editor; select one and save the record revision before confirmation.
+Box/carton/pack conversions are bound to their confirmed sale unit. Mapping confirmation
+does not rewrite historical records or issue an order. The pinned embedding benchmark
+and its measured limitations are documented in [local BGE-M3 validation](docs/validation/bge-m3-local.md).
 
 Confirming a delivered purchase queues a deterministic invoice check. An invoice without
 an explicitly selected usable PO remains unmatched. The invoice-check API can bind the

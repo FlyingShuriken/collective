@@ -798,4 +798,40 @@ class RulePage(Snapshot):
     latest_job: JobStatus | None = None
 
 
+class RequestMapping(Snapshot):
+    source_id: UUID
+    source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    supplier_id: UUID
+    supplier_sku: str = Field(min_length=1, max_length=200)
+    source_name: str = Field(min_length=1, max_length=1000)
+
+
+class ConfirmMapping(Snapshot):
+    expected_revision: Revision
+    spec_id: UUID
+    spec_revision: Revision
+    source_unit: Literal["piece", "carton", "box", "pack"]
+    pack_factors: tuple[Positive, ...] = Field(min_length=1, max_length=4)
+    acknowledge_flags: bool
+
+
+class MappingView(Snapshot):
+    id: UUID
+    revision: Revision
+    supplier_id: UUID
+    supplier_sku: str
+    source_name: str
+    source_id: UUID | None
+    source_unit: str | None
+    spec_id: UUID | None
+    spec_revision: Revision | None
+    pack_factors: tuple[Positive, ...]
+    confirmed: bool
+    match_snapshot: dict
+
+
+class MappingPage(Snapshot):
+    items: tuple[MappingView, ...]
+
+
 PUBLIC_MODELS = (HealthResponse, ErrorResponse, Evidence, Identity, Mutation, PoolOffer)

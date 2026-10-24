@@ -418,7 +418,7 @@ async def for_job(database, storage, job):
             saved is None
             or saved["business_id"] != job["business_id"]
             or saved["payload"] != job["payload"]
-            or saved["kind"] not in {"intake", "quote_parse"}
+            or saved["kind"] not in {"intake", "quote_parse", "matching"}
         ):
             raise DomainError("SOURCE_JOB_MISMATCH", "The source does not belong to this job.", 409)
         identity = UUID(saved["payload"]["source_id"])

@@ -17,6 +17,7 @@ class PackMapping(Snapshot):
     base_unit: BaseUnit
     factors: tuple[Positive, ...] = Field(min_length=1)
     confirmed: bool
+    source_unit: str | None = None
 
 
 class NormalizedLine(Snapshot):
@@ -84,6 +85,8 @@ def normalize_line(source: SourceLine, mapping: PackMapping | None) -> Normalize
                 return unavailable("UNCONFIRMED_PACK")
             if mapping.base_unit != source.base_unit:
                 return unavailable("INCOMPATIBLE_UNIT")
+            if mapping.source_unit is not None and mapping.source_unit != source.unit:
+                return unavailable("INCOMPATIBLE_PACK_UNIT")
             factor = Decimal(1)
             for step in mapping.factors:
                 factor *= step
