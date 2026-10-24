@@ -369,5 +369,82 @@
       "flagged": "Disemak · perbezaan perlu disemak"
     },
     "evidenceUsed": "Bukti ini telah menyokong pemulihan lain yang direkodkan. Pilih sumber pembetulan atau kredit yang berbeza."
+  },
+  "rules": {
+    "heading": "Peraturan dipelajari",
+    "networkHeading": "Peraturan dipelajari rangkaian",
+    "networkWorkspace": "Rangkaian",
+    "privateScope": "Peraturan kekal sebagai cadangan sehingga diterima pemilik. Kelulusan pembelian dan penghantaran mesej masih berasingan.",
+    "networkScope": "Hanya pentadbir rangkaian yang ditugaskan boleh menyemak agregat sejarah. Bukti setiap perniagaan kekal peribadi.",
+    "networkMinimum": "Peraturan rangkaian memerlukan bukti sejarah daripada sekurang-kurangnya lima perniagaan berbeza. Demo tiga perniagaan tidak boleh mengaktifkannya.",
+    "empty": "Belum ada cadangan peraturan. Sahkan invois setara atau kiraan stok, kemudian jana cadangan.",
+    "networkEmpty": "Tiada agregat sejarah yang layak. Keputusan ini tidak mengaktifkan peraturan rangkaian.",
+    "generate": "Jana cadangan peraturan",
+    "refresh": "Muat semula peraturan",
+    "processing": "Mengira cadangan berdasarkan bukti…",
+    "failed": "Pengiraan peraturan perlu disemak. Sahkan bukti dan cuba jana cadangan semula.",
+    "unavailable": "Peraturan tidak tersedia buat sementara waktu. Muat semula dan semak sebelum mencuba lagi.",
+    "stale": "Peraturan atau buktinya telah berubah. Muat semula, jana cadangan baharu jika perlu, dan semak semula.",
+    "insufficient": "Lebih banyak bukti setara yang disahkan diperlukan. Anggaran fi memerlukan sekurang-kurangnya tiga invois; peraturan rangkaian juga memerlukan lima perniagaan.",
+    "samples": "Sampel setara",
+    "businesses": "Perniagaan berbeza",
+    "period": "Tempoh sampel",
+    "excluded": "Pemerhatian dikecualikan",
+    "meanFee": "Purata fi penghantaran dalam invois",
+    "range": "Julat diperhatikan",
+    "zone": "Zon penghantaran",
+    "feeEffect": "Selepas diterima, anggaran ini mempengaruhi rizab keputusan. Terma PO yang dipersetujui kekal seperti sebut harga.",
+    "dailyRate": "Penggunaan harian konservatif",
+    "slowest": "Penggunaan harian terendah diperhatikan",
+    "usageEffect": "Selang kiraan stok terukur, termasuk penerimaan yang disahkan dan sisa direkodkan. Kadar sah tertinggi dicadangkan untuk penambahan stok.",
+    "mismatches": "Perbezaan material",
+    "checked": "Semakan invois lengkap yang dipadankan",
+    "accuracyWarning": "Sejarah semakan invois yang diterima",
+    "accuracyLimit": "Hanya invois lampau yang disemak. Perbezaan tidak membuktikan kesalahan pembekal atau mengubah harga.",
+    "accuracyEffect": "Penerimaan menambah amaran pada perbandingan dan fakta draf pembekal. Ia tidak mengubah harga atau memilih pembekal.",
+    "evidence": "Sumber sokongan",
+    "source": "Sumber",
+    "history": "Sejarah semakan",
+    "version": "Versi",
+    "references": "Rujukan bukti",
+    "unknownContext": "Nama konteks tidak tersedia; muat semula sebelum menerima.",
+    "unknownLimit": "Sebahagian bukti tidak lengkap; semak sumber sokongan.",
+    "acknowledge": "Saya telah menyemak sumber, tempoh sampel dan batasannya. Gunakan versi ini dalam pengiraan akan datang.",
+    "accept": "Terima peraturan",
+    "reject": "Tolak cadangan",
+    "revoke": "Batalkan peraturan diterima",
+    "acceptedUsage": "Penggunaan dipelajari yang diterima",
+    "statedUsage": "Penggunaan dinyatakan pemilik",
+    "kinds": {
+      "usage": "Peraturan penggunaan",
+      "observed_fee": "Fi penghantaran diperhatikan",
+      "quote_accuracy": "Ketepatan sebut harga"
+    },
+    "states": {
+      "proposed": "Dicadangkan · tidak aktif",
+      "accepted": "Diterima · aktif",
+      "rejected": "Ditolak · tidak aktif",
+      "revoked": "Dibatalkan · tidak aktif",
+      "superseded": "Digantikan · tidak aktif"
+    },
+    "modes": {
+      "per_business": "Penghantaran berasingan setiap perniagaan",
+      "collection_point": "Lokasi pengambilan dipersetujui"
+    },
+    "units": {
+      "piece": "unit/hari",
+      "g": "g/hari",
+      "ml": "ml/hari"
+    },
+    "uncertainty": {
+      "UNREPORTED_STOCK_MOVEMENTS_UNKNOWN": "Pergerakan stok yang tidak dilaporkan tidak diketahui.",
+      "PAST_USAGE_MAY_CHANGE": "Penggunaan lampau boleh berubah.",
+      "INVOICED_FEE_NOT_PAYMENT_OR_AGREEMENT": "Fi dalam invois bukan bukti pembayaran atau pindaan perjanjian pembekal.",
+      "FUTURE_DELIVERY_TERMS_MAY_DIFFER": "Terma penghantaran akan datang mungkin berbeza.",
+      "CHECKED_INVOICES_ONLY": "Hanya invois lengkap yang dipadankan dikira dalam penyebut.",
+      "DISCREPANCIES_DO_NOT_ESTABLISH_SUPPLIER_FAULT": "Perbezaan sahaja tidak membuktikan kesalahan pembekal."
+    },
+    "usageApplied": "Penggunaan harian digunakan",
+    "acceptedFee": "Anggaran fi penghantaran yang diterima digunakan. Perjanjian PO dalam sebut harga kekal tidak berubah."
   }
 }

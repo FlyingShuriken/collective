@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import { PoolOffer } from "@/components/pool-offer";
 import { BoundApproval } from "@/components/bound-approval";
 import { SimulatedPO } from "@/components/simulated-po";
+import { AccuracyNotice } from "@/components/rule-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiRequest } from "@/lib/api/client";
 import type { components } from "@/lib/api/generated";
 import { messages, type Locale } from "@/lib/i18n";
-import { money } from "@/lib/format";
+import { decimal, money } from "@/lib/format";
 
 type Need = components["schemas"]["NeedView"];
 type Comparison =
@@ -163,9 +164,11 @@ export function QuoteComparison({
                         {text.feeUnverified}
                       </p>
                     )}
+                  {!offer.cost.fee_unverified && offer.cost.rule_id && <p className="mt-3 text-sm text-muted-foreground">{text.rules.acceptedFee}</p>}
                   {offer.failure_codes.length > 0 && (
                     <p className="mt-3 text-sm">{text.unavailableQuote}</p>
                   )}
+                  {offer.accuracy_warnings?.map((warning) => <AccuracyNotice key={`${warning.rule_id}:${warning.rule_revision}`} warning={warning} locale={locale} />)}
                   {offer.conditions && (
                     <p className="mt-3 text-sm text-muted-foreground">
                       {offer.conditions}
@@ -191,6 +194,7 @@ export function QuoteComparison({
           !["reserved", "released"].includes(need.state) && (
             <section className="space-y-3 border-t pt-5">
               <h3 className="font-semibold">{text.quantityOptions}</h3>
+              {options.replenishment.daily_rate && <p className="text-sm">{text.rules.usageApplied}: {decimal(options.replenishment.daily_rate)} {text.rules.units[need.base_unit]} · {options.replenishment.usage_rule_id ? text.rules.acceptedUsage : text.rules.statedUsage}</p>}
               {options.replenishment.run_out_at && (
                 <p className="text-sm">
                   {text.runout}:{" "}

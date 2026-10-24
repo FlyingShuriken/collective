@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { QuoteComparison } from "@/components/quote-comparison";
 import { ActivityList } from "@/components/activity-list";
+import { RuleList } from "@/components/rule-card";
 import { SourceUpload } from "@/components/source-upload";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
@@ -18,6 +19,7 @@ export function Approvals({ locale }: { locale: Locale }) {
   const text = messages[locale];
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [business, setBusiness] = useState("");
+  const [network, setNetwork] = useState("");
   const [page, setPage] = useState<NeedPage | null>(null);
   const [cursor, setCursor] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -30,6 +32,7 @@ export function Approvals({ locale }: { locale: Locale }) {
         if (controller.signal.aborted) return;
         setIdentity(value);
         setBusiness(value.memberships[0]?.business_id ?? "");
+        setNetwork(value.networks?.[0]?.network_id ?? "");
       })
       .catch((error) => {
         if (controller.signal.aborted) return;
@@ -89,7 +92,7 @@ export function Approvals({ locale }: { locale: Locale }) {
           <p className="text-xs font-semibold uppercase tracking-[0.18em]">
             Orbyte Collective
           </p>
-          <h1 className="mt-3 font-serif text-4xl">{text.approvals}</h1>
+          <h1 className="mt-3 font-serif text-4xl">{identity && !identity.memberships.length && identity.networks?.length ? text.rules.heading : text.approvals}</h1>
         </div>
         <a
           href={`/${locale}/sign-in`}
@@ -125,7 +128,7 @@ export function Approvals({ locale }: { locale: Locale }) {
         </p>
       )}
       {!identity && !error && <p role="status">{text.loading}</p>}
-      {identity && !identity.memberships.length && <p>{text.noMembership}</p>}
+      {identity && !identity.memberships.length && !identity.networks?.length && <p>{text.noMembership}</p>}
       {business && membership && <SourceUpload key={business} business={business} locale={locale} owner={membership.role === "owner"} onChanged={() => setActivityRevision((value) => value + 1)} />}
       {business && !page && !error && <p role="status">{text.loading}</p>}
       {page?.items.length === 0 && <p>{text.noNeeds}</p>}
@@ -161,6 +164,11 @@ export function Approvals({ locale }: { locale: Locale }) {
           {text.nextPage}
         </Button>
       )}
+      {business && membership && <RuleList key={`${identity?.subject}:${business}:${membership.role}:${membership.can_view_prices}`} scope="private" scopeId={business} locale={locale} canReview={membership.role === "owner"} refresh={activityRevision} onChanged={() => setActivityRevision((value) => value + 1)} />}
+      {!!identity?.networks?.length && <>
+        <label className="block max-w-sm text-sm">{text.rules.networkWorkspace}<select className="mt-2 min-h-11 w-full rounded-md border bg-card px-3" value={network} onChange={(event) => setNetwork(event.target.value)}>{identity.networks.map((item) => <option key={item.network_id} value={item.network_id}>{item.name}</option>)}</select></label>
+        {network && <RuleList key={`${identity.subject}:${network}`} scope="network" scopeId={network} locale={locale} canReview refresh={activityRevision} onChanged={() => setActivityRevision((value) => value + 1)} />}
+      </>}
       {business && <ActivityList key={`${business}:${activityRevision}`} business={business} locale={locale} />}
     </main>
   );

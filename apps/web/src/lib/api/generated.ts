@@ -962,6 +962,8 @@ export interface components {
         AggregateRule: {
             /** Context */
             context: components["schemas"]["UsageContext"] | components["schemas"]["FeeContext"] | components["schemas"]["AccuracyContext"];
+            /** Context Name */
+            context_name?: string | null;
             /** Distinct Businesses */
             distinct_businesses: number;
             /** Eligible */
@@ -1809,6 +1811,8 @@ export interface components {
         };
         /** HiddenRule */
         HiddenRule: {
+            /** Context Name */
+            context_name?: string | null;
             /** Distinct Businesses */
             distinct_businesses: number;
             /** Eligible */
@@ -2660,6 +2664,8 @@ export interface components {
         PrivateRule: {
             /** Context */
             context: components["schemas"]["UsageContext"] | components["schemas"]["FeeContext"] | components["schemas"]["AccuracyContext"];
+            /** Context Name */
+            context_name?: string | null;
             /** Distinct Businesses */
             distinct_businesses: number;
             /** Eligible */

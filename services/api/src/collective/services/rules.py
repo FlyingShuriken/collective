@@ -167,7 +167,7 @@ async def handle(database, job, clock):
         await jobs.complete(connection, job, {"proposal_count": len(ids)}, clock.now())
 
 
-def view(row, *, can_view_prices=True):
+async def view(connection, row, *, can_view_prices=True):
     data = row["proposed_value"]
     history = []
     for item in [*row["history"].values(), row]:
@@ -202,6 +202,15 @@ def view(row, *, can_view_prices=True):
     }
     if not can_view_prices:
         return HiddenRule(**summary)
+    label = await (
+        await connection.execute(
+            "select name from collective.canonical_specs where id=%s"
+            if row["kind"] == "usage"
+            else "select name from collective.suppliers where id=%s",
+            (data["context"].get("spec_id") or data["context"].get("supplier_id"),),
+        )
+    ).fetchone()
+    summary["context_name"] = label["name"] if label else None
     if row["scope"] == "network":
         return AggregateRule(**summary, context=data["context"], value=data["value"])
     return PrivateRule(
@@ -239,7 +248,7 @@ async def listing(connection, subject, scope, identity, cursor, limit, as_of):
     ).fetchone()
     await set_context(connection, "tenant", subject)
     return RulePage(
-        items=[view(row, can_view_prices=prices) for row in rows[:limit]],
+        items=[await view(connection, row, can_view_prices=prices) for row in rows[:limit]],
         next_cursor=rows[limit - 1]["id"] if len(rows) > limit else None,
         latest_job=jobs.public_status(job, as_of) if job else None,
     )
@@ -284,7 +293,7 @@ async def change(connection, subject, scope, identity, rule_id, action, expected
             and row["state"] == target
             and row["reviewed_by"] == subject
         ):
-            return view(row)
+            return await view(connection, row)
         raise DomainError("STALE_REVISION", "Review the latest rule revision.", 409)
     if row["state"] != ("accepted" if action == "revoke" else "proposed"):
         raise DomainError("RULE_FINAL", "This rule no longer permits that action.", 409)
@@ -342,4 +351,4 @@ async def change(connection, subject, scope, identity, rule_id, action, expected
             await solo.revalidate(connection, approval, evaluation, as_of)
     for changed in [*previous, row]:
         await rule_event(connection, changed, actor=subject)
-    return view(row)
+    return await view(connection, row)

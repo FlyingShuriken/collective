@@ -64,7 +64,8 @@ test("one business confirms sources, orders, checks the later invoice and review
   const check = checks.items.find((value: { status: string; po_id: string }) => value.status === "flagged" && value.po_id === order.id);
   const preload = ["run", "--project", "services/api", "python", "scripts/preload_query_replay.py", "--run", demo.run, "--check-id", check.id];
   expect(() => execFileSync("uv", [...preload.slice(0, 5), "--run", "wrong-synthetic-run", "--check-id", check.id], { stdio: "pipe", env: { ...process.env, DEMO_MODE: "true", MODEL_MODE: "replay" } })).toThrow();
-  execFileSync("uv", preload, { stdio: "pipe", env: { ...process.env, DEMO_MODE: "true", MODEL_MODE: "replay" } });
+  const manifestBefore = readFileSync("fixtures/replay/manifest.json", "utf8");
+  const authored = JSON.parse(execFileSync("uv", preload, { stdio: "pipe", env: { ...process.env, DEMO_MODE: "true", MODEL_MODE: "replay" } }).toString());
   try {
     await invoice.getByRole("button", { name: "Prepare supplier query", exact: true }).click();
     const query = invoice.getByRole("region", { name: "Supplier query", exact: true });
@@ -102,6 +103,18 @@ test("one business confirms sources, orders, checks the later invoice and review
     expect(saved.recovery_amount).toBe("5.00");
     expect(saved.resolution.source_id).toBe(credit.id);
     expect((await (await ownOrder(page)).json()).amount).toBe("315.00");
+    const learning = page.getByRole("region", { name: "Learned rules", exact: true });
+    await learning.getByRole("button", { name: "Generate rule proposals", exact: true }).click();
+    const accuracy = learning.getByRole("article", { name: "Quote accuracy", exact: true }).filter({ has: page.getByRole("status").filter({ hasText: /^Proposed · not active$/ }) });
+    await expect(accuracy.getByText("Material discrepancies: 1 / 1", { exact: true })).toBeVisible();
+    await accuracy.getByRole("checkbox").check();
+    await accuracy.getByRole("button", { name: "Accept rule", exact: true }).click();
+    const warning = page.getByRole("heading", { name: "Supplier B", exact: true }).locator("..").getByRole("complementary", { name: "Accepted invoice-check history", exact: true });
+    await expect(warning.getByText(/Material discrepancies: 1 \/ 1/)).toBeVisible();
+    const afterRule = await (await page.request.get(`${root}/invoice-checks/${check.id}`)).json();
+    expect(afterRule.result).toEqual(saved.result);
+    expect(afterRule.recovery_amount).toBe("5.00");
+    expect((await (await ownOrder(page)).json()).amount).toBe("315.00");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     for (const locale of ["ms", "zh"]) {
       const copy = JSON.parse(readFileSync(`apps/web/src/messages/${locale}.json`, "utf8"));
@@ -116,5 +129,8 @@ test("one business confirms sources, orders, checks the later invoice and review
     await page.getByRole("listitem").filter({ hasText: invoiceSource.id }).getByRole("button", { name: "View source", exact: true }).click();
     await expect(page.getByRole("region", { name: "Invoice check", exact: true })).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText(/RM\s*[0-9]/);
-  } finally { execFileSync("uv", [...preload, "--clean"], { stdio: "pipe", env: { ...process.env, DEMO_MODE: "true", MODEL_MODE: "replay" } }); }
+  } finally {
+    execFileSync("uv", [...preload, "--clean", "--source-hash", authored.source_hash], { stdio: "pipe", env: { ...process.env, DEMO_MODE: "true", MODEL_MODE: "replay" } });
+    expect(readFileSync("fixtures/replay/manifest.json", "utf8")).toBe(manifestBefore);
+  }
 });

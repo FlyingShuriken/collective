@@ -29,7 +29,11 @@ def manifest_write(store, manifest):
     path.replace(store.root / "manifest.json")
 
 
-async def preload(run, identity, *, clean=False):
+async def preload(run, identity, *, clean=False, source_hash=None):
+    if source_hash is not None and (
+        not clean or not re.fullmatch(r"[0-9a-f]{64}", source_hash)
+    ):
+        raise ValueError("An exact replay hash is accepted only for cleanup")
     settings = Settings(_env_file=ROOT / ".env")
     if (
         not settings.demo_mode
@@ -96,8 +100,10 @@ async def preload(run, identity, *, clean=False):
     document = prepared_text(
         json.dumps(facts, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     )
+    # Learning may change current drafting facts after this exact replay was authored.
+    replay_hash = source_hash or document["sha256"]
     store = ReplayStore()
-    key = ReaderGateway(settings, replay=store).key(DRAFT, document["sha256"], "fast")
+    key = ReaderGateway(settings, replay=store).key(DRAFT, replay_hash, "fast")
     target = store.root / (digest(key) + ".json")
     manifest = json.loads((store.root / "manifest.json").read_text())
     if clean:
@@ -108,15 +114,13 @@ async def preload(run, identity, *, clean=False):
             target.unlink()
         used = any(
             json.loads(path.read_text()).get("key", {}).get("source_hash")
-            == document["sha256"]
+            == replay_hash
             for path in store.root.glob("*.json")
             if path.name != "manifest.json"
         )
         if not used:
             manifest["synthetic_sources"] = [
-                value
-                for value in manifest["synthetic_sources"]
-                if value != document["sha256"]
+                value for value in manifest["synthetic_sources"] if value != replay_hash
             ]
             manifest_write(store, manifest)
     else:
@@ -147,7 +151,7 @@ async def preload(run, identity, *, clean=False):
         store.record(
             key, value.model_dump_json(), {}, provenance="authored_synthetic_replay"
         )
-    return {"source_hash": document["sha256"], "cleaned": clean}
+    return {"source_hash": replay_hash, "cleaned": clean}
 
 
 def main():
@@ -155,8 +159,22 @@ def main():
     parser.add_argument("--run", required=True)
     parser.add_argument("--check-id", required=True, type=UUID)
     parser.add_argument("--clean", action="store_true")
+    parser.add_argument(
+        "--source-hash", help="Original preload hash when current facts have changed"
+    )
     args = parser.parse_args()
-    print(json.dumps(asyncio.run(preload(args.run, args.check_id, clean=args.clean))))
+    print(
+        json.dumps(
+            asyncio.run(
+                preload(
+                    args.run,
+                    args.check_id,
+                    clean=args.clean,
+                    source_hash=args.source_hash,
+                )
+            )
+        )
+    )
 
 
 if __name__ == "__main__":

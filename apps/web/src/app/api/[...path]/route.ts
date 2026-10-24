@@ -12,7 +12,7 @@ function failure(status: number, code: string, message: string) {
 async function forward(request: NextRequest, context: RouteContext<"/api/[...path]">) {
   const { path } = await context.params;
   if (
-    path[0] !== "v1" || !["me", "hub", "businesses"].includes(path[1]) ||
+    path[0] !== "v1" || !["me", "hub", "businesses", "networks"].includes(path[1]) ||
     path.some((segment) => !/^[a-zA-Z0-9_-]+$/.test(segment))
   ) {
     return failure(404, "NOT_FOUND", "Resource not found.");

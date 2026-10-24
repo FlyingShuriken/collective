@@ -769,6 +769,7 @@ class RuleSummary(Snapshot):
     excluded_count: int = Field(strict=True, ge=0)
     eligible: bool
     history: tuple[RuleTransition, ...]
+    context_name: str | None = None
 
 
 class HiddenRule(RuleSummary):

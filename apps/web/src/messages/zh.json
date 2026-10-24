@@ -369,5 +369,82 @@
       "flagged": "已核对 · 差异待审核"
     },
     "evidenceUsed": "此证明已用于另一笔追回记录。请选择其他更正或贷项来源。"
+  },
+  "rules": {
+    "heading": "学习规则",
+    "networkHeading": "网络学习规则",
+    "networkWorkspace": "网络",
+    "privateScope": "规则须由业主接受后才会生效。采购批准及消息发送仍须分别确认。",
+    "networkScope": "只有获指派的网络管理员可以审核历史汇总。各商家的原始证据保持私密。",
+    "networkMinimum": "网络规则至少需要五家不同商家的历史证据。三家商家的演示不能启用网络规则。",
+    "empty": "暂无规则建议。请先确认可比较的发票或库存盘点，再生成建议。",
+    "networkEmpty": "暂无符合条件的历史汇总。此结果不会启用网络规则。",
+    "generate": "生成规则建议",
+    "refresh": "刷新规则",
+    "processing": "正在根据证据计算建议…",
+    "failed": "规则计算需要审核。请确认相关证据后重新生成建议。",
+    "unavailable": "规则暂时无法加载。请刷新并审核后重试。",
+    "stale": "规则或证据已变更。请刷新，必要时生成新建议，再次审核。",
+    "insufficient": "接受规则前需要更多已确认且可比较的证据。费用估计至少需要三张发票；网络规则还须覆盖五家商家。",
+    "samples": "可比较样本",
+    "businesses": "不同商家数",
+    "period": "样本期间",
+    "excluded": "排除的观察记录",
+    "meanFee": "发票运费均值",
+    "range": "观察范围",
+    "zone": "配送区域",
+    "feeEffect": "接受后，此估计会影响决策预留金额。采购单仍保留原报价约定。",
+    "dailyRate": "保守每日用量",
+    "slowest": "观察到的最低每日用量",
+    "usageEffect": "根据已测量的库存间隔、已确认收货及已记录损耗计算，并建议使用最高有效用量安排补货。",
+    "mismatches": "重大差异",
+    "checked": "完整且已匹配的发票检查",
+    "accuracyWarning": "已接受的发票检查历史",
+    "accuracyLimit": "仅涵盖已检查的历史发票。差异不代表供应商有过错，也不会改变价格。",
+    "accuracyEffect": "接受后，会在比较页面及供应商草稿事实中加入提示，不会调整价格或自动选择供应商。",
+    "evidence": "支持来源",
+    "source": "来源",
+    "history": "审核历史",
+    "version": "版本",
+    "references": "证据引用",
+    "unknownContext": "暂时无法显示适用对象名称，请刷新后再接受。",
+    "unknownLimit": "部分证据不完整，请查看支持来源。",
+    "acknowledge": "我已审核来源、样本期间及限制，同意将此版本应用于后续计算。",
+    "accept": "接受规则",
+    "reject": "拒绝建议",
+    "revoke": "撤销已接受规则",
+    "acceptedUsage": "已接受的学习用量",
+    "statedUsage": "业主声明的用量",
+    "kinds": {
+      "usage": "用量规则",
+      "observed_fee": "观察到的运费",
+      "quote_accuracy": "报价准确度"
+    },
+    "states": {
+      "proposed": "建议中 · 未生效",
+      "accepted": "已接受 · 生效中",
+      "rejected": "已拒绝 · 未生效",
+      "revoked": "已撤销 · 未生效",
+      "superseded": "已被替代 · 未生效"
+    },
+    "modes": {
+      "per_business": "分别送达各商家",
+      "collection_point": "约定取货点"
+    },
+    "units": {
+      "piece": "个/天",
+      "g": "克/天",
+      "ml": "毫升/天"
+    },
+    "uncertainty": {
+      "UNREPORTED_STOCK_MOVEMENTS_UNKNOWN": "未上报的库存变动仍属未知。",
+      "PAST_USAGE_MAY_CHANGE": "未来用量可能与历史用量不同。",
+      "INVOICED_FEE_NOT_PAYMENT_OR_AGREEMENT": "发票收费不代表已付款，也不构成供应商协议变更。",
+      "FUTURE_DELIVERY_TERMS_MAY_DIFFER": "未来配送条款可能不同。",
+      "CHECKED_INVOICES_ONLY": "分母仅包含完整且已匹配的发票。",
+      "DISCREPANCIES_DO_NOT_ESTABLISH_SUPPLIER_FAULT": "仅凭差异不能认定供应商有过错。"
+    },
+    "usageApplied": "计算采用的每日用量",
+    "acceptedFee": "已采用接受的运费估计，采购单仍保留原报价约定。"
   }
 }

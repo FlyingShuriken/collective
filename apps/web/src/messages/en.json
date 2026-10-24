@@ -369,5 +369,82 @@
       "flagged": "Checked · differences need review"
     },
     "evidenceUsed": "This evidence already supports another recorded recovery. Choose a different correction or credit source."
+  },
+  "rules": {
+    "heading": "Learned rules",
+    "networkHeading": "Network learned rules",
+    "networkWorkspace": "Network",
+    "privateScope": "Rules are proposals until the owner accepts them. Purchasing and Send approvals remain separate.",
+    "networkScope": "Only the assigned network administrator can review historical aggregates. Individual business evidence stays private.",
+    "networkMinimum": "A network rule needs historical evidence from at least five distinct businesses. A three-business demo cannot activate one.",
+    "empty": "No rule proposals yet. Confirm comparable invoices or stock counts, then generate proposals.",
+    "networkEmpty": "No qualifying historical aggregate is available. No network rule is active from this result.",
+    "generate": "Generate rule proposals",
+    "refresh": "Refresh rules",
+    "processing": "Calculating evidence-based proposals…",
+    "failed": "Rule calculation needs review. Confirm the evidence and try generating proposals again.",
+    "unavailable": "Rules are temporarily unavailable. Refresh and review before trying again.",
+    "stale": "This rule or its evidence changed. Refresh, generate a fresh proposal if needed, and review again.",
+    "insufficient": "More comparable confirmed evidence is required before acceptance. Fees need at least three invoices; network rules also need five businesses.",
+    "samples": "Comparable samples",
+    "businesses": "Distinct businesses",
+    "period": "Sample period",
+    "excluded": "Excluded observations",
+    "meanFee": "Mean invoiced delivery fee",
+    "range": "Observed range",
+    "zone": "Delivery zone",
+    "feeEffect": "After acceptance, this estimate affects the decision reserve. The quoted PO agreement stays unchanged.",
+    "dailyRate": "Conservative daily usage",
+    "slowest": "Slowest observed daily usage",
+    "usageEffect": "Measured stock intervals, including confirmed receipts and documented waste. The fastest valid rate is proposed for replenishment.",
+    "mismatches": "Material discrepancies",
+    "checked": "Complete matched invoice checks",
+    "accuracyWarning": "Accepted invoice-check history",
+    "accuracyLimit": "Past checked invoices only. Differences do not establish supplier fault or change prices.",
+    "accuracyEffect": "Acceptance adds a warning to comparisons and supplier-draft facts. It changes no prices and chooses no supplier.",
+    "evidence": "Supporting sources",
+    "source": "Source",
+    "history": "Review history",
+    "version": "Version",
+    "references": "Evidence references",
+    "unknownContext": "Context name unavailable; refresh before accepting.",
+    "unknownLimit": "Some evidence is incomplete; review the supporting sources.",
+    "acknowledge": "I reviewed the sources, sample period and limits. Apply this version to future calculations.",
+    "accept": "Accept rule",
+    "reject": "Reject proposal",
+    "revoke": "Revoke accepted rule",
+    "acceptedUsage": "Accepted learned usage",
+    "statedUsage": "Owner-stated usage",
+    "kinds": {
+      "usage": "Usage rule",
+      "observed_fee": "Observed delivery fee",
+      "quote_accuracy": "Quote accuracy"
+    },
+    "states": {
+      "proposed": "Proposed · not active",
+      "accepted": "Accepted · active",
+      "rejected": "Rejected · not active",
+      "revoked": "Revoked · not active",
+      "superseded": "Superseded · not active"
+    },
+    "modes": {
+      "per_business": "Separate business delivery",
+      "collection_point": "Agreed collection point"
+    },
+    "units": {
+      "piece": "pieces/day",
+      "g": "g/day",
+      "ml": "ml/day"
+    },
+    "uncertainty": {
+      "UNREPORTED_STOCK_MOVEMENTS_UNKNOWN": "Unreported stock movements are unknown.",
+      "PAST_USAGE_MAY_CHANGE": "Past usage may change.",
+      "INVOICED_FEE_NOT_PAYMENT_OR_AGREEMENT": "An invoiced fee is not payment evidence or an amendment of the supplier agreement.",
+      "FUTURE_DELIVERY_TERMS_MAY_DIFFER": "Future delivery terms may differ.",
+      "CHECKED_INVOICES_ONLY": "Only complete matched invoices are in the denominator.",
+      "DISCREPANCIES_DO_NOT_ESTABLISH_SUPPLIER_FAULT": "Discrepancies alone do not establish supplier fault."
+    },
+    "usageApplied": "Daily usage used",
+    "acceptedFee": "An accepted delivery-fee estimate is used. The quoted PO agreement remains unchanged."
   }
 }

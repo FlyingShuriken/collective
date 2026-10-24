@@ -240,6 +240,17 @@
             ],
             "title": "Context"
           },
+          "context_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Name"
+          },
           "distinct_businesses": {
             "minimum": 1.0,
             "title": "Distinct Businesses",
@@ -2319,6 +2330,17 @@
       "HiddenRule": {
         "additionalProperties": false,
         "properties": {
+          "context_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Name"
+          },
           "distinct_businesses": {
             "minimum": 1.0,
             "title": "Distinct Businesses",
@@ -4680,6 +4702,17 @@
               }
             ],
             "title": "Context"
+          },
+          "context_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Name"
           },
           "distinct_businesses": {
             "minimum": 1.0,

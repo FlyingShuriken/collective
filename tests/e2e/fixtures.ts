@@ -26,7 +26,7 @@ export async function signIn(page: Page, demo: Demo, account: string) {
   await page.getByLabel("Password", { exact: true }).fill(demo.accounts[account].password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.getByRole("link", { name: "Open workspace", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "250ml paper cup", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: account === "admin" ? "Network learned rules" : "250ml paper cup", exact: true })).toBeVisible();
 }
 
 export async function approve(page: Page, cap: string) {
