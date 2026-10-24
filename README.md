@@ -4,6 +4,8 @@ A restocking assistant for small Malaysian businesses, built for the **XMUM SDC 
 
 Built with Next.js, TypeScript, FastAPI, and Supabase. Supports English, Bahasa Melayu, and Chinese.
 
+For a step-by-step café-owner walkthrough, see the [user guide](USAGE.md).
+
 ## Getting started
 
 ### Prerequisites
